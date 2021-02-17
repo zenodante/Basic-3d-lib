@@ -13,7 +13,7 @@
       "variables": [
         {
           "name": "32BLIT_PATH",
-          "value": "D:/project/32blit-sdk",
+          "value": "C:/project/32blit-sdk",
           "type": "PATH"
         }
       ]

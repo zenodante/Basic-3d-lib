@@ -16,10 +16,8 @@ __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
-
-
-static vect3_t * TexMeshGetNormal(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
-static vect3_t* ColorMeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
+static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
+static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u16 * GetTriIdx(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
@@ -35,47 +33,45 @@ static void DrawNearPlaneClipTriColor(u32 cullingState, fBuff_t* pFrameBuff, zBu
 /*-------------------------------------------------------------------------------------------------
 Private Functions 
 -------------------------------------------------------------------------------------------------*/
+#define SIZE_SHIFT          8
 
-
-static vect3_t * TexMeshGetNormal(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
-    u8 * u8Start = (u8 *)start;
-    //u16 vectNum = ((u16*)(start))[0];
-    //u16 triNum = ((u16*)(start))[1];
-    vect3_t* pNormal = (vect3_t *)(u8Start +28 +((u32)vectNum)*12+ ((u32)triNum)*12); 
-    return pNormal;
-}
-
-static vect3_t* ColorMeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
+static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
     u8* u8Start = (u8*)start;
+    u16 uvNum = ((u16*)(start))[2];
     vect3_t* pNormal;
-    if (triNum & 0x0001) {
-        //odd num, add 2 dummy bytes to align 4 for the f32 normal 
-        pNormal = (vect3_t*)(u8Start + 28 + ((u32)vectNum) * 12 + ((u32)triNum) * 6 + 2);
+    if (uvNum != 0) {
+        //this mesh array has uv section
+        pNormal = (vect3_t*)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12 + ((u32)triNum) * 12);
     }
     else {
-        pNormal = (vect3_t*)(u8Start + 28 + ((u32)vectNum) * 12 + ((u32)triNum) * 6);
+        if (triNum & 0x0001) {
+            //odd num, add 2 dummy bytes to align 4 for the f32 normal 
+            pNormal = (vect3_t*)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12 + ((u32)triNum) * 6 + 2);
+        }
+        else {
+            pNormal = (vect3_t*)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12 + ((u32)triNum) * 6);
+        }
     }
-    
     return pNormal;
 }
 
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
-    vect3_t* pVect = (vect3_t *)(u8Start +28); 
+    vect3_t* pVect = (vect3_t *)(u8Start + SIZE_SHIFT + 24);
     return pVect;
 }
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
     //u16 vectNum = ((u16*)(start))[0];
     //u16 triNum = ((u16*)(start))[1];
-    u8* pUV = u8Start + 28 + ((u32)vectNum) * 12 + ((u32)triNum) * 6; 
+    u8* pUV = u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12 + ((u32)triNum) * 6;
     return pUV;
 }
 static u16 * GetTriIdx(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
     //u16 vectNum = ((u16*)(start))[0];
     //u16 triNum = ((u16*)(start))[1];
-    u16* pTri = (u16 *)(u8Start + 28 + ((u32)vectNum)*12); 
+    u16* pTri = (u16 *)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum)*12);
     return pTri;
 }
 
@@ -83,7 +79,7 @@ static f32 * GetBoundBox(B3L_Mesh_t *start){
     u8 * u8Start = (u8 *)start;
     //u16 vectNum = ((u16*)(start))[0];
     //u16 triNum = ((u16*)(start))[1];
-    f32* pBound = (f32 *)(u8Start + 4); 
+    f32* pBound = (f32 *)(u8Start + SIZE_SHIFT);
     return pBound;
 }
 
@@ -225,7 +221,7 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
     }
 #endif
 #ifdef USING_LIGHT   
-    vect3_t* pNormal = TexMeshGetNormal(pMesh, vectNum, triNum);
+    vect3_t* pNormal = MeshGetNormal(pMesh, vectNum, triNum);
     f32 lightX, lightY, lightZ;
     f32 normalFact, normalDotLight;
     f32 lightFactor0, lightFactor1;
@@ -395,7 +391,7 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
     }
 #endif
 #ifdef USING_LIGHT   
-    vect3_t* pNormal = TexMeshGetNormal(pMesh, vectNum, triNum);
+    vect3_t* pNormal = MeshGetNormal(pMesh, vectNum, triNum);
     f32 lightX, lightY, lightZ;
     f32 normalFact, normalDotLight;
     f32 lightFactor0, lightFactor1;
@@ -699,7 +695,7 @@ void RenderObjs(render_t* pRender) {
             //RenderPolygon(pCurrentObj, pRender, &mat);
             break;
         case (1 << NOTEX_MESH_OBJ):
-            //RenderNoTexMesh(pCurrentObj, pRender, &mat, renderLevel);
+            RenderColorMesh(pCurrentObj, pRender, &mat, &objMat, renderLevel, result);
             break;
         case (1<< BITMAP_OBJ):
             //RenderBitmap(pCurrentObj, pRender, &mat, renderLevel);

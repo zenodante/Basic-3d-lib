@@ -258,6 +258,47 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     }
     return pObj;
 }
+B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pColor,
+                                bool backfaceCulling, bool fix_render_level, u8 render_level,
+                                bool fix_light_value, u8 light_value, bool Add_To_RenderList) {
+    B3LObj_t* pObj = B3L_GetFreeObj(pRender);
+    if (pObj == (B3LObj_t*)NULL) {
+        return pObj;
+    }
+    B3L_SET(pObj->state, NOTEX_MESH_OBJ);
+    SET_OBJ_VISIABLE(pObj);
+
+    pObj->pResource0 = (void*)pMesh;
+    pObj->pResource1 = (void*)pColor;
+    if (backfaceCulling == true) {
+        SET_OBJ_BACKFACE_CULLING(pObj);
+    }
+    else {
+        SET_OBJ_NOT_BACKFACE_CULLING(pObj);
+    }
+    if (render_level > 3) {
+        render_level = 3;
+    }
+    if (fix_render_level == true) {
+        SET_OBJ_FIX_RENDER_LEVEL(pObj, render_level);
+    }
+    else {
+        //clear render level bit
+        B3L_CLR(pObj->state, OBJ_IGNORE_RENDER_LEVEL);
+    }
+    if (fix_light_value == true) {
+        B3L_SET(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
+        CHANGE_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
+    }
+    else {
+        B3L_CLR(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
+    }
+    if (Add_To_RenderList == true) {
+        B3L_AddObjToRenderList(pObj, pRender);
+    }
+    return pObj;
+}
+
 
 void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z) {
     pObj->transform.translation.x = x;

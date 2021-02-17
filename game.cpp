@@ -8,7 +8,7 @@ using namespace blit;
 
 render_t rnd;
 B3LObj_t *pBox;
-
+B3LObj_t* pBox2;
 
 ////////////////////////////////////////////////////////
 //
@@ -25,10 +25,16 @@ void init() {
     //pBox = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 16,true);
     pBox = B3L_CreatTexMeshObj_Simple(&rnd, ship_Mesh_Tex, ship2_tex);
+    pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
+    
     B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
     B3L_SetObjScale(pBox, 20.0f,20.0f, 20.0f);
-    B3L_RotateObjInOY(&(pBox->transform.quaternion), 0.1f);
+    B3L_SetObjPosition(pBox2, 100.0f, 30.0f, 40.0f);
+    B3L_SetObjScale(pBox2, 100.0f, 100.0f, 100.0f);
 
+    B3L_RotateObjInOY(&(pBox->transform.quaternion), 0.1f);
+    B3L_RotateObjInOY(&(pBox2->transform.quaternion), -0.1f);
+    B3L_RotateObjInOX(&(pBox2->transform.quaternion), -0.1f);
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
     B3L_CameraMoveTo(&rnd, 0.0f, 0.0f, -200.0f);
@@ -45,13 +51,24 @@ u8 currentLevel = 16;
 vect3_t at = { 0.0f,0.0f,0.0f };
 vect3_t up = { 0.0f,1.0f,0.0f };
 float i = 0.0f;
+f32 camHeight=0;
 void render(uint32_t time) {
     //rnd.camera.transform.translation.z = B3L_sin(i) * 200.0f;
 
     //rnd.camera.transform.translation.x = B3L_cos(i) * 200.0f;
-    CHANGE_OBJ_FIX_LIGHT_VALUE(pBox, currentLevel);
-    B3L_CameraLookAt(&rnd.camera, &at, &up);
+    rnd.camera.transform.translation.y = camHeight;
+    //CHANGE_OBJ_FIX_LIGHT_VALUE(pBox, currentLevel);
+    //B3L_CameraLookAt(&rnd.camera, &at, &up);
+    //f32 angle = B3L_atan2(camHeight, 200.0f);
+
+    //B3L_RotateObjInOX(&(rnd.camera.transform.quaternion), angle);
+
+    //rnd.camera.transform.quaternion
     B3L_RenderScence(&rnd);
+    i += 0.01f;
+    if (i > 1.0f) {
+        i = i - 1.0f;
+    }
   /*   
     DrawTriangleColor(0.0f, 0.0f, 0.1f,
         20.0f, 30.0f, 0.1f,
@@ -74,7 +91,7 @@ void render(uint32_t time) {
 void update(uint32_t time) {
   
   if (pressed(DPAD_UP)) {
-    //rnd.camera.transform.translation.y+=0.5f;
+    //camHeight+=0.5f;
     rnd.light.lightVect.y +=5.0f;
    /* 
    
@@ -89,7 +106,7 @@ void update(uint32_t time) {
 
   }
   if (pressed(DPAD_DOWN)) {
-    //rnd.camera.transform.translation.y-=0.5f;
+      //camHeight -=0.5f;
       rnd.light.lightVect.y -= 5.0f;
 /*
     px1 -= 0.5f; px3 -= 0.5f;
@@ -110,10 +127,10 @@ void update(uint32_t time) {
       rnd.camera.transform.translation.z += 1.5f;
   }
   if (pressed(A)) {
-      rnd.camera.transform.translation.z += 1.0f;
+      rnd.camera.transform.translation.x += 1.0f;
   }
   if (pressed(B)) {
-      rnd.camera.transform.translation.z -= 1.0f;
+      rnd.camera.transform.translation.x -= 1.0f;
   }
   if (pressed(X)) {
       currentLevel += 1;
