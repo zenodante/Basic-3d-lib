@@ -121,19 +121,19 @@ B3LObj_t* B3L_GetFreeObj(render_t* pRender) {
         pRender->scene.freeObjNum -= 1;
         returnObj = pRender->scene.pFreeObjs;
         pRender->scene.pFreeObjs = pRender->scene.pFreeObjs->next;
-        pRender->scene.pFreeObjs->privous = pRender->scene.pFreeObjs;
-        //isolate the returned obj 
-        returnObj->next = (B3LObj_t*)NULL;
-        returnObj->privous = (B3LObj_t*)NULL;
-        returnObj->state = 0;
-        B3L_VECT4_SET(returnObj->transform.quaternion, 0.0f, 0.0f, 0.0f, 1.0f);
-        B3L_VECT3_SET(returnObj->transform.scale, 1.0f, 1.0f, 1.0f);
-        B3L_VECT3_SET(returnObj->transform.translation, 0.0f, 0.0f, 0.0f);
-        //B3L_InitUnitMat3(&(returnObj->mat));
-        return returnObj;
+pRender->scene.pFreeObjs->privous = pRender->scene.pFreeObjs;
+//isolate the returned obj 
+returnObj->next = (B3LObj_t*)NULL;
+returnObj->privous = (B3LObj_t*)NULL;
+returnObj->state = 0;
+B3L_VECT4_SET(returnObj->transform.quaternion, 0.0f, 0.0f, 0.0f, 1.0f);
+B3L_VECT3_SET(returnObj->transform.scale, 1.0f, 1.0f, 1.0f);
+B3L_VECT3_SET(returnObj->transform.translation, 0.0f, 0.0f, 0.0f);
+//B3L_InitUnitMat3(&(returnObj->mat));
+return returnObj;
     }
     else {
-        return (B3LObj_t*)NULL;
+    return (B3LObj_t*)NULL;
     }
 }
 
@@ -153,15 +153,15 @@ B3LParticleGenObj_t* B3L_GetFreeParticleGeneratorObj(render_t* pRender) {
 */
 
 
-static void AddObjToTwoWayList(B3LObj_t *pObj, B3LObj_t **pStart){
+static void AddObjToTwoWayList(B3LObj_t* pObj, B3LObj_t** pStart) {
 
     pObj->next = *pStart;
     *pStart = pObj;
     pObj->privous = pObj;
 
-    if (pObj->next != (B3LObj_t *)NULL){
-        pObj->next->privous = pObj;       
-    }   
+    if (pObj->next != (B3LObj_t*)NULL) {
+        pObj->next->privous = pObj;
+    }
 }
 
 void B3L_AddObjToRenderList(B3LObj_t* pObj, render_t* pRender) {
@@ -217,6 +217,59 @@ void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender) {
     AddObjToTwoWayList(pObj, &(pRender->scene.pFreeObjs));
 }
 
+
+B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pTexture,
+    bool backfaceCulling, bool fix_render_level,u8 render_level, bool fix_light_value,
+    u8 light_value,bool Add_To_RenderList) {
+    B3LObj_t* pObj = B3L_GetFreeObj(pRender);
+    if (pObj == (B3LObj_t*)NULL){
+        return pObj;
+    }
+    B3L_SET(pObj->state, MESH_OBJ);
+    SET_OBJ_VISIABLE(pObj);
+
+    pObj->pResource0 = (void*)pMesh;
+    pObj->pResource1 = (void*)pTexture;
+    if (backfaceCulling==true){
+        SET_OBJ_BACKFACE_CULLING(pObj);
+    }
+    else {
+        SET_OBJ_NOT_BACKFACE_CULLING(pObj);
+    }
+    if (render_level > 3) {
+        render_level = 3;
+    }
+    if (fix_render_level==true) {
+        SET_OBJ_FIX_RENDER_LEVEL(pObj, render_level);
+    }
+    else {
+        //clear render level bit
+        B3L_CLR(pObj->state, OBJ_IGNORE_RENDER_LEVEL);
+    }
+    if (fix_light_value == true) {
+        B3L_SET(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
+        CHANGE_OBJ_FIX_LIGHT_VALUE(pObj,light_value);
+    }
+    else {
+        B3L_CLR(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
+    }
+    if (Add_To_RenderList == true) {
+        B3L_AddObjToRenderList(pObj, pRender);
+    }
+    return pObj;
+}
+
+void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z) {
+    pObj->transform.translation.x = x;
+    pObj->transform.translation.y = y;
+    pObj->transform.translation.z = z;
+}
+
+void B3L_SetObjScale(B3LObj_t* pObj, f32 xScale, f32 yScale, f32 zScale) {
+    pObj->transform.scale.x = xScale;
+    pObj->transform.scale.y = yScale;
+    pObj->transform.scale.z = zScale;
+}
 /*-----------------------------------------------------------------------------
 Target rotate control functions
 -----------------------------------------------------------------------------*/
@@ -335,8 +388,15 @@ static void GenerateW2CMatrix(camera_t* pCam) {
     pW2CMat->m23 = x * pW2CMat->m20 + y * pW2CMat->m21 + z * pW2CMat->m22;
 }
 
+void B3L_CameraMoveTo(render_t* pRender, f32 x, f32 y, f32 z) {
+    camera_t *pCam = &(pRender->camera);
+    pCam->transform.translation.x = x;
+    pCam->transform.translation.y = y;
+    pCam->transform.translation.z = z;
+}
 
-void B3L_CameraMoveTo(vect3_t position, camera_t* pCam) {
+void B3L_CameraMoveToV(render_t* pRender, vect3_t position) {
+    camera_t *pCam = &(pRender->camera);
     pCam->transform.translation.x = position.x;
     pCam->transform.translation.y = position.y;
     pCam->transform.translation.z = position.z;

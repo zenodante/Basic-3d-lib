@@ -18,7 +18,7 @@ extern "C" {
 
   typedef uint8_t fBuff_t;
   typedef u16   zBuff_t;
-  typedef uint8_t texture_t;
+  typedef uint8_t B3L_tex_t;
 
 
   typedef struct {
@@ -112,10 +112,9 @@ xx bits have been used for tri test
   2byte : vect number
   2byte : tri number
   24byte :boundbox
-  12* vect number   vect;
-  12* tri number    normal;
-  6* tri number    triIndx;
-  1* tri number    colors;
+  12* vect number   vect;     start + 4 + 24
+  6* tri number    triIndx;   start + 4 + 24 + vectNum*12
+  12* tri number    normal;   start + 4 + 24 + vectNum*12 + triNum*6 + triNum*6 + (2)
   */
   typedef u32 B3L_Mesh_NoTex_t;
   /*
@@ -156,8 +155,6 @@ xx bits have been used for tri test
 
     L-- fix render level switch
     M-- Particle generator acitve state
-    //N-- need update euler angle
-    //O-- need update matrix
     P-- special light value
     QR-- fix render level number
     $-- the 8 bit special light value defined by P + 16

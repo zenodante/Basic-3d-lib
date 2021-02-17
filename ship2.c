@@ -88,7 +88,7 @@ const B3L_Mesh_t ship_Mesh_Tex[]={
 0x3F7EECC0, 0xBDA85879,
 };
 
-const texture_t ship2_tex[4098] = {
+const B3L_tex_t ship2_tex[4098] = {
  0x40,0x00, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XA, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF,
 0X6F, 0XF, 0XE, 0XF, 0X6F, 0XF, 0X1F, 0XD, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF, 0XF,
 0XF, 0XF, 0XF, 0XF, 0X6F, 0X6F, 0XF, 0X6F, 0XF, 0XF, 0XD, 0XA, 0XE, 0XE, 0XF, 0XF,

@@ -3,9 +3,9 @@
 #include "b3d_common.h"
 #include <stdio.h>
 
-__STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, texture_t* tx);
+__STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx);
 __STATIC_FORCEINLINE void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* fbuff, zBuff_t* zbuff, fBuff_t color);
-__STATIC_FORCEINLINE void DrawPixelWithTest(texture_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
+__STATIC_FORCEINLINE void DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
 __STATIC_FORCEINLINE void DrawPixel(fBuff_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
 
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
@@ -62,7 +62,7 @@ void DrawTriangleColor(f32 x0, f32 y0, f32 z0,
   f32 dy02Inv = 1.0f / dy02;
   f32 dx02 = (x2 - x0) * dy02Inv;  f32 dz02 = (z2 - z0) * dy02Inv; 
   if ((cy1 < 1) || (cy0 == cy1)) {
-      goto LOWER_PART2;
+      goto LOWER_PART_COLOR;
   }
   f32 dy01Inv = 1.0f / dy01;
   //x,z,u,v step size
@@ -98,7 +98,7 @@ void DrawTriangleColor(f32 x0, f32 y0, f32 z0,
           bX += dx02;  bZ = bZ + dz02;
       }
   }
-LOWER_PART2:
+LOWER_PART_COLOR:
   if ((cy1 >= RENDER_RESOLUTION_Y) || (cy2 == cy1)) {
       return;
   }
@@ -145,7 +145,7 @@ LOWER_PART2:
 void DrawTriangleTexture(f32 x0, f32 y0, f32 u0, f32 v0, f32 z0,
     f32 x1, f32 y1, f32 u1, f32 v1, f32 z1,
     f32 x2, f32 y2, f32 u2, f32 v2, f32 z2,
-    fBuff_t* fbuff, zBuff_t* zbuff, texture_t* texture, s8 lightFact) {
+    fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* texture, s8 lightFact) {
     s32 y, yEnd;//current y and the end of the y loop
     if (y0 > y1) {
         _swap_f32_t(y0, y1); _swap_f32_t(x0, x1); _swap_f32_t(u0, u1); _swap_f32_t(v0, v1); _swap_f32_t(z0, z1);
@@ -170,7 +170,7 @@ void DrawTriangleTexture(f32 x0, f32 y0, f32 u0, f32 v0, f32 z0,
     f32 dy02Inv = 1.0f / dy02;
     f32 dx02 = (x2 - x0) * dy02Inv;  f32 dz02 = (z2 - z0) * dy02Inv; f32 du02 = (u2 - u0) * dy02Inv; f32 dv02 = (v2 - v0) * dy02Inv;
     if ((cy1 < 1)||(cy0==cy1)) {
-        goto LOWER_PART2;
+        goto LOWER_PART_TEX;
     }
     f32 dy01Inv = 1.0f / dy01; 
     //x,z,u,v step size
@@ -220,7 +220,7 @@ void DrawTriangleTexture(f32 x0, f32 y0, f32 u0, f32 v0, f32 z0,
             bX += dx02; bU += du02; bV += dv02; bZ = bZ + dz02;
         }
     }
-LOWER_PART2:
+LOWER_PART_TEX:
     if ((cy1 >= RENDER_RESOLUTION_Y)||(cy2==cy1)) {
         return;
     }
@@ -310,7 +310,7 @@ __STATIC_FORCEINLINE  void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* f
   }
 
 }
-__STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, texture_t* tx) {
+__STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx) {
   u8 size = tx[0];
   f32 dx = b - a;
   f32 dxInv = 1.0f / dx;
@@ -391,7 +391,7 @@ __STATIC_FORCEINLINE void     DrawPixel(fBuff_t color, s32 x, s32 y, f32 z,
 }
 
 
-__STATIC_FORCEINLINE void     DrawPixelWithTest(texture_t color, s32 x, s32 y, f32 z,
+__STATIC_FORCEINLINE void     DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f32 z,
   fBuff_t* pFrameBuff, zBuff_t* zbuff) {
   if ((x < 0) || (y < 0) || (x >= RENDER_RESOLUTION_X) || (y >= RENDER_RESOLUTION_Y)) {
     return;
@@ -476,7 +476,7 @@ Function: DrawSpaceBitmap
 ---------------------------------------------------------------------------------------*/
 void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
                       f32 u0, f32 v0, f32 u1, f32 v1,
-                      fBuff_t* fbuff, zBuff_t* zbuff, texture_t* texture, s8 lightFact) {
+                      fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* texture, s8 lightFact) {
   s32 x,y, xEnd,yEnd;//current y and the end of the y loop
   if (y0 > y1) {
     _swap_f32_t(y0, y1);_swap_f32_t(v0, v1);
@@ -511,7 +511,7 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
   u32 uvShift;
   f32 currentU;
   u8 size = texture[0];
-  texture_t color;
+  B3L_tex_t color;
   u8 colorRow;
   s8 colorColumn;
   fBuff_t* pCurrentPixel;
