@@ -11,6 +11,7 @@
 Private Function declaration
 -------------------------------------------------------------------------------------------------*/
 __STATIC_FORCEINLINE u32 BoundBoxTest(f32* Boundbox, mat4_t* pMat);
+__STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat);
 __STATIC_FORCEINLINE bool TriangleFaceToViewer_f(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2);
 __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f32  lightFactor1);
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1);
@@ -629,6 +630,24 @@ static void DrawNearPlaneClipTriColor(u32 cullingState, fBuff_t* pFrameBuff, zBu
     }
 
 }
+__STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat) {
+    f32 scaleMax = B3L_MAX(pObj->transform.scale.x, pObj->transform.scale.y);
+    u32 result;
+    f32 maxX = scaleMax; f32 maxY = scaleMax; f32 maxZ = scaleMax;
+    f32 minX = -scaleMax; f32 minY = -scaleMax; f32 minZ = -scaleMax;
+    result = vectBoundTest(maxX, maxY, maxZ, pMat);
+    result += vectBoundTest(maxX, maxY, minZ, pMat);
+    result += vectBoundTest(maxX, minY, minZ, pMat);
+    result += vectBoundTest(minX, minY, minZ, pMat);
+    result += vectBoundTest(minX, minY, maxZ, pMat);
+    result += vectBoundTest(minX, maxY, maxZ, pMat);
+    result += vectBoundTest(maxX, minY, maxZ, pMat);
+    result += vectBoundTest(minX, maxY, minZ, pMat);
+    return result;
+}
+void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat) {
+
+}
 /*-------------------------------------------------------------------------------------------------
 Public Function
 -------------------------------------------------------------------------------------------------*/
@@ -659,7 +678,7 @@ void RenderObjs(render_t* pRender) {
             f32 *pBoundBox = GetBoundBox((B3L_Mesh_t *)(pCurrentObj->pResource0));
             result = BoundBoxTest(pBoundBox, &mat);
         }else{
-
+            result = BitmapBoundBoxTest(pCurrentObj,&mat);
             //TODO: bitmap boundbox testing method
         }
         
