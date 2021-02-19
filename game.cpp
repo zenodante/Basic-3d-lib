@@ -39,7 +39,7 @@ void init() {
     //                           true, false, 0, false, 16,true);
     pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
     pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
-    pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0, 63, 63, 16, true);
+    pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0, 63, 63, 0, true);
     B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
     B3L_SetObjScale(pBitmap, 50.0f, 50.0f, 50.0f);
 
@@ -115,12 +115,13 @@ void render(uint32_t time) {
 // This is called to update your game state. time is the 
 // amount if milliseconds elapsed since the start of your game
 //
+f32 xAngle = 0.01f;
 void update(uint32_t time) {
   
   if (pressed(DPAD_UP)) {
     //camHeight+=0.5f;
     //rnd.light.lightVect.y +=5.0f;
-      pBitmap->transform.translation.y += 1.0f;
+      //pBox->transform.translation.y += 1.0f;
    /* 
    
     px1 += 0.5f; px3 += 0.5f;
@@ -136,7 +137,8 @@ void update(uint32_t time) {
   if (pressed(DPAD_DOWN)) {
       //camHeight -=0.5f;
       //rnd.light.lightVect.y -= 5.0f;
-      pBitmap->transform.translation.y -= 1.0f;
+      //pBox->transform.translation.y -= 1.0f;
+      
 /*
     px1 -= 0.5f; px3 -= 0.5f;
     py2 -= 0.5f; py4 -= 0.5f;
@@ -150,12 +152,14 @@ void update(uint32_t time) {
   if (pressed(DPAD_LEFT)) {
     //currentLevel = (currentLevel - 0.1f);
       //rnd.camera.transform.translation.z -= 1.5f;
-      pBitmap->transform.translation.x -= 1.0f;
+      //pBitmap->transform.translation.x -= 1.0f;
+      ROTATE_IN_BODY_X(pBox, -xAngle);
   }
-  if (pressed(DPAD_RIGHT)) {
+  if (pressed(DPAD_RIGHT)){
     //currentLevel = (currentLevel + 0.1f);
       //rnd.camera.transform.translation.z += 1.5f;
-      pBitmap->transform.translation.x += 1.0f;
+      //pBitmap->transform.translation.x += 1.0f;
+      ROTATE_IN_BODY_X(pBox, xAngle);
   }
   if (pressed(A)) {
       rnd.camera.transform.translation.x += 1.0f;

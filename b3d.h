@@ -48,20 +48,21 @@ extern void B3L_AddObjToRenderList(B3LObj_t* pObj, render_t* pRender);
 extern void B3L_PopObjFromRenderList(B3LObj_t* pObj, render_t* pRender);
 extern void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender);
 
-#define  SET_OBJ_VISIABLE(pObj)           B3L_SET((pObj)->state,OBJ_VISUALIZABLE)
-#define  SET_OBJ_INVISIABLE(pObj)         B3L_CLR((pObj)->state,OBJ_VISUALIZABLE)
-#define  SET_OBJ_BACKFACE_CULLING(pObj)         B3L_SET((pObj)->state,OBJ_BACKFACE_CULLING)
-#define  SET_OBJ_NOT_BACKFACE_CULLING(pObj)     B3L_CLR((pObj)->state,OBJ_BACKFACE_CULLING)
+#define  SET_OBJ_VISIABLE(pObj)                B3L_SET((pObj)->state,OBJ_VISUALIZABLE)
+#define  SET_OBJ_INVISIABLE(pObj)              B3L_CLR((pObj)->state,OBJ_VISUALIZABLE)
+#define  ENABLE_OBJ_BACKFACE_CULLING(pObj)     B3L_SET((pObj)->state,OBJ_BACKFACE_CULLING)
+#define  DISABLE_OBJ_BACKFACE_CULLING(pObj)    B3L_CLR((pObj)->state,OBJ_BACKFACE_CULLING)
 #define  SET_OBJ_FIX_RENDER_LEVEL(pObj,n)      B3L_SET((pObj)->state,OBJ_IGNORE_RENDER_LEVEL);\
-                                          ((pObj)->state=((pObj)->state&(~OBJ_RENDER_LEVEL_MASK))|((n)<<OBJ_FIX_RENDER_LEVEL_SHIFT))
-#define  SET_OBJ_FIX_LIGHT_FACT(pObj,m)        B3L_SET((pObj)->state,OBJ_IGNORE_RENDER_LEVEL);\
-                                          B3L_SET((pObj)->state,OBJ_SPECIAL_LIGHT_VALUE);\
-                                          ((pObj)->state=((pObj)->state&(~OBJ_RENDER_LEVEL_MASK))|((1)<<OBJ_FIX_RENDER_LEVEL_SHIFT));\
-                                          ((pObj)->state=((pObj)->state&(~OBJ_SPECIAL_LIGHT_MASK))|((m)<<OBJ_SPECIAL_LIGHT_SHIFT))
-#define  CHANGE_OBJ_FIX_LIGHT_VALUE(pObj,m)    ((pObj)->state=((pObj)->state&(~OBJ_SPECIAL_LIGHT_MASK))|((m)<<OBJ_SPECIAL_LIGHT_SHIFT))
+                                               ((pObj)->state=((pObj)->state&(~OBJ_RENDER_LEVEL_MASK))|((n)<<OBJ_FIX_RENDER_LEVEL_SHIFT))
+//fix light value only useful to render level 1
+//to make the obj always has the fix light value, you need to first se the obj fix render level to 1
+#define  SET_OBJ_FIX_LIGHT_VALUE(pObj,m)       u32 temp=SatToU8(m+16);\
+                                               ((pObj)->state=((pObj)->state&(~OBJ_SPECIAL_LIGHT_MASK))|((temp)<<OBJ_SPECIAL_LIGHT_SHIFT))
+#define  GET_OBJ_FIX_LIGHT_VALUE(pObj)         (((s8)(((pObj)->state&OBJ_SPECIAL_LIGHT_MASK)>>OBJ_SPECIAL_LIGHT_SHIFT))-16)
 
 #define  SET_PARTICLE_GENERATOR_ACTIVE(pObj)    B3L_SET((pObj)->state,OBJ_PARTICLE_ACTIVE)
 #define  SET_PARTICLE_GENERATOR_INACTIVE(pObj)  B3L_CLR((pObj)->state,OBJ_PARTICLE_ACTIVE)
+
 /*-----------------------------------------------------------------------------
 Target rotate control functions
 -----------------------------------------------------------------------------*/
@@ -92,9 +93,9 @@ extern void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov);
 extern void B3L_CameraMoveTo(render_t* pRender, f32 x,f32 y,f32 z);
 extern void B3L_CameraMoveToV(render_t* pRender,vect3_t position);
 extern void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp);
-extern void B3L_CamStopTrack(camera_t* pCam);
-extern void B3L_CamStartTrack(camera_t* pCam);
-extern void B3L_CamInitTrack(camera_t* pCam, B3LObj_t* pObj, f32 camX, f32 camY, f32 camZ, f32 lookAtX, f32 lookAtY, f32 lookAtZ);
+//extern void B3L_CamStopTrack(camera_t* pCam);
+//extern void B3L_CamStartTrack(camera_t* pCam);
+//extern void B3L_CamInitTrack(camera_t* pCam, B3LObj_t* pObj, f32 camX, f32 camY, f32 camZ, f32 lookAtX, f32 lookAtY, f32 lookAtZ);
 /*-----------------------------------------------------------------------------
 Light functions
 -----------------------------------------------------------------------------*/

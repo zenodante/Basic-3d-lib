@@ -46,12 +46,7 @@ xx bits have been used for tri test
 #define B3L_IN_SPACE             (3u)
 #define B3L_NEAR_PLANE_CLIP      (0u)
 
-  typedef struct {
-    int32_t             x;
-    int32_t             y;
-    f32                 z;
-    u32                 test;
-  }screen4_t;
+
 
   typedef struct {
     f32                 x;
@@ -101,12 +96,13 @@ xx bits have been used for tri test
     vect3_t       translation;
   }transform3D_t;
 
-
+  /*
   typedef struct {
     f32*      pVect;
     u8*       pLine;
   }B3L_Polygon_t;
-
+  */
+  typedef u32 B3L_Polygon_t;
 
   /*
   2byte : vect number
@@ -255,15 +251,13 @@ O-- need update matrix
 
           
   typedef struct {
+    B3LObj_t*           pMother;
     u32                 state;
-    f32                 aspectRate;
-    f32                 focalLength;
     transform3D_t       transform;
     mat4_t              clipMat;
     mat4_t              camW2CMat;
-    vect3_t             targetPosition;
-    quat4_t             targetQuat;
-    B3LObj_t*           pMother;
+    f32                 aspectRate;
+    f32                 focalLength;
   }camera_t;
 
   typedef struct {

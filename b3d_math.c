@@ -6,7 +6,7 @@
 
 u32 B3L_seed = 0x31415926;
 
-static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult);
+static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult);
 /*-----------------------------------------------------------------------------
 Triangle functions
 -----------------------------------------------------------------------------*/
@@ -208,7 +208,7 @@ void B3L_Mat3ZRotate(mat3_t* pMat, f32 angle) {
 
 
 
-void B3L_InitMat4One(mat4_t* pMat) {
+void B3L_InitUnitMat4(mat4_t* pMat) {
 #define M(x,y) (pMat)->m##x##y
     M(0, 0) = 1.0f; M(1, 0) = 0.0f; M(2, 0) = 0.0f; M(3, 0) = 0.0f;
     M(0, 1) = 0.0f; M(1, 1) = 1.0f; M(2, 1) = 0.0f; M(3, 1) = 0.0f;
@@ -335,7 +335,7 @@ void B3L_Mat3MultMat3ABA(mat3_t* pMatA, mat3_t* pMatB) {
 #undef N
 }
 
-void B3L_MakeScaleMatrix(f32 scaleX, f32 scaleY, f32 scaleZ, mat4_t* pMat) {
+void B3L_CreateScaleMatrix(f32 scaleX, f32 scaleY, f32 scaleZ, mat4_t* pMat) {
 #define M(x,y) (pMat)->m##x##y
 
     M(0, 0) = scaleX; M(1, 0) = 0.0f;   M(2, 0) = 0.0f;   M(3, 0) = 0.0f;
@@ -346,7 +346,7 @@ void B3L_MakeScaleMatrix(f32 scaleX, f32 scaleY, f32 scaleZ, mat4_t* pMat) {
 #undef M
 }
 
-void B3L_MakeTranslationMat(f32 offsetX, f32 offsetY, f32 offsetZ, mat4_t* pMat) {
+void B3L_CreateTranslationMat(f32 offsetX, f32 offsetY, f32 offsetZ, mat4_t* pMat) {
 #define M(x,y) (pMat)->m##x##y
     f32 one = 1.0f;
     M(0, 0) = one; M(1, 0) = 0.0f; M(2, 0) = 0.0f; M(3, 0) = 0.0f;
@@ -372,7 +372,7 @@ void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat
 /*-------------------------------------------------------------------------------------------------
 Traverse all mother objs chain to generate final object to world matrix
 -------------------------------------------------------------------------------------------------*/
-static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult) {
+static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult) {
     //mat4_t o2wMat;
 
     vect3_t* pTrans = &(pObj->transform.translation);
@@ -385,7 +385,7 @@ static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResul
         mat4_t motherMat;
         mat3_t motherRotateMat;
         B3L_QuaternionToMatrix(&(pMotherObj->transform.quaternion), &(motherRotateMat));
-        B3L_MakeO2WChainMatrix(pMotherObj, &motherRotateMat, &motherMat);
+        B3L_CreateO2WChainMatrix(pMotherObj, &motherRotateMat, &motherMat);
         //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
         B3L_Mat4XMat4(pResult, &motherMat, pResult);
     }
@@ -398,9 +398,9 @@ static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResul
 /*-------------------------------------------------------------------------------------------------
 Generate obj to clip space matrix
 -------------------------------------------------------------------------------------------------*/
-void B3L_MakeO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pResult) {
+void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pResult) {
     mat4_t o2wMat;
-    B3L_MakeO2WChainMatrix(pObj, pRMat, &o2wMat);
+    B3L_CreateO2WChainMatrix(pObj, pRMat, &o2wMat);
     B3L_Mat4XMat4(&o2wMat, pCamMat, pResult);
 
     /*
@@ -442,8 +442,22 @@ void B3L_MakeO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pRe
 */
 
 }
+void B3L_Vect3Xmat4(vect3_t* pV, mat4_t* pMat, vect4_t* pResult) {
+    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
+#define dotCol(col)\
+        ((x*(pMat->m##col##0)) +\
+        (y*(pMat->m##col##1)) +\
+        (z*(pMat->m##col##2)) +\
+        (pMat->m##col##3))
 
-void B3L_Vect3MulMat3(vect3_t* pV, mat3_t* pMat, vect3_t* pResult) {
+    pResult->x = dotCol(0);
+    pResult->y = dotCol(1);
+    pResult->z = dotCol(2);
+    pResult->w = dotCol(3);
+#undef dotCol
+}
+
+void B3L_Vect3XMat3(vect3_t* pV, mat3_t* pMat, vect3_t* pResult) {
     f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
     f32 rx, ry, rz;
 
@@ -460,26 +474,6 @@ void B3L_Vect3MulMat3(vect3_t* pV, mat3_t* pMat, vect3_t* pResult) {
     pResult->y = ry;
     pResult->z = rz;
 #undef dotCol 
-}
-
-void B3L_Point3MulMat4(vect3_t* pV, mat4_t* pMat, vect3_t* pResult) {
-    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
-    f32 rx, ry, rz;
-
-#define dotCol(col)\
-        (x*(pMat->m##col##0)) +\
-        (y*(pMat->m##col##1)) +\
-        (z*(pMat->m##col##2)) +\
-        pMat->m##col##3
-
-    rx = dotCol(0);
-    ry = dotCol(1);
-    rz = dotCol(2);
-
-    pResult->x = rx;
-    pResult->y = ry;
-    pResult->z = rz;
-#undef dotCol
 }
 
 void MakeClipMatrix(u32 state, f32 near_plane, f32 far_plane,

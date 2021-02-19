@@ -232,10 +232,10 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     pObj->pResource0 = (void*)pMesh;
     pObj->pResource1 = (void*)pTexture;
     if (backfaceCulling==true){
-        SET_OBJ_BACKFACE_CULLING(pObj);
+        ENABLE_OBJ_BACKFACE_CULLING(pObj);
     }
     else {
-        SET_OBJ_NOT_BACKFACE_CULLING(pObj);
+        DISABLE_OBJ_BACKFACE_CULLING(pObj);
     }
     if (render_level > 3) {
         render_level = 3;
@@ -249,7 +249,7 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     }
     if (fix_light_value == true) {
         B3L_SET(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
-        CHANGE_OBJ_FIX_LIGHT_VALUE(pObj,light_value);
+        SET_OBJ_FIX_LIGHT_VALUE(pObj,light_value);
     }
     else {
         B3L_CLR(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
@@ -273,10 +273,10 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     pObj->pResource0 = (void*)pMesh;
     pObj->pResource1 = (void*)pColor;
     if (backfaceCulling == true) {
-        SET_OBJ_BACKFACE_CULLING(pObj);
+        ENABLE_OBJ_BACKFACE_CULLING(pObj);
     }
     else {
-        SET_OBJ_NOT_BACKFACE_CULLING(pObj);
+        DISABLE_OBJ_BACKFACE_CULLING(pObj);
     }
     if (render_level > 3) {
         render_level = 3;
@@ -290,7 +290,7 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     }
     if (fix_light_value == true) {
         B3L_SET(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
-        CHANGE_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
+        SET_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
     }
     else {
         B3L_CLR(pObj->state, OBJ_SPECIAL_LIGHT_VALUE);
@@ -315,7 +315,7 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
 
     u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
     pObj->pResource1 = (void*)resource1;
-    CHANGE_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
+    SET_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
 
     if (Add_To_RenderList == true) {
         B3L_AddObjToRenderList(pObj, pRender);
@@ -473,7 +473,7 @@ void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp) {
     B3L_CreateLookAtQuaternion(&(pCam->transform.translation),
         pAt, pUp, &(pCam->transform.quaternion));
 }
-
+/*
 void B3L_CamStopTrack(camera_t* pCam) {
     B3L_CLR(pCam->state, B3L_CAMERA_TRACK_OBJ_MODE);
 }
@@ -510,13 +510,7 @@ _RAM_FUNC static void CamCalNewTrackPosition(camera_t* pCam) {
 _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
     quat4_t targetQuat;
     B3LObj_t* pObj = pCam->pMother;
-    /*
-    if (B3L_TEST(pObj->state, OBJ_NEED_QUAT_UPDATE)) {
-        //update it's matrix and clear the flag
-        B3L_MatrixToQuaternion(&(pObj->mat), &(pObj->transform.quaternion));
-        B3L_CLR(pObj->state, OBJ_NEED_QUAT_UPDATE);
-    }
-    */
+
     B3L_QuatMult(&(pObj->transform.quaternion), &(pCam->targetQuat), &targetQuat);
     //now the targetQuat in world space
     f32 cosHalfAngel = B3L_QuatDot(&targetQuat, &(pCam->transform.quaternion));
@@ -526,7 +520,7 @@ _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
     //printf("new quat:");
     //B3L_logVec4(pCam->transform.quaternion);
 }
-
+*/
 
 static void  UpdateCam(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);

@@ -10,6 +10,9 @@
 /*-------------------------------------------------------------------------------------------------
 Private Function declaration
 -------------------------------------------------------------------------------------------------*/
+__STATIC_FORCEINLINE void  Vect3Xmat4ToScreen4(vect3_t* pV, mat4_t* pMat, vect4_t* pResult);
+__STATIC_FORCEINLINE void Vect3Xmat4WithTest_f(vect3_t* pV, mat4_t* pMat, screen3f_t* pResult);
+__STATIC_FORCEINLINE bool Vect4BoundTest(vect4_t* pV);
 __STATIC_FORCEINLINE u32 BoundBoxTest(f32* Boundbox, mat4_t* pMat);
 __STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat);
 __STATIC_FORCEINLINE bool TriangleFaceToViewer_f(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2);
@@ -37,6 +40,90 @@ static void DrawNearPlaneClipTriColor(u32 cullingState, fBuff_t* pFrameBuff, zBu
 /*-------------------------------------------------------------------------------------------------
 Private Functions 
 -------------------------------------------------------------------------------------------------*/
+
+
+__STATIC_FORCEINLINE void  Vect3Xmat4ToScreen4(vect3_t* pV, mat4_t* pMat, vect4_t* pResult) {
+    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
+    f32 rx, ry, rz, rw;
+    //u32 testResult = 0;
+#define dotCol(col)\
+        ((x*(pMat->m##col##0)) +\
+        (y*(pMat->m##col##1)) +\
+        (z*(pMat->m##col##2)) +\
+        (pMat->m##col##3))
+
+    rx = dotCol(0);
+    ry = dotCol(1);
+    rz = dotCol(2);
+    rw = dotCol(3);
+
+
+    f32 factor = 1.0f / (rw);//prevent div zero error
+    f32 screenX = (HALF_RESOLUTION_X + rx * factor * HALF_RESOLUTION_X);
+    f32 screenY = (HALF_RESOLUTION_Y - ry * factor * HALF_RESOLUTION_Y);
+    rz = rz * factor;
+    pResult->w = rw;
+    pResult->x = screenX;
+    pResult->y = screenY;
+    pResult->z = rz;
+#undef dotCol
+
+}
+
+
+
+__STATIC_FORCEINLINE void  Vect3Xmat4WithTest_f(vect3_t* pV, mat4_t* pMat, screen3f_t* pResult) {
+    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
+    f32 rx, ry, rz, rw;
+    u32 testResult = 0;
+#define dotCol(col)\
+        ((x*(pMat->m##col##0)) +\
+        (y*(pMat->m##col##1)) +\
+        (z*(pMat->m##col##2)) +\
+        (pMat->m##col##3))
+
+    rx = dotCol(0);
+    ry = dotCol(1);
+    rz = dotCol(2);
+    rw = dotCol(3);
+
+    if (rz <= 0.0f) {//if the near plane clip, then don't do the calculation, set bit and return directly
+        B3L_SET(testResult, B3L_NEAR_PLANE_CLIP);
+        pResult->test = testResult;
+#if B3L_DO_NEAR_PLANE_CLIP == 1
+        //to calculate a correct backface culling, not always correct!
+       // pResult->x = HALF_RESOLUTION_X + HALF_RESOLUTION_X * rx;
+       // pResult->y = HALF_RESOLUTION_Y - HALF_RESOLUTION_Y * ry;
+#endif
+        return;
+    }
+    else if ((rx < rw) && (rx > -rw) && (ry < rw) && (ry > -rw) && (rz < rw)) {
+        B3L_SET(testResult, B3L_IN_SPACE);
+    }
+    f32 factor = 1.0f / (rw);//prevent div zero error
+    f32 screenX = (HALF_RESOLUTION_X + rx * factor * HALF_RESOLUTION_X);
+    f32 screenY = (HALF_RESOLUTION_Y - ry * factor * HALF_RESOLUTION_Y);
+    rz = rz * factor;
+    pResult->test = testResult;
+    pResult->x = screenX;
+    pResult->y = screenY;
+    pResult->z = rz;
+#undef dotCol
+
+}
+
+
+__STATIC_FORCEINLINE bool Vect4BoundTest(vect4_t* pV) {
+    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z; f32 w = pV->w;
+    if ((x <= w) && (x >= -w) && (y <= w) && (y >= -w) && (z > 0) && (z <= w)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+
+}
+
 #define SIZE_SHIFT          8
 
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
@@ -152,9 +239,9 @@ static void ClipLineInScreen(vect3_t* a, vect3_t* b) {
 
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2,  f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1) {
     vect4_t vect0, vect1, vect2;
-    Vect3Xmat4(pVect + v0, pMat, &vect0);
-    Vect3Xmat4(pVect + v1, pMat, &vect1);
-    Vect3Xmat4(pVect + v2, pMat, &vect2);
+    B3L_Vect3Xmat4(pVect + v0, pMat, &vect0);
+    B3L_Vect3Xmat4(pVect + v1, pMat, &vect1);
+    B3L_Vect3Xmat4(pVect + v2, pMat, &vect2);
     f32 rwFactor = 1.0f / nearPlane;
     f32 factor = (vect0.w - nearPlane) / (vect0.w - vect1.w);
     pC0->x = HALF_RESOLUTION_X + HALF_RESOLUTION_X * (vect0.x - factor * (vect0.x - vect1.x)) * rwFactor;
@@ -171,9 +258,9 @@ static void ClipColorPoint(u32 v0, u32 v1, u32 v2,  f32 nearPlane, vect3_t* pVec
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane,
                          vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1) {
     vect4_t vect0, vect1, vect2;
-    Vect3Xmat4(pVect + v0, pMat, &vect0);
-    Vect3Xmat4(pVect + v1, pMat, &vect1);
-    Vect3Xmat4(pVect + v2, pMat, &vect2);
+    B3L_Vect3Xmat4(pVect + v0, pMat, &vect0);
+    B3L_Vect3Xmat4(pVect + v1, pMat, &vect1);
+    B3L_Vect3Xmat4(pVect + v2, pMat, &vect2);
     f32 rwFactor = 1.0f / nearPlane;
     f32 factor = (vect0.w - nearPlane) / (vect0.w - vect1.w);
     pC0->x = HALF_RESOLUTION_X + HALF_RESOLUTION_X * (vect0.x - factor * (vect0.x - vect1.x)) * rwFactor;
@@ -257,7 +344,9 @@ __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f
 
 
 static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 bboxResult) {
-
+    int32_t i;
+    //s8 lightValue = ((s8)((pObj->state & OBJ_SPECIAL_LIGHT_MASK) >> OBJ_SPECIAL_LIGHT_SHIFT)) - 16;
+    s8 lightValue = GET_OBJ_FIX_LIGHT_VALUE(pObj);
 }
 
 
@@ -350,7 +439,7 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
                 //printf("index %d, normal index %d\n", i, pNormalIdx[i]);
                 //printf("lightValue %d\n", normalLightBuff[pNormalIdx[i]]);
                 //lightValue =normalLightBuff[pNormalIdx[i]];
-                B3L_Vect3MulMat3(pNormal + i, pRmat, &normalVect);
+                B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
                 //dot multi light and normalvect to get the light factor
                 normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
                 lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
@@ -394,7 +483,7 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
 #ifdef USING_LIGHT
                 if (renderLevel == 0) {
                     // lightValue =normalLightBuff[pNormalIdx[i]];
-                    B3L_Vect3MulMat3(pNormal + i, pRmat, &normalVect);
+                    B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
                     //dot multi light and normalvect to get the light factor
                     normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
                     lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
@@ -519,7 +608,7 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
                 //printf("index %d, normal index %d\n", i, pNormalIdx[i]);
                 //printf("lightValue %d\n", normalLightBuff[pNormalIdx[i]]);
                 //lightValue =normalLightBuff[pNormalIdx[i]];
-                B3L_Vect3MulMat3(pNormal + i, pRmat, &normalVect);
+                B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
                 //dot multi light and normalvect to get the light factor
                 normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
                 lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
@@ -563,7 +652,7 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
 #ifdef USING_LIGHT
                 if (renderLevel == 0) {
                     // lightValue =normalLightBuff[pNormalIdx[i]];
-                    B3L_Vect3MulMat3(pNormal + i, pRmat, &normalVect);
+                    B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
                     //dot multi light and normalvect to get the light factor
                     normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
                     lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
@@ -773,7 +862,7 @@ void RenderObjs(render_t* pRender) {
         }
         B3L_QuaternionToMatrix(&(pCurrentObj->transform.quaternion), &(objMat));
         //also process mother obj rotation chain
-        B3L_MakeO2CMatrix(pCurrentObj,&(objMat), &(pRender->camera.camW2CMat), &mat);
+        B3L_CreateO2CMatrix(pCurrentObj,&(objMat), &(pRender->camera.camW2CMat), &mat);
         //test boundBoxTestFactor to check if the obj out of clip range
         //Boundbox testing, to check potential near plane clip is necessary or not
         u32 result=0;
