@@ -17,7 +17,7 @@ static void B3d_FPU_Init() {
 #endif
 
 static void ResetObjList(scene_t* pScene);
-static void GenerateW2CMatrix(camera_t* pCam);
+static void GenerateW2CMatrix(camera_t* pCam, mat3_t* pMat3);
 static void  UpdateCam(render_t* pRender);
 static void AddObjToTwoWayList(B3LObj_t *pObj, B3LObj_t **pStart);
 
@@ -225,7 +225,7 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     if (pObj == (B3LObj_t*)NULL){
         return pObj;
     }
-    pObj->mother = (B3LObj_t*)NULL;
+    pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
 
@@ -266,7 +266,7 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
     }
-    pObj->mother = (B3LObj_t*)NULL;
+    pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, NOTEX_MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
 
@@ -308,7 +308,7 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
     }
-    pObj->mother = (B3LObj_t*)NULL;
+    pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, BITMAP_OBJ);
     SET_OBJ_VISIABLE(pObj);
     pObj->pResource0 = (void*)pTexture;
@@ -404,9 +404,8 @@ _RAM_FUNC void B3L_InitCamera(render_t* pRender) {
     pCam->focalLength = DEFAULT_FOCUS_LENGTH;
     B3L_VECT3_SET(pCam->transform.scale, 1.0f, 1.0f, 1.0f);
     B3L_VECT3_SET(pCam->transform.translation, 0.0f, 0.0f, 0.0f);
-    B3L_InitUnitMat3(&(pCam->mat));
     B3L_VECT4_SET(pCam->transform.quaternion, 0.0f, 0.0f, 0.0f, 1.0f);
-    pCam->pTrackObj = (B3LObj_t*)NULL;
+    pCam->pMother = (B3LObj_t*)NULL;
 
     MakeClipMatrix(pCam->state, pRender->nearPlane, pRender->farPlane, pCam->focalLength, pCam->aspectRate, &(pCam->clipMat));
     //printf("after init clip matrix:\n");
@@ -437,8 +436,8 @@ _RAM_FUNC void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov) {
     B3L_UpdateClipMatrix(pRender);
 }
 
-static void GenerateW2CMatrix(camera_t* pCam) {
-    mat3_t* pMat3 = &(pCam->mat);
+static void GenerateW2CMatrix(camera_t* pCam,mat3_t* pMat3) {
+    //mat3_t* pMat3 = &(pCam->mat);
     mat4_t* pW2CMat = &(pCam->camW2CMat);
     f32 x = -(pCam->transform.translation.x);
     f32 y = -(pCam->transform.translation.y);
@@ -470,7 +469,7 @@ void B3L_CameraMoveToV(render_t* pRender, vect3_t position) {
 
 
 void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp) {
-    B3L_SET(pCam->state, CAM_NEED_MATRIX_UPDATE);
+    
     B3L_CreateLookAtQuaternion(&(pCam->transform.translation),
         pAt, pUp, &(pCam->transform.quaternion));
 }
@@ -486,7 +485,7 @@ void B3L_CamStartTrack(camera_t* pCam) {
 
 _RAM_FUNC void B3L_CamInitTrack(camera_t* pCam, B3LObj_t* pObj, f32 camX, f32 camY, f32 camZ, f32 lookAtX, f32 lookAtY, f32 lookAtZ) {
     //B3L_SET(pCam->state,B3L_CAMERA_TRACK_OBJ_MODE);
-    pCam->pTrackObj = pObj;
+    pCam->pMother = pObj;
     pCam->targetPosition.x = camX;
     pCam->targetPosition.y = camY;
     pCam->targetPosition.z = camZ;
@@ -499,7 +498,7 @@ _RAM_FUNC void B3L_CamInitTrack(camera_t* pCam, B3LObj_t* pObj, f32 camX, f32 ca
 }
 
 _RAM_FUNC static void CamCalNewTrackPosition(camera_t* pCam) {
-    B3LObj_t* pObj = pCam->pTrackObj;
+    B3LObj_t* pObj = pCam->pMother;
     mat3_t mat;
     B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &mat);
     vect3_t result;
@@ -510,7 +509,7 @@ _RAM_FUNC static void CamCalNewTrackPosition(camera_t* pCam) {
 
 _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
     quat4_t targetQuat;
-    B3LObj_t* pObj = pCam->pTrackObj;
+    B3LObj_t* pObj = pCam->pMother;
     /*
     if (B3L_TEST(pObj->state, OBJ_NEED_QUAT_UPDATE)) {
         //update it's matrix and clear the flag
@@ -523,7 +522,7 @@ _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
     f32 cosHalfAngel = B3L_QuatDot(&targetQuat, &(pCam->transform.quaternion));
     f32 t = (1.0f - B3L_Absf(cosHalfAngel)) * 8.0f;
     B3L_QuaternionInterp(&(pCam->transform.quaternion), &targetQuat, &(pCam->transform.quaternion), t);
-    B3L_SET(pCam->state, CAM_NEED_MATRIX_UPDATE);
+    
     //printf("new quat:");
     //B3L_logVec4(pCam->transform.quaternion);
 }
@@ -531,9 +530,9 @@ _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
 
 static void  UpdateCam(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);
-
-    B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &(pCam->mat));
-    GenerateW2CMatrix(&(pRender->camera));
+    mat3_t rotateMat;
+    B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &rotateMat);
+    GenerateW2CMatrix(&(pRender->camera),&rotateMat);
     B3L_Mat4XMat4(&(pCam->camW2CMat), &(pCam->clipMat), &(pCam->camW2CMat));
 
 }

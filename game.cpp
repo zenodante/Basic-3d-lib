@@ -24,7 +24,7 @@ void init() {
     b.x = 10.5f;
     b.y = -120.0f;
     b.z = 0.0f;
-    ClipLineInScreen(&a, &b);
+    //ClipLineInScreen(&a, &b);
     printf("a: %.3f,%.3f,%.3f\n", a.x, a.y, a.z);
     printf("b: %.3f,%.3f,%.3f\n", b.x, b.y, b.z);
 
@@ -43,10 +43,10 @@ void init() {
     B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
     B3L_SetObjScale(pBitmap, 50.0f, 50.0f, 50.0f);
 
-    pBox->mother = pBitmap;
+    pBox->pMother = pBitmap;
     B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
-    pBox2->mother = pBox;
+    pBox2->pMother = pBox;
     B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
     /*

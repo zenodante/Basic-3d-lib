@@ -378,7 +378,7 @@ static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResul
     vect3_t* pTrans = &(pObj->transform.translation);
     vect3_t* pScale = &(pObj->transform.scale);
     
-    B3LObj_t* pMotherObj = pObj->mother;
+    B3LObj_t* pMotherObj = pObj->pMother;
     if (pMotherObj != (B3LObj_t*)NULL) {       
         B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
         //has mother obj

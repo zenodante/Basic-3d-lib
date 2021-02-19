@@ -143,8 +143,8 @@ xx bits have been used for tri test
   B3LObj_t state
      31     2423     1615      87
      ------------------------------------
-  31|$$$$$$$$|******RQ|PONML*JI|***EDCBA|0
-    ------------------------------------
+  31|$$$$$$$$|******RQ|P**ML*JI|***EDCBA|0
+     ------------------------------------
     A-- mesh obj with texture
     B-- polygon obj
     C-- mesh obj without texture
@@ -172,8 +172,8 @@ xx bits have been used for tri test
 
 #define OBJ_IGNORE_RENDER_LEVEL            (11)
 #define OBJ_PARTICLE_ACTIVE                (12)
-#define OBJ_NEED_QUAT_UPDATE               (13)
-#define OBJ_NEED_MATRIX_UPDATE             (14)
+
+
 #define OBJ_SPECIAL_LIGHT_VALUE            (15)
 //render stage information
 #define OBJ_RENDER_LEVEL_MASK        0x00030000
@@ -186,7 +186,7 @@ xx bits have been used for tri test
   typedef struct B3LOBJ {
     struct B3LOBJ*        privous;//4
     struct B3LOBJ*        next;//4
-    struct B3LOBJ*        mother;//4
+    struct B3LOBJ*        pMother;//4
     u32                   state;//4
     transform3D_t         transform;//40
     //f32                 boundBox[6];//24
@@ -206,8 +206,8 @@ xx bits have been used for tri test
     B3LObj_t*           pActiveMeshObjs;
 #ifdef B3L_USING_PARTICLE
     //B3LObj_t*     pActiveParticleGenObjs;
-    u32           freeParticleNum;
-    B3L_Particle_t* pfreeParticles;
+    u32                 freeParticleNum;
+    B3L_Particle_t*     pfreeParticles;
 #endif
   }scene_t;
 
@@ -252,21 +252,18 @@ O-- need update matrix
 #define  B3L_PROJECT_MODE                    (1)
 #define  OTHROGRAPHIC_PROJECT                (1u<<B3L_PROJECT_MODE)
 #define  PERSPECTIVE_PROJECT                 (0u<<B3L_PROJECT_MODE)
-//bit 24
-#define  CAM_NEED_QUAT_UPDATE                OBJ_NEED_QUAT_UPDATE            
-//bit 25
-#define  CAM_NEED_MATRIX_UPDATE              OBJ_NEED_MATRIX_UPDATE
+
+          
   typedef struct {
     u32                 state;
     f32                 aspectRate;
     f32                 focalLength;
-    mat3_t              mat;
     transform3D_t       transform;
     mat4_t              clipMat;
     mat4_t              camW2CMat;
     vect3_t             targetPosition;
     quat4_t             targetQuat;
-    B3LObj_t*           pTrackObj;
+    B3LObj_t*           pMother;
   }camera_t;
 
   typedef struct {
