@@ -18,6 +18,7 @@ static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nea
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
+static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
@@ -631,10 +632,10 @@ static void DrawNearPlaneClipTriColor(u32 cullingState, fBuff_t* pFrameBuff, zBu
 
 }
 __STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat) {
-    f32 scaleMax = B3L_MAX(pObj->transform.scale.x, pObj->transform.scale.y);
+    //f32 scaleMax = B3L_MAX(pObj->transform.scale.x, pObj->transform.scale.y);
     u32 result;
-    f32 maxX = scaleMax; f32 maxY = scaleMax; f32 maxZ = scaleMax;
-    f32 minX = -scaleMax; f32 minY = -scaleMax; f32 minZ = -scaleMax;
+    f32 maxX = 0.5f; f32 maxY = 0.5f; f32 maxZ = 0.5f;
+    f32 minX = -0.5f; f32 minY = -0.5f; f32 minZ = -0.5f;
     result = vectBoundTest(maxX, maxY, maxZ, pMat);
     result += vectBoundTest(maxX, maxY, minZ, pMat);
     result += vectBoundTest(maxX, minY, minZ, pMat);
@@ -645,7 +646,38 @@ __STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat) {
     result += vectBoundTest(minX, maxY, minZ, pMat);
     return result;
 }
-void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat) {
+static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat) {
+    //vect3_t *pV = &(pObj->transform.translation);
+
+    //f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
+    f32 rx, ry, rz, rw;
+    u32 testResult = 0;
+
+    rz = pMat->m23;
+    
+    if (rz < 0.0f) {//if the near plane clip, then don't do the calculation, set bit and return directly
+        return;
+    }
+    rx = pMat->m03;
+    ry = pMat->m13;
+    rw = pMat->m33;
+
+    f32 factor = 1.0f / (rw);//prevent div zero error
+    f32 screenX = (HALF_RESOLUTION_X + rx * factor * HALF_RESOLUTION_X);
+    f32 screenY = (HALF_RESOLUTION_Y - ry * factor * HALF_RESOLUTION_Y);
+    rz = rz * factor;
+    //printf("x: %.3f,y: %.3f\n", screenX, screenY);
+    f32 sizeFactor = 0.5f*factor * HALF_RESOLUTION_X;
+    f32 sizeX = (pObj->transform.scale.x) * sizeFactor;
+    f32 sizeY = (pObj->transform.scale.y) * sizeFactor;
+    f32 tu = (f32)(((u32)(pObj->pResource1)) & 0x000000FF);
+    f32 tv = (f32)((((u32)(pObj->pResource1)) & 0x0000FF00) >> 8);
+    f32 bu = (f32)((((u32)(pObj->pResource1)) & 0x00FF0000) >> 16);
+    f32 bv = (f32)((((u32)(pObj->pResource1)) & 0xFF000000) >> 24);
+    s8 lightFact = ((s8)(((pObj->state) & OBJ_SPECIAL_LIGHT_MASK) >> OBJ_SPECIAL_LIGHT_SHIFT)) - 16;
+    DrawSpaceBitmap(screenX - sizeX, screenY -sizeY, screenX + sizeX, screenY +sizeY, rz,
+        tu, tv, bu, bv,pRender->pFrameBuff, pRender->pZBuff,
+         (B3L_tex_t *)(pObj->pResource0), lightFact);
 
 }
 /*-------------------------------------------------------------------------------------------------
@@ -669,6 +701,8 @@ void RenderObjs(render_t* pRender) {
             continue;
         }
         B3L_QuaternionToMatrix(&(pCurrentObj->transform.quaternion), &(objMat));
+        //process mother obj rotation chain
+
         B3L_MakeO2CMatrix(&(objMat), &(pCurrentObj->transform.scale),
             &(pCurrentObj->transform.translation), &(pRender->camera.camW2CMat), &mat);
         //test boundBoxTestFactor to check if the obj out of clip range
@@ -717,7 +751,7 @@ void RenderObjs(render_t* pRender) {
             RenderColorMesh(pCurrentObj, pRender, &mat, &objMat, renderLevel, result);
             break;
         case (1<< BITMAP_OBJ):
-            //RenderBitmap(pCurrentObj, pRender, &mat, renderLevel);
+            RenderBitmap(pCurrentObj, pRender, &mat);
             break;
         }
         //point to the next obj

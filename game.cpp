@@ -9,7 +9,7 @@ using namespace blit;
 render_t rnd;
 B3LObj_t *pBox;
 B3LObj_t* pBox2;
-
+B3LObj_t* pBitmap;
 ////////////////////////////////////////////////////////
 //
 // init()
@@ -24,17 +24,24 @@ void init() {
 
     //pBox = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 16,true);
-    pBox = B3L_CreatTexMeshObj_Simple(&rnd, ship_Mesh_Tex, ship2_tex);
-    pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
+    pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    //pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
+    pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0, 63, 63, 16, true);
+    B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
+    pBitmap->transform.scale.x = 50.0f;
+    pBitmap->transform.scale.y = 50.0f;
     
-    B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pBox, 20.0f,20.0f, 20.0f);
+    B3L_SetObjPosition(pBox, 50.0f, 0.0f, 25.0f);
+    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
+    /*
     B3L_SetObjPosition(pBox2, 100.0f, 30.0f, 40.0f);
     B3L_SetObjScale(pBox2, 100.0f, 100.0f, 100.0f);
 
     B3L_RotateObjInOY(&(pBox->transform.quaternion), 0.1f);
     B3L_RotateObjInOY(&(pBox2->transform.quaternion), -0.1f);
     B3L_RotateObjInOX(&(pBox2->transform.quaternion), -0.1f);
+*/
+
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
     B3L_CameraMoveTo(&rnd, 0.0f, 0.0f, -200.0f);
@@ -69,6 +76,8 @@ void render(uint32_t time) {
     if (i > 1.0f) {
         i = i - 1.0f;
     }
+    screen.pen = Pen(0, 0, 0,12);
+    screen.text("Text Rendering", minimal_font, Point(5, 4));
   /*   
     DrawTriangleColor(0.0f, 0.0f, 0.1f,
         20.0f, 30.0f, 0.1f,

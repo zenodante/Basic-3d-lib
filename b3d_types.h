@@ -184,15 +184,20 @@ xx bits have been used for tri test
 
 //all different obj types's size is <= sizeof(B3LObj_t)
   typedef struct B3LOBJ {
-    struct B3LOBJ*      privous;//4
-    struct B3LOBJ*      next;//4
-    u32                 state;//4
-    transform3D_t       transform;//40
+    struct B3LOBJ*        privous;//4
+    struct B3LOBJ*        next;//4
+    struct B3LOBJ*        mother;//4
+    u32                   state;//4
+    transform3D_t         transform;//40
     //f32                 boundBox[6];//24
     void*                 pResource0;//4
     void*                 pResource1;//4  
-  }B3LObj_t;//88bytes
-
+  }B3LObj_t;
+  //mesh texture obj      resource0: mesh, resource1: texture
+  //mesh color obj        resource0: mesh, resource1: colors
+  //bitmap obj            resource0: texture resource1: top left u, topleft v, bottom right u, bottom right v
+  //polygon obj           resource0: line struct  resource1: colors
+  //particle generator    resource0: active particles entry resource1: particle generator config bits
 
   typedef struct {
     B3LObj_t            objBuff[OBJ_BUFF_SIZE];
@@ -200,7 +205,7 @@ xx bits have been used for tri test
     B3LObj_t*           pFreeObjs;
     B3LObj_t*           pActiveMeshObjs;
 #ifdef B3L_USING_PARTICLE
-    B3LObj_t*     pActiveParticleGenObjs;
+    //B3LObj_t*     pActiveParticleGenObjs;
     u32           freeParticleNum;
     B3L_Particle_t* pfreeParticles;
 #endif
@@ -265,9 +270,9 @@ O-- need update matrix
   }camera_t;
 
   typedef struct {
-    fBuff_t* pFrameBuff;
-    zBuff_t* pZBuff;
-    vect4_t* pVectBuff;
+    fBuff_t*            pFrameBuff;
+    zBuff_t*            pZBuff;
+    vect4_t*            pVectBuff;
     camera_t            camera;
     light_t             light;
     scene_t             scene;
@@ -278,7 +283,7 @@ O-- need update matrix
     s8                  lvl1Light;
   }render_t;
 
-
+  /*
   typedef struct PARTICLEGENOBJ {
     B3LObj_t* privous;//8  4
     B3LObj_t* next;//8   4
@@ -294,7 +299,7 @@ O-- need update matrix
   }B3LParticleGenObj_t; //15 not common on ARM32,22 not common on WIN64
 
   typedef void (*B3L_DrawFunc_t)(B3L_Particle_t*, screen4_t*, fBuff_t*, zBuff_t*);
-
+*/
 
 #ifdef __cplusplus
 }

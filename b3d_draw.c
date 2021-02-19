@@ -506,8 +506,8 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
   s32 sx = B3L_CeilToS(x0);
   u0 += (sx - x0) * du;
   v0 += (sy - y0) * dv;
-  yEnd = B3L_MIN((RENDER_RESOLUTION_Y - 1), B3L_CeilToS(y1)); 
-  xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1));
+  yEnd = B3L_MIN((RENDER_RESOLUTION_Y - 1), B3L_CeilToS(y1)-1); 
+  xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1)-1);
   u32 uvShift;
   f32 currentU;
   u8 size = texture[0];

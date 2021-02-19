@@ -168,7 +168,7 @@ void B3L_AddObjToRenderList(B3LObj_t* pObj, render_t* pRender) {
     //get the statement
     u32 type = (pObj->state & OBJ_TYPE_MASK);
     //printf("type %d\n",type);
-    if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ))) {
+    if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ)) || (type == (1 << BITMAP_OBJ))) {
         //printf("add\n");
         AddObjToTwoWayList(pObj, &(pRender->scene.pActiveMeshObjs));
     }
@@ -299,6 +299,28 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     return pObj;
 }
 
+B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 tv, u8 bu, u8 bv,
+    u8 light_value, bool Add_To_RenderList) {
+
+    B3LObj_t* pObj = B3L_GetFreeObj(pRender);
+    if (pObj == (B3LObj_t*)NULL) {
+        return pObj;
+    }
+    B3L_SET(pObj->state, BITMAP_OBJ);
+    SET_OBJ_VISIABLE(pObj);
+    pObj->pResource0 = (void*)pTexture;
+
+    u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
+    pObj->pResource1 = (void*)resource1;
+    CHANGE_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
+
+    if (Add_To_RenderList == true) {
+        B3L_AddObjToRenderList(pObj, pRender);
+    }
+
+    return pObj;
+
+}
 
 void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z) {
     pObj->transform.translation.x = x;
