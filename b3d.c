@@ -537,10 +537,10 @@ static void  UpdateCam(render_t* pRender) {
         //printf("current camera position:");
         //B3L_logVec3(pCam->transform.translation);
     }
-    if (B3L_TEST(pCam->state, CAM_NEED_MATRIX_UPDATE)) {
-        B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &(pCam->mat));
-        B3L_CLR(pCam->state, CAM_NEED_MATRIX_UPDATE);
-    }
+    //if (B3L_TEST(pCam->state, CAM_NEED_MATRIX_UPDATE)) {
+    B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &(pCam->mat));
+    //B3L_CLR(pCam->state, CAM_NEED_MATRIX_UPDATE);
+    
     GenerateW2CMatrix(&(pRender->camera));
     B3L_Mat4XMat4(&(pCam->camW2CMat), &(pCam->clipMat), &(pCam->camW2CMat));
     //printf("clip mat:");

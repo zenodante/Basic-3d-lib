@@ -356,7 +356,9 @@ void B3L_MakeTranslationMat(f32 offsetX, f32 offsetY, f32 offsetZ, mat4_t* pMat)
 #undef M
 }
 
-
+/*-------------------------------------------------------------------------------------------------
+Create single obj to world matrix
+-------------------------------------------------------------------------------------------------*/
 void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat4_t* pResult) {
     f32 sx = pScale->x; f32 sy = pScale->y; f32 sz = pScale->z;
     pResult->m03 = pTranslation->x; pResult->m13 = pTranslation->y; pResult->m23 = pTranslation->z;
@@ -366,6 +368,10 @@ void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat
     pResult->m30 = 0.0f; pResult->m31 = 0.0f; pResult->m32 = 0.0f; pResult->m33 = 1.0f;
 }
 
+
+/*-------------------------------------------------------------------------------------------------
+Traverse all mother objs chain to generate final object to world matrix
+-------------------------------------------------------------------------------------------------*/
 static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult) {
     //mat4_t o2wMat;
 
@@ -373,8 +379,7 @@ static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResul
     vect3_t* pScale = &(pObj->transform.scale);
     
     B3LObj_t* pMotherObj = pObj->mother;
-    if (pMotherObj != (B3LObj_t*)NULL) {
-        //B3L_CreateO2WMat(pRMat, pTrans, pScale, &o2wMat);
+    if (pMotherObj != (B3LObj_t*)NULL) {       
         B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
         //has mother obj
         mat4_t motherMat;
@@ -390,6 +395,9 @@ static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResul
 
 }
 
+/*-------------------------------------------------------------------------------------------------
+Generate obj to clip space matrix
+-------------------------------------------------------------------------------------------------*/
 void B3L_MakeO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pResult) {
     mat4_t o2wMat;
     B3L_MakeO2WChainMatrix(pObj, pRMat, &o2wMat);

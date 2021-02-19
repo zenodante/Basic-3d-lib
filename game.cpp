@@ -30,6 +30,7 @@ void init() {
     B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
     pBitmap->transform.scale.x = 50.0f;
     pBitmap->transform.scale.y = 50.0f;
+    pBitmap->transform.scale.z = 50.0f;
     pBox->mother = pBitmap;
     B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
@@ -39,15 +40,17 @@ void init() {
     /*
     B3L_SetObjPosition(pBox2, 100.0f, 30.0f, 40.0f);
     B3L_SetObjScale(pBox2, 100.0f, 100.0f, 100.0f);
-
-    B3L_RotateObjInOY(&(pBox->transform.quaternion), 0.1f);
-    B3L_RotateObjInOY(&(pBox2->transform.quaternion), -0.1f);
-    B3L_RotateObjInOX(&(pBox2->transform.quaternion), -0.1f);
 */
+    //B3L_RotateObjInOY(&(pBox->transform.quaternion), 0.1f);
+    //B3L_RotateObjInOY(&(pBox2->transform.quaternion), -0.1f);
+    //B3L_RotateObjInOX(&(pBox2->transform.quaternion), -0.1f);
+
 
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
-    B3L_CameraMoveTo(&rnd, 0.0f, 0.0f, -200.0f);
+
+    B3L_CameraMoveTo(&rnd, 0.0f, 100.0f, -173.0f);
+    ROTATE_IN_BODY_X(&(rnd.camera), 0.083333333f);
 
 }
 u8 currentLevel = 16;
@@ -66,7 +69,7 @@ void render(uint32_t time) {
     //rnd.camera.transform.translation.z = B3L_sin(i) * 200.0f;
 
     //rnd.camera.transform.translation.x = B3L_cos(i) * 200.0f;
-    rnd.camera.transform.translation.y = camHeight;
+    //rnd.camera.transform.translation.y = camHeight;
     //CHANGE_OBJ_FIX_LIGHT_VALUE(pBox, currentLevel);
     //B3L_CameraLookAt(&rnd.camera, &at, &up);
     //f32 angle = B3L_atan2(camHeight, 200.0f);

@@ -711,7 +711,6 @@ void RenderObjs(render_t* pRender) {
             result = BoundBoxTest(pBoundBox, &mat);
         }else{
             result = BitmapBoundBoxTest(pCurrentObj,&mat);
-            //TODO: bitmap boundbox testing method
         }
         
         if ((result >> BOX_IN_SPACE) == 0) { //both of 8 points are not in the clip range 
