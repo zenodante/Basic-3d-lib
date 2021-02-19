@@ -225,6 +225,7 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     if (pObj == (B3LObj_t*)NULL){
         return pObj;
     }
+    pObj->mother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
 
@@ -265,6 +266,7 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
     }
+    pObj->mother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, NOTEX_MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
 
@@ -306,6 +308,7 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
     }
+    pObj->mother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, BITMAP_OBJ);
     SET_OBJ_VISIABLE(pObj);
     pObj->pResource0 = (void*)pTexture;

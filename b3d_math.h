@@ -60,7 +60,7 @@ extern void B3L_Mat3MultMat3ABB(mat3_t *pMatA,mat3_t *pMatB);
 extern void B3L_Mat3MultMat3ABA(mat3_t *pMatA,mat3_t *pMatB);
 extern void B3L_MakeScaleMatrix(f32 scaleX,f32 scaleY,f32 scaleZ,mat4_t *pMat);
 extern void B3L_MakeTranslationMat(f32 offsetX,f32 offsetY,f32 offsetZ,mat4_t *pMat);
-extern void B3L_MakeO2CMatrix(mat3_t *pRMat,vect3_t *pScale,vect3_t *pTrans,mat4_t *pCamMat, mat4_t *pResult);
+extern void B3L_MakeO2CMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pCamMat, mat4_t* pResult);
 extern void B3L_Vect3MulMat3(vect3_t *pV, mat3_t *pMat, vect3_t *pResult);
 extern void B3L_Point3MulMat4(vect3_t *pV, mat4_t *pMat, vect3_t *pResult);
 extern void MakeClipMatrix(u32 state,f32 near_plane,f32 far_plane,f32 focalLength, f32 aspectRatio,mat4_t *pMat);

@@ -25,14 +25,17 @@ void init() {
     //pBox = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 16,true);
     pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
-    //pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
+    pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
     pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0, 63, 63, 16, true);
     B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
     pBitmap->transform.scale.x = 50.0f;
     pBitmap->transform.scale.y = 50.0f;
-    
-    B3L_SetObjPosition(pBox, 50.0f, 0.0f, 25.0f);
-    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
+    pBox->mother = pBitmap;
+    B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
+    B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
+    pBox2->mother = pBox;
+    B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
+    B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
     /*
     B3L_SetObjPosition(pBox2, 100.0f, 30.0f, 40.0f);
     B3L_SetObjScale(pBox2, 100.0f, 100.0f, 100.0f);
@@ -101,7 +104,8 @@ void update(uint32_t time) {
   
   if (pressed(DPAD_UP)) {
     //camHeight+=0.5f;
-    rnd.light.lightVect.y +=5.0f;
+    //rnd.light.lightVect.y +=5.0f;
+      pBitmap->transform.translation.y += 1.0f;
    /* 
    
     px1 += 0.5f; px3 += 0.5f;
@@ -116,7 +120,8 @@ void update(uint32_t time) {
   }
   if (pressed(DPAD_DOWN)) {
       //camHeight -=0.5f;
-      rnd.light.lightVect.y -= 5.0f;
+      //rnd.light.lightVect.y -= 5.0f;
+      pBitmap->transform.translation.y -= 1.0f;
 /*
     px1 -= 0.5f; px3 -= 0.5f;
     py2 -= 0.5f; py4 -= 0.5f;
@@ -129,11 +134,13 @@ void update(uint32_t time) {
   }
   if (pressed(DPAD_LEFT)) {
     //currentLevel = (currentLevel - 0.1f);
-      rnd.camera.transform.translation.z -= 1.5f;
+      //rnd.camera.transform.translation.z -= 1.5f;
+      pBitmap->transform.translation.x -= 1.0f;
   }
   if (pressed(DPAD_RIGHT)) {
     //currentLevel = (currentLevel + 0.1f);
-      rnd.camera.transform.translation.z += 1.5f;
+      //rnd.camera.transform.translation.z += 1.5f;
+      pBitmap->transform.translation.x += 1.0f;
   }
   if (pressed(A)) {
       rnd.camera.transform.translation.x += 1.0f;

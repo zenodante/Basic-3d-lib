@@ -5,6 +5,8 @@
 #pragma GCC optimize("-O3")
 
 u32 B3L_seed = 0x31415926;
+
+static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult);
 /*-----------------------------------------------------------------------------
 Triangle functions
 -----------------------------------------------------------------------------*/
@@ -204,14 +206,7 @@ void B3L_Mat3ZRotate(mat3_t* pMat, f32 angle) {
     pMat->m20 = 0.0f; pMat->m21 = 0.0f; pMat->m22 = 1.0f;
 }
 
-void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat4_t* pResult) {
-    f32 sx = pScale->x; f32 sy = pScale->y; f32 sz = pScale->z;
-    pResult->m03 = pTranslation->x; pResult->m13 = pTranslation->y; pResult->m23 = pTranslation->z;
-    pResult->m00 = pRMat->m00 * sx; pResult->m01 = pRMat->m01 * sy; pResult->m02 = pRMat->m02 * sz;
-    pResult->m10 = pRMat->m10 * sx; pResult->m11 = pRMat->m11 * sy; pResult->m12 = pRMat->m12 * sz;
-    pResult->m20 = pRMat->m20 * sx; pResult->m21 = pRMat->m21 * sy; pResult->m22 = pRMat->m22 * sz;
-    pResult->m30 = 0.0f; pResult->m31 = 0.0f; pResult->m32 = 0.0f; pResult->m33 = 1.0f;
-}
+
 
 void B3L_InitMat4One(mat4_t* pMat) {
 #define M(x,y) (pMat)->m##x##y
@@ -361,8 +356,46 @@ void B3L_MakeTranslationMat(f32 offsetX, f32 offsetY, f32 offsetZ, mat4_t* pMat)
 #undef M
 }
 
-void B3L_MakeO2CMatrix(mat3_t* pRMat, vect3_t* pScale, vect3_t* pTrans, mat4_t* pCamMat, mat4_t* pResult) {
 
+void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat4_t* pResult) {
+    f32 sx = pScale->x; f32 sy = pScale->y; f32 sz = pScale->z;
+    pResult->m03 = pTranslation->x; pResult->m13 = pTranslation->y; pResult->m23 = pTranslation->z;
+    pResult->m00 = pRMat->m00 * sx; pResult->m01 = pRMat->m01 * sy; pResult->m02 = pRMat->m02 * sz;
+    pResult->m10 = pRMat->m10 * sx; pResult->m11 = pRMat->m11 * sy; pResult->m12 = pRMat->m12 * sz;
+    pResult->m20 = pRMat->m20 * sx; pResult->m21 = pRMat->m21 * sy; pResult->m22 = pRMat->m22 * sz;
+    pResult->m30 = 0.0f; pResult->m31 = 0.0f; pResult->m32 = 0.0f; pResult->m33 = 1.0f;
+}
+
+static void B3L_MakeO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult) {
+    //mat4_t o2wMat;
+
+    vect3_t* pTrans = &(pObj->transform.translation);
+    vect3_t* pScale = &(pObj->transform.scale);
+    
+    B3LObj_t* pMotherObj = pObj->mother;
+    if (pMotherObj != (B3LObj_t*)NULL) {
+        //B3L_CreateO2WMat(pRMat, pTrans, pScale, &o2wMat);
+        B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
+        //has mother obj
+        mat4_t motherMat;
+        mat3_t motherRotateMat;
+        B3L_QuaternionToMatrix(&(pMotherObj->transform.quaternion), &(motherRotateMat));
+        B3L_MakeO2WChainMatrix(pMotherObj, &motherRotateMat, &motherMat);
+        //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
+        B3L_Mat4XMat4(pResult, &motherMat, pResult);
+    }
+    else {
+        B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
+    }
+
+}
+
+void B3L_MakeO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pResult) {
+    mat4_t o2wMat;
+    B3L_MakeO2WChainMatrix(pObj, pRMat, &o2wMat);
+    B3L_Mat4XMat4(&o2wMat, pCamMat, pResult);
+
+    /*
     f32 t0, t1, t2, t3;
     f32 s0, s1, s2;
 #define M(x,y) (pRMat)->m##x##y
@@ -398,6 +431,7 @@ void B3L_MakeO2CMatrix(mat3_t* pRMat, vect3_t* pScale, vect3_t* pTrans, mat4_t* 
 #undef M
 #undef N
 #undef O
+*/
 
 }
 

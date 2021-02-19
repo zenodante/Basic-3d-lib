@@ -701,10 +701,8 @@ void RenderObjs(render_t* pRender) {
             continue;
         }
         B3L_QuaternionToMatrix(&(pCurrentObj->transform.quaternion), &(objMat));
-        //process mother obj rotation chain
-
-        B3L_MakeO2CMatrix(&(objMat), &(pCurrentObj->transform.scale),
-            &(pCurrentObj->transform.translation), &(pRender->camera.camW2CMat), &mat);
+        //also process mother obj rotation chain
+        B3L_MakeO2CMatrix(pCurrentObj,&(objMat), &(pRender->camera.camW2CMat), &mat);
         //test boundBoxTestFactor to check if the obj out of clip range
         //Boundbox testing, to check potential near plane clip is necessary or not
         u32 result=0;
