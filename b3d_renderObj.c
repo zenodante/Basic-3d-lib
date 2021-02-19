@@ -14,8 +14,10 @@ __STATIC_FORCEINLINE u32 BoundBoxTest(f32* Boundbox, mat4_t* pMat);
 __STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat);
 __STATIC_FORCEINLINE bool TriangleFaceToViewer_f(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2);
 __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f32  lightFactor1);
+static void ClipLineInScreen(vect3_t* a, vect3_t* b);
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1);
+static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 bboxResult);
 static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
 static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
@@ -84,6 +86,69 @@ static f32 * GetBoundBox(B3L_Mesh_t *start){
     f32* pBound = (f32 *)(u8Start + SIZE_SHIFT);
     return pBound;
 }
+
+static void ClipLineInScreen(vect3_t* a, vect3_t* b) {
+    vect4_t* temp;
+    //test left x
+    s32 cax = B3L_CeilToS(a->x);
+    s32 cbx = B3L_CeilToS(b->x);
+    s32 cay = B3L_CeilToS(a->y);
+    s32 cby = B3L_CeilToS(b->y);
+    f32 rry = (f32)(RENDER_RESOLUTION_Y - 1);
+    f32 rrx = (f32)(RENDER_RESOLUTION_X - 1);
+
+    if ((a->x) > (b->x)) {
+        temp = b; b = a;a = temp;
+    }
+    f32 ax = a->x;f32 ay = a->y;f32 az = a->z;
+    f32 bx = b->x;f32 by = b->y;f32 bz = b->z;
+    f32 dx, dy;
+    f32 factor;
+    if (cax != cbx) {
+        if ((ax) < 0.0f) {
+                //do clip
+            dx = bx - ax;
+            factor = 1.0f / dx;
+            ay = ay - (by - ay) * factor * ax;
+            az = az - (bz - az) * factor * ax;
+            ax = 0.0f;
+        }
+    
+        if ((bx) > rrx) {
+                //do clip
+            dx = bx - ax;
+            factor = 1.0f / dx;
+            by = by - (by - ay) * factor * (bx - rrx);
+            bz = bz - (bz - az) * factor * (bx - rrx);
+            bx = rrx;
+        }
+    }
+    if (cay != cby) {
+        if ((ay) > (by)) {
+            _swap_f32_t(ax, bx); _swap_f32_t(ay, by); _swap_f32_t(az, bz);
+        }
+        if (((ay) < 0.0f)&&(cay != cby)) {
+            //do clip
+            dy = by - ay;
+            factor = 1.0f / dy;
+            ax =ax - (bx - ax) * factor * ay;
+            az =az - (bz - az) * factor * ay;
+            ay = 0.0f;
+        }
+    
+        if ((by) > rry) {
+            //do clip
+            dy = by - ay;
+            factor = 1.0f / dy;
+            bx = bx - (bx - ax) * factor * (by - rry);
+            bz = bz - (bz - az) * factor * (by - rry);
+            by = rry;
+        }
+    }
+    a->x = ax; a->y = ay; a->z = az;
+    b->x = bx; b->y = by; b->z = bz;
+}
+
 
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2,  f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1) {
     vect4_t vect0, vect1, vect2;
@@ -189,6 +254,12 @@ __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f
     return ((s8)B3L_RoundingToS(normalDotLight));
 
 }
+
+
+static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 bboxResult) {
+
+}
+
 
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult) {
     int32_t i;
@@ -742,7 +813,7 @@ void RenderObjs(render_t* pRender) {
             RenderTexMesh(pCurrentObj, pRender, &mat, &objMat,renderLevel,result);
             break;
         case (1 << POLYGON_OBJ):
-            //RenderPolygon(pCurrentObj, pRender, &mat);
+            RenderPolygon(pCurrentObj, pRender, &mat, result);
             break;
         case (1 << NOTEX_MESH_OBJ):
             RenderColorMesh(pCurrentObj, pRender, &mat, &objMat, renderLevel, result);

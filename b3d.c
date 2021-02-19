@@ -531,22 +531,11 @@ _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
 
 static void  UpdateCam(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);
-    if (B3L_TEST(pCam->state, B3L_CAMERA_TRACK_OBJ_MODE)) {
-        CamCalNewTrackPosition(pCam);
-        CamCalNewTrackQuaternion(pCam);
-        //printf("current camera position:");
-        //B3L_logVec3(pCam->transform.translation);
-    }
-    //if (B3L_TEST(pCam->state, CAM_NEED_MATRIX_UPDATE)) {
+
     B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &(pCam->mat));
-    //B3L_CLR(pCam->state, CAM_NEED_MATRIX_UPDATE);
-    
     GenerateW2CMatrix(&(pRender->camera));
     B3L_Mat4XMat4(&(pCam->camW2CMat), &(pCam->clipMat), &(pCam->camW2CMat));
-    //printf("clip mat:");
-    //B3L_logMat4(pCam->clipMat);
-    //printf("W2C mat:");
-    //B3L_logMat4(pCam->camW2CMat);
+
 }
 
 

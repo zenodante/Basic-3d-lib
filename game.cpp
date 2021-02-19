@@ -17,6 +17,19 @@ B3LObj_t* pBitmap;
 // setup your game here
 //
 void init() {
+    vect3_t a, b;
+    a.x = 10.5f;
+    a.y = 270.0f;
+    a.z = 0.0f;
+    b.x = 10.5f;
+    b.y = -120.0f;
+    b.z = 0.0f;
+    ClipLineInScreen(&a, &b);
+    printf("a: %.3f,%.3f,%.3f\n", a.x, a.y, a.z);
+    printf("b: %.3f,%.3f,%.3f\n", b.x, b.y, b.z);
+
+
+
     set_screen_mode(ScreenMode::hires_palette);
     set_screen_palette((const Pen *)(pal), 256);
     
@@ -28,9 +41,8 @@ void init() {
     pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
     pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0, 63, 63, 16, true);
     B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
-    pBitmap->transform.scale.x = 50.0f;
-    pBitmap->transform.scale.y = 50.0f;
-    pBitmap->transform.scale.z = 50.0f;
+    B3L_SetObjScale(pBitmap, 50.0f, 50.0f, 50.0f);
+
     pBox->mother = pBitmap;
     B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);

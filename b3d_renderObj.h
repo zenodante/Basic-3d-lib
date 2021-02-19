@@ -7,7 +7,7 @@ extern "C" {
 #include "b3d_types.h"
 	extern void RenderObjs(render_t* pRender);
 
-
+	
 
 
 

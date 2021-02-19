@@ -7,7 +7,6 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
 __STATIC_FORCEINLINE void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* fbuff, zBuff_t* zbuff, fBuff_t color);
 __STATIC_FORCEINLINE void DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
 __STATIC_FORCEINLINE void DrawPixel(fBuff_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
-
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
 
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z) {
@@ -407,8 +406,22 @@ __STATIC_FORCEINLINE void     DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f
     
   }
 }
+
+
+void DrawSpaceLine(vect3_t* a, vect3_t* b,
+    B3L_tex_t color, fBuff_t* pFrameBuff, zBuff_t* pZbuff) {
+    //partly in space check
+    
+    //if partly in space
+
+    //ClipLineInScreen(a, b);
+    //draw in space points
+
+
+
+}
 //TODO need update
-void DrawSpaceLine(s32 Ax, s32 Ay, f32 Az, s32 Bx, s32 By, f32 Bz,
+void DrawSpaceLine2(s32 Ax, s32 Ay, f32 Az, s32 Bx, s32 By, f32 Bz,
                    fBuff_t color, fBuff_t* pFrameBuff, zBuff_t* pZbuff) {
   //now A is in the left and B is in the right
     s32 steep = B3L_Absf(Ay - By) > B3L_Absf(Ax - Bx);
@@ -435,6 +448,28 @@ void DrawSpaceLine(s32 Ax, s32 Ay, f32 Az, s32 Bx, s32 By, f32 Bz,
     else {
         ystep = -1;
     }
+    /*
+    Cut line by x,y range
+    */
+    if (steep) {
+        if (Bx >= RENDER_RESOLUTION_Y) {
+            Bx = RENDER_RESOLUTION_Y;
+        }
+
+        if (Ax >= RENDER_RESOLUTION_Y) {
+            Ax = RENDER_RESOLUTION_Y;
+        }
+
+    }
+    else {
+        if (Bx >= RENDER_RESOLUTION_X) {
+            Bx = RENDER_RESOLUTION_X;
+        }
+        if (Ax >= RENDER_RESOLUTION_X) {
+            Ax = RENDER_RESOLUTION_X;
+        }
+    }
+
     if ((Ax < 0) || (Ay < 0) || (Ax >= RENDER_RESOLUTION_X) || (Ay >= RENDER_RESOLUTION_Y)||\
     (Bx < 0) || (By < 0) || (Bx >= RENDER_RESOLUTION_X) || (By >= RENDER_RESOLUTION_Y)) {
         for (; Ax <= Bx; Ax++) {
