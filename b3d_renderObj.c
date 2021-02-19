@@ -17,7 +17,7 @@ __STATIC_FORCEINLINE u32 BoundBoxTest(f32* Boundbox, mat4_t* pMat);
 __STATIC_FORCEINLINE u32 BitmapBoundBoxTest(B3LObj_t* pObj, mat4_t* pMat);
 __STATIC_FORCEINLINE bool TriangleFaceToViewer_f(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2);
 __STATIC_FORCEINLINE s8  CalLightFactor(f32 normalDotLight, f32  lightFactor0, f32  lightFactor1);
-static void ClipLineInScreen(vect3_t* a, vect3_t* b);
+static void ClipLineInScreen(screen3f_t* a, screen3f_t* b);
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 bboxResult);
@@ -25,6 +25,8 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
 static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
+static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly);
+static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum);
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u16 * GetTriIdx(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
@@ -90,11 +92,6 @@ __STATIC_FORCEINLINE void  Vect3Xmat4WithTest_f(vect3_t* pV, mat4_t* pMat, scree
     if (rz <= 0.0f) {//if the near plane clip, then don't do the calculation, set bit and return directly
         B3L_SET(testResult, B3L_NEAR_PLANE_CLIP);
         pResult->test = testResult;
-#if B3L_DO_NEAR_PLANE_CLIP == 1
-        //to calculate a correct backface culling, not always correct!
-       // pResult->x = HALF_RESOLUTION_X + HALF_RESOLUTION_X * rx;
-       // pResult->y = HALF_RESOLUTION_Y - HALF_RESOLUTION_Y * ry;
-#endif
         return;
     }
     else if ((rx < rw) && (rx > -rw) && (ry < rw) && (ry > -rw) && (rz < rw)) {
@@ -126,6 +123,7 @@ __STATIC_FORCEINLINE bool Vect4BoundTest(vect4_t* pV) {
 
 #define SIZE_SHIFT          8
 
+
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
     u8* u8Start = (u8*)start;
     u16 uvNum = ((u16*)(start))[2];
@@ -145,6 +143,21 @@ static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
     }
     return pNormal;
 }
+
+
+static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly) {
+    u8* u8Start = (u8*)pPoly;
+    vect3_t* pVect = (vect3_t*)(u8Start + SIZE_SHIFT + 24);
+    return pVect;
+}
+static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum) {
+    u8* u8Start = (u8*)pPoly;
+    //u16 vectNum = ((u16*)(start))[0];
+    //u16 triNum = ((u16*)(start))[1];
+    u16* pLin = (u16*)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12);
+    return pLin;
+}
+
 
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
@@ -174,8 +187,8 @@ static f32 * GetBoundBox(B3L_Mesh_t *start){
     return pBound;
 }
 
-static void ClipLineInScreen(vect3_t* a, vect3_t* b) {
-    vect4_t* temp;
+static void ClipLineInScreen(screen3f_t* a, screen3f_t* b) {
+    screen3f_t* temp;
     //test left x
     s32 cax = B3L_CeilToS(a->x);
     s32 cbx = B3L_CeilToS(b->x);
@@ -210,6 +223,7 @@ static void ClipLineInScreen(vect3_t* a, vect3_t* b) {
             bx = rrx;
         }
     }
+    
     if (cay != cby) {
         if ((ay) > (by)) {
             _swap_f32_t(ax, bx); _swap_f32_t(ay, by); _swap_f32_t(az, bz);
@@ -347,6 +361,63 @@ static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 b
     int32_t i;
     //s8 lightValue = ((s8)((pObj->state & OBJ_SPECIAL_LIGHT_MASK) >> OBJ_SPECIAL_LIGHT_SHIFT)) - 16;
     s8 lightValue = GET_OBJ_FIX_LIGHT_VALUE(pObj);
+    B3L_Polygon_t *pPoly = (B3L_Polygon_t*)(pObj->pResource0);
+    B3L_tex_t* pColor = (B3L_tex_t*)(pObj->pResource1);
+    u16 vectNum = ((u16*)(pPoly))[0];
+    u16 linNum = ((u16*)(pPoly))[1];
+    vect4_t* pVectTarget = pRender->pVectBuff;
+    fBuff_t* pFrameBuff = pRender->pFrameBuff;
+    zBuff_t* pZBuff = pRender->pZBuff;
+    u32 state = pObj->state;
+    vect3_t* pVectSource = GetPolygonVect(pPoly);
+    u16* pLine = GetPolygonLin(pPoly, vectNum);
+    //convert all the vects
+    if ((bboxResult >> BOX_IN_SPACE) == 8) {
+        for (i = vectNum - 1; i >= 0; i--) {
+            Vect3Xmat4ToScreen4(pVectSource + i, pMat, pVectTarget + i);
+        }
+    }
+    else {
+        for (i = vectNum - 1; i >= 0; i--) {
+            Vect3Xmat4WithTest_f(pVectSource + i, pMat, (screen3f_t*)pVectTarget + i);
+        }
+    }
+    u16 aIdx, bIdx;
+    if ((bboxResult >> BOX_IN_SPACE) == 8) {
+    //fully in clip space
+        for (i = linNum-1; i >=0; i--) {
+            //draw all line directly
+            aIdx = pLine[i * 2];
+            bIdx = pLine[i * 2 + 1];
+            f32 ax = pVectTarget[aIdx].x;
+            f32 ay = pVectTarget[aIdx].y;
+            f32 az = pVectTarget[aIdx].z;
+            f32 bx = pVectTarget[bIdx].x;
+            f32 by = pVectTarget[bIdx].y;
+            f32 bz = pVectTarget[bIdx].z;
+            DrawSpaceLine(ax, ay, az, bx, by, bz, pColor[i],pFrameBuff,pZBuff, lightValue);
+        }
+    }
+    else {
+        for (i = linNum - 1; i >= 0; i--) {
+            aIdx = pLine[i * 2];
+            bIdx = pLine[i * 2 + 1];
+            u32 result0 = ((screen3f_t*)pVectTarget)[aIdx].test;
+            u32 result1 = ((screen3f_t*)pVectTarget)[bIdx].test;
+            u32 triVisable = result0 + (result1 << 1);
+            //u32 inSpaceCheck = triVisable >> 3;
+            u32 clipCheck = triVisable & 0x00000007;
+            if (clipCheck ==0) {// line not cross the near plane
+                f32 ax = pVectTarget[aIdx].x;
+                f32 ay = pVectTarget[aIdx].y;
+                f32 az = pVectTarget[aIdx].z;
+                f32 bx = pVectTarget[bIdx].x;
+                f32 by = pVectTarget[bIdx].y;
+                f32 bz = pVectTarget[bIdx].z;
+                DrawSpaceLine(ax,ay,az,bx,by,bz, pColor[i], pFrameBuff, pZBuff, lightValue);
+            }
+        }
+    }
 }
 
 

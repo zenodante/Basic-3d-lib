@@ -401,21 +401,61 @@ __STATIC_FORCEINLINE void     DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f
   u32 iZ = GetZtestValue(z);
   if (iZ <= (u32)(*pCurrentZ)) {
     *pixel = color;
-    
-    *pCurrentZ = iZ;
-    
+    *pCurrentZ = iZ; 
   }
 }
 
 
-void DrawSpaceLine(vect3_t* a, vect3_t* b,
-    B3L_tex_t color, fBuff_t* pFrameBuff, zBuff_t* pZbuff) {
-    //partly in space check
-    
-    //if partly in space
-
-    //ClipLineInScreen(a, b);
-    //draw in space points
+void DrawSpaceLine(f32 ax, f32 ay, f32 az, f32 bx, f32 by, f32 bz, B3L_tex_t color,
+                   fBuff_t* pFrameBuff, zBuff_t* pZbuff, s8 lightValue) {
+    s32 Ax = B3L_CeilToS(ax);
+    s32 Ay = B3L_CeilToS(ay);
+    s32 Bx = B3L_CeilToS(bx);
+    s32 By = B3L_CeilToS(by);
+    //now A is in the left and B is in the right
+    s32 steep = abs(Ay - By) > abs(Ax - Bx);
+    //fBuff_t drawColor;
+    if (steep) {
+        _swap_int32_t(Ax, Ay);
+        _swap_int32_t(Bx, By);
+    }
+    if (Ax > Bx) {
+        //swap a,b point
+        _swap_int32_t(Ax, Bx);
+        _swap_int32_t(Ay, By);
+        _swap_f32_t(az, bz);
+    }
+    s32 dx, dy;
+    dx = Bx - Ax;
+    dy = abs(By - Ay);
+    f32 dz = (az - bz) / ((f32)dx);
+    s32 err = dx / 2;
+    s32 ystep;
+#ifdef USING_COLOR_LEVEL
+    u8 colorRow = color & 0xF0;
+    s8 colorColumn = color & 0x0F;
+    color = SatToU4(colorColumn + lightValue) + colorRow;
+#endif
+    if (Ay < By) {
+        ystep = 1;
+    }
+    else {
+        ystep = -1;
+    }
+    for (; Ax <= Bx; Ax++) {
+        if (steep) {
+            DrawPixelWithTest(color, Ay, Ax, az, pFrameBuff, pZbuff);
+        }
+        else {
+            DrawPixelWithTest(color, Ax, Ay, az, pFrameBuff, pZbuff);
+        }
+        az = az + dz;
+        err -= dy;
+        if (err < 0) {
+            Ay += ystep;
+            err += dx;
+        }
+    }
 
 
 

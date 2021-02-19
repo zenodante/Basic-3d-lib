@@ -92,10 +92,8 @@ extern void B3L_UpdateClipMatrix(render_t* pRender);
 extern void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov);
 extern void B3L_CameraMoveTo(render_t* pRender, f32 x,f32 y,f32 z);
 extern void B3L_CameraMoveToV(render_t* pRender,vect3_t position);
-extern void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp);
-//extern void B3L_CamStopTrack(camera_t* pCam);
-//extern void B3L_CamStartTrack(camera_t* pCam);
-//extern void B3L_CamInitTrack(camera_t* pCam, B3LObj_t* pObj, f32 camX, f32 camY, f32 camZ, f32 lookAtX, f32 lookAtY, f32 lookAtZ);
+extern void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp);//has bug...
+
 /*-----------------------------------------------------------------------------
 Light functions
 -----------------------------------------------------------------------------*/
