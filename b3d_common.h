@@ -63,8 +63,7 @@ extern "C" {
 #if  B3L_ARM == 1
   __STATIC_FORCEINLINE f32      B3L_Sqrtf(f32 in);
   __STATIC_FORCEINLINE f32      B3L_Absf(f32 in);
-  //__STATIC_FORCEINLINE s32      B3L_CeilToS(f32 in);
-__STATIC_FORCEINLINE u32   VcvtF32ToU32_Fix(f32 in);
+__STATIC_FORCEINLINE u32 VcvtF32ToU32_Fix(f32 in);
 #else
 #define B3L_Sqrtf(a)   sqrtf(a)
 #define B3L_Absf(a)    fabsf(a)
@@ -98,19 +97,12 @@ Math function
     __ASM("vabs.f32 %0,%1" : "=t"(result) : "t"(in));
     return (result);
   }
-  
-  __STATIC_FORCEINLINE u32   VcvtF32ToU32_Fix(f32 in) {
-    u32 result;
-    __ASM("vcvt.u32.f32 %0,%1,#B3L_FIX_BITS" : "=t"(result) : "t"(in));
-    return result;
-  }
-/*
-  __STATIC_FORCEINLINE f32   VcvtS32ToF32_Fix(s32 in) {
-    s32 result;
-    __ASM("vcvt.f32.s32 %0,%1,#B3L_FIX_BITS" : "=t"(result) : "t"(in));
-    return result;
-  }
-*/
+
+  __STATIC_FORCEINLINE  u32   VcvtF32ToU32_Fix(float in) {
+    //uint32_t result;
+    __ASM("vcvt.u32.f32 %0,%0,#16" : "=t"(in) : "t"(in));
+    return in;
+}
   __STATIC_FORCEINLINE u32   SatToU4(s32 in) {
     u32 result;
     __ASM("usat %0, %1, %2" : "=r" (result) : "I" (4), "r" (in));

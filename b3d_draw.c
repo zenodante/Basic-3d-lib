@@ -9,6 +9,11 @@ __STATIC_FORCEINLINE void DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f32 z
 __STATIC_FORCEINLINE void DrawPixel(fBuff_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
 
+
+
+
+
+
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z) {
 #if B3L_ARM  == 1
     return  VcvtF32ToU32_Fix(z);
