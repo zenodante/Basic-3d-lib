@@ -21,8 +21,8 @@ static void ClipLineInScreen(screen3f_t* a, screen3f_t* b);
 static void ClipTexPoint(u32 v0, u32 v1, u32 v2, u32 i0, u32 i1, u32 i2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, u8* pUV, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void ClipColorPoint(u32 v0, u32 v1, u32 v2, f32 nearPlane, vect3_t* pVect, mat4_t* pMat, B3L_clip_t* pC0, B3L_clip_t* pC1);
 static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 bboxResult);
-static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
-static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult);
+static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pW2OMat, u32 renderLevel, u32 bboxResult);
+static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pW2OMat, u32 renderLevel, u32 bboxResult);
 static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly);
@@ -421,7 +421,7 @@ static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 b
 }
 
 
-static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult) {
+static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pW2OMat, u32 renderLevel, u32 bboxResult) {
     int32_t i;
     s8 lightValue = 0;
     B3L_Mesh_t* pMesh = (B3L_Mesh_t*)(pObj->pResource0);
@@ -455,28 +455,30 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
 #endif
 #ifdef USING_LIGHT   
     vect3_t* pNormal = MeshGetNormal(pMesh, vectNum, triNum);
-    f32 lightX, lightY, lightZ;
+    vect3_t pointToLightVect;
     f32 normalFact, normalDotLight;
     f32 lightFactor0, lightFactor1;
     vect3_t normalVect;
     if (renderLevel == 0) {
         if (B3L_TEST(pRender->light.state, LIGHT_TYPE_BIT) == POINT_LIGHT) {
             //dot light, calculate the vect point  to light from obj (both already in camera space)
-            vect3_t* translation = &(pObj->transform.translation);
-            lightX = pRender->light.lightVect.x - translation->x;
-            lightY = pRender->light.lightVect.y - translation->y;
-            lightZ = pRender->light.lightVect.z - translation->z;
-            normalFact = FastInvertSqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
-            lightX = lightX * normalFact;
-            lightY = lightY * normalFact;
-            lightZ = lightZ * normalFact;
+            //vect3_t* translation = &(pObj->transform.translation);
+            pointToLightVect.x = pRender->light.lightVect.x - pMat->m03;
+            pointToLightVect.y = pRender->light.lightVect.y - pMat->m13;
+            pointToLightVect.z = pRender->light.lightVect.z - pMat->m33;
         }
         else {
             //parallel light, the point to light vect is already in camera space
-            lightX = pRender->light.lightVect.x;
-            lightY = pRender->light.lightVect.y;
-            lightZ = pRender->light.lightVect.z;
+            pointToLightVect.x = pRender->light.lightVect.x;
+            pointToLightVect.y = pRender->light.lightVect.y;
+            pointToLightVect.z = pRender->light.lightVect.z;
         }
+        B3L_Vect3XMat3(&pointToLightVect, pRmat, &pointToLightVect);  //transform light into obj space
+
+        normalFact = B3L_Sqrtf(pointToLightVect.x * pointToLightVect.x + pointToLightVect.y * pointToLightVect.y + pointToLightVect.z * pointToLightVect.z);
+        pointToLightVect.x = pointToLightVect.x * normalFact;
+        pointToLightVect.y = pointToLightVect.y * normalFact;
+        pointToLightVect.z = pointToLightVect.z * normalFact;
         lightFactor0 = pRender->light.factor_0;
         lightFactor1 = pRender->light.factor_1;
     }
@@ -507,12 +509,8 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
             }
 #ifdef USING_LIGHT
             if (renderLevel == 0) {
-                //printf("index %d, normal index %d\n", i, pNormalIdx[i]);
-                //printf("lightValue %d\n", normalLightBuff[pNormalIdx[i]]);
-                //lightValue =normalLightBuff[pNormalIdx[i]];
-                B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
-                //dot multi light and normalvect to get the light factor
-                normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
+                vect3_t* currentNormal = pNormal + i;
+                normalDotLight = currentNormal->x * pointToLightVect.x + currentNormal->y * pointToLightVect.y + currentNormal->z * pointToLightVect.z;
                 lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
             }
 #endif
@@ -553,10 +551,8 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
             if (inSpaceCheck) {// at least one point inside the clip space
 #ifdef USING_LIGHT
                 if (renderLevel == 0) {
-                    // lightValue =normalLightBuff[pNormalIdx[i]];
-                    B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
-                    //dot multi light and normalvect to get the light factor
-                    normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
+                    vect3_t* currentNormal = pNormal + i;
+                    normalDotLight = currentNormal->x * pointToLightVect.x + currentNormal->y * pointToLightVect.y + currentNormal->z * pointToLightVect.z;
                     lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
                 }
 #endif
@@ -589,7 +585,7 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat
 
 
 
-static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_t* pRmat, u32 renderLevel, u32 bboxResult) {
+static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pW2OMat, u32 renderLevel, u32 bboxResult) {
     int32_t i;
     s8 lightValue = 0;
     B3L_Mesh_t* pMesh = (B3L_Mesh_t*)(pObj->pResource0);
@@ -625,28 +621,30 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
 #endif
 #ifdef USING_LIGHT   
     vect3_t* pNormal = MeshGetNormal(pMesh, vectNum, triNum);
-    f32 lightX, lightY, lightZ;
+    vect3_t pointToLightVect;
     f32 normalFact, normalDotLight;
     f32 lightFactor0, lightFactor1;
     vect3_t normalVect;
     if (renderLevel == 0) {
         if (B3L_TEST(pRender->light.state, LIGHT_TYPE_BIT) == POINT_LIGHT) {
             //dot light, calculate the vect point  to light from obj (both already in camera space)
-            vect3_t* translation = &(pObj->transform.translation);
-            lightX = pRender->light.lightVect.x - translation->x;
-            lightY = pRender->light.lightVect.y - translation->y;
-            lightZ = pRender->light.lightVect.z - translation->z;
-            normalFact = FastInvertSqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
-            lightX = lightX * normalFact;
-            lightY = lightY * normalFact;
-            lightZ = lightZ * normalFact;
+            //vect3_t* translation = &(pObj->transform.translation);
+            pointToLightVect.x = pRender->light.lightVect.x - pMat->m03;
+            pointToLightVect.y = pRender->light.lightVect.y - pMat->m13;
+            pointToLightVect.z = pRender->light.lightVect.z - pMat->m33;         
         }
         else {
             //parallel light, the point to light vect is already in camera space
-            lightX = pRender->light.lightVect.x;
-            lightY = pRender->light.lightVect.y;
-            lightZ = pRender->light.lightVect.z;
+            pointToLightVect.x = pRender->light.lightVect.x;
+            pointToLightVect.y = pRender->light.lightVect.y;
+            pointToLightVect.z = pRender->light.lightVect.z;
         }
+        B3L_Vect3XMat3(&pointToLightVect, pRmat, &pointToLightVect);  //transform light into obj space
+
+        normalFact = B3L_Sqrtf(pointToLightVect.x * pointToLightVect.x + pointToLightVect.y * pointToLightVect.y + pointToLightVect.z * pointToLightVect.z);
+        pointToLightVect.x = pointToLightVect.x * normalFact;
+        pointToLightVect.y = pointToLightVect.y * normalFact;
+        pointToLightVect.z = pointToLightVect.z * normalFact;
         lightFactor0 = pRender->light.factor_0;
         lightFactor1 = pRender->light.factor_1;
     }
@@ -679,9 +677,10 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
                 //printf("index %d, normal index %d\n", i, pNormalIdx[i]);
                 //printf("lightValue %d\n", normalLightBuff[pNormalIdx[i]]);
                 //lightValue =normalLightBuff[pNormalIdx[i]];
-                B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
+                //B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
                 //dot multi light and normalvect to get the light factor
-                normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
+                vect3_t* currentNormal = pNormal + i;
+                normalDotLight = currentNormal->x * pointToLightVect.x + currentNormal->y * pointToLightVect.y + currentNormal->z * pointToLightVect.z;
                 lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
             }
 #endif
@@ -722,10 +721,8 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, mat3_
             if (inSpaceCheck) {// at least one point inside the clip space
 #ifdef USING_LIGHT
                 if (renderLevel == 0) {
-                    // lightValue =normalLightBuff[pNormalIdx[i]];
-                    B3L_Vect3XMat3(pNormal + i, pRmat, &normalVect);
-                    //dot multi light and normalvect to get the light factor
-                    normalDotLight = normalVect.x * lightX + normalVect.y * lightY + normalVect.z * lightZ;
+                    vect3_t* currentNormal = pNormal + i;
+                    normalDotLight = currentNormal->x * pointToLightVect.x + currentNormal->y * pointToLightVect.y + currentNormal->z * pointToLightVect.z;
                     lightValue = CalLightFactor(normalDotLight, lightFactor0, lightFactor1);
                 }
 #endif
@@ -915,8 +912,9 @@ static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat) {
 Public Function
 -------------------------------------------------------------------------------------------------*/
 void RenderObjs(render_t* pRender) {
-    mat4_t mat; 
-    mat3_t objMat;
+    mat4_t O2Cmat; 
+    //mat3_t objMat;
+    mat4_t W2OMat;
     u32 state;
     u32 renderLevel;
     f32 distance;
@@ -931,17 +929,17 @@ void RenderObjs(render_t* pRender) {
             pCurrentObj = pCurrentObj->next;
             continue;
         }
-        B3L_QuaternionToMatrix(&(pCurrentObj->transform.quaternion), &(objMat));
+
         //also process mother obj rotation chain
-        B3L_CreateO2CMatrix(pCurrentObj,&(objMat), &(pRender->camera.camW2CMat), &mat);
+        B3L_CreateO2CMatrix(pCurrentObj, &(pRender->camera.camW2CMat),&(W2OMat),&O2Cmat);
         //test boundBoxTestFactor to check if the obj out of clip range
         //Boundbox testing, to check potential near plane clip is necessary or not
         u32 result=0;
         if ((state & OBJ_TYPE_MASK)!=(1<< BITMAP_OBJ)){
             f32 *pBoundBox = GetBoundBox((B3L_Mesh_t *)(pCurrentObj->pResource0));
-            result = BoundBoxTest(pBoundBox, &mat);
+            result = BoundBoxTest(pBoundBox, &O2Cmat);
         }else{
-            result = BitmapBoundBoxTest(pCurrentObj,&mat);
+            result = BitmapBoundBoxTest(pCurrentObj,&O2Cmat);
         }
         
         if ((result >> BOX_IN_SPACE) == 0) { //both of 8 points are not in the clip range 
@@ -949,9 +947,9 @@ void RenderObjs(render_t* pRender) {
             continue;
         }
         //calculate the distance
-        f32 x = mat.m03;
-        f32 y = mat.m13;
-        f32 z = mat.m23;
+        f32 x = O2Cmat.m03;
+        f32 y = O2Cmat.m13;
+        f32 z = O2Cmat.m23;
         distance = B3L_Sqrtf(x * x + y * y + z * z);
         //decide render level info        
         if (B3L_TEST(state, OBJ_IGNORE_RENDER_LEVEL)) {
@@ -970,16 +968,16 @@ void RenderObjs(render_t* pRender) {
         }
         switch (state & OBJ_TYPE_MASK) {
         case (1 << MESH_OBJ):
-            RenderTexMesh(pCurrentObj, pRender, &mat, &objMat,renderLevel,result);
+            RenderTexMesh(pCurrentObj, pRender, &O2Cmat, &W2OMat,renderLevel,result);
             break;
         case (1 << POLYGON_OBJ):
-            RenderPolygon(pCurrentObj, pRender, &mat, result);
+            RenderPolygon(pCurrentObj, pRender, &O2Cmat, result);
             break;
         case (1 << NOTEX_MESH_OBJ):
-            RenderColorMesh(pCurrentObj, pRender, &mat, &objMat, renderLevel, result);
+            RenderColorMesh(pCurrentObj, pRender, &O2Cmat, &W2OMat, renderLevel, result);
             break;
         case (1<< BITMAP_OBJ):
-            RenderBitmap(pCurrentObj, pRender, &mat);
+            RenderBitmap(pCurrentObj, pRender, &O2Cmat);
             break;
         }
         //point to the next obj

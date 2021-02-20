@@ -372,76 +372,101 @@ void B3L_CreateO2WMat(mat3_t* pRMat, vect3_t* pTranslation, vect3_t* pScale, mat
 /*-------------------------------------------------------------------------------------------------
 Traverse all mother objs chain to generate final object to world matrix
 -------------------------------------------------------------------------------------------------*/
-static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult) {
+static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat4_t* pResult) {
     //mat4_t o2wMat;
-
+    mat3_t rMat;
+    B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &(rMat));
     vect3_t* pTrans = &(pObj->transform.translation);
     vect3_t* pScale = &(pObj->transform.scale);
-    
+    B3L_CreateO2WMat(&rMat, pTrans, pScale, pResult);
     B3LObj_t* pMotherObj = pObj->pMother;
     if (pMotherObj != (B3LObj_t*)NULL) {       
-        B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
         //has mother obj
         mat4_t motherMat;
-        mat3_t motherRotateMat;
-        B3L_QuaternionToMatrix(&(pMotherObj->transform.quaternion), &(motherRotateMat));
-        B3L_CreateO2WChainMatrix(pMotherObj, &motherRotateMat, &motherMat);
+        B3L_CreateO2WChainMatrix(pMotherObj,&motherMat);
         //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
         B3L_Mat4XMat4(pResult, &motherMat, pResult);
     }
-    else {
-        B3L_CreateO2WMat(pRMat, pTrans, pScale, pResult);
-    }
+
 
 }
 
 /*-------------------------------------------------------------------------------------------------
 Generate obj to clip space matrix
 -------------------------------------------------------------------------------------------------*/
-void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat3_t* pRMat,mat4_t* pCamMat, mat4_t* pResult) {
+void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat4_t* pCamMat, mat4_t* pW2OMat,mat4_t* pO2CMat) {
     mat4_t o2wMat;
-    B3L_CreateO2WChainMatrix(pObj, pRMat, &o2wMat);
-    B3L_Mat4XMat4(&o2wMat, pCamMat, pResult);
-
-    /*
-    f32 t0, t1, t2, t3;
-    f32 s0, s1, s2;
-#define M(x,y) (pRMat)->m##x##y
-#define N(x,y) (pCamMat)->m##x##y
-#define O(x,y) (pResult)->m##x##y
-    f32 scaleVal = pScale->x;
-    s0 = M(0, 0) * scaleVal; s1 = M(1, 0) * scaleVal; s2 = M(2, 0) * scaleVal;
-    t0 = s0 * N(0, 0) + s1 * N(0, 1) + s2 * N(0, 2);
-    t1 = s0 * N(1, 0) + s1 * N(1, 1) + s2 * N(1, 2);
-    t2 = s0 * N(2, 0) + s1 * N(2, 1) + s2 * N(2, 2);
-    t3 = s0 * N(3, 0) + s1 * N(3, 1) + s2 * N(3, 2);
-    O(0, 0) = t0; O(1, 0) = t1; O(2, 0) = t2; O(3, 0) = t3;
-    scaleVal = pScale->y;
-    s0 = M(0, 1) * scaleVal; s1 = M(1, 1) * scaleVal; s2 = M(2, 1) * scaleVal;
-    t0 = s0 * N(0, 0) + s1 * N(0, 1) + s2 * N(0, 2);
-    t1 = s0 * N(1, 0) + s1 * N(1, 1) + s2 * N(1, 2);
-    t2 = s0 * N(2, 0) + s1 * N(2, 1) + s2 * N(2, 2);
-    t3 = s0 * N(3, 0) + s1 * N(3, 1) + s2 * N(3, 2);
-    O(0, 1) = t0; O(1, 1) = t1; O(2, 1) = t2; O(3, 1) = t3;
-    scaleVal = pScale->z;
-    s0 = M(0, 2) * scaleVal; s1 = M(1, 2) * scaleVal; s2 = M(2, 2) * scaleVal;
-    t0 = s0 * N(0, 0) + s1 * N(0, 1) + s2 * N(0, 2);
-    t1 = s0 * N(1, 0) + s1 * N(1, 1) + s2 * N(1, 2);
-    t2 = s0 * N(2, 0) + s1 * N(2, 1) + s2 * N(2, 2);
-    t3 = s0 * N(3, 0) + s1 * N(3, 1) + s2 * N(3, 2);
-    O(0, 2) = t0; O(1, 2) = t1; O(2, 2) = t2; O(3, 2) = t3;
-    s0 = pTrans->x; s1 = pTrans->y; s2 = pTrans->z;
-    t0 = s0 * N(0, 0) + s1 * N(0, 1) + s2 * N(0, 2) + N(0, 3);
-    t1 = s0 * N(1, 0) + s1 * N(1, 1) + s2 * N(1, 2) + N(1, 3);
-    t2 = s0 * N(2, 0) + s1 * N(2, 1) + s2 * N(2, 2) + N(2, 3);
-    t3 = s0 * N(3, 0) + s1 * N(3, 1) + s2 * N(3, 2) + N(3, 3);
-    O(0, 3) = t0; O(1, 3) = t1; O(2, 3) = t2; O(3, 3) = t3;
-#undef M
-#undef N
-#undef O
-*/
+    //mat3_t rmat;
+    //B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &(rmat));
+    B3L_CreateO2WChainMatrix(pObj,&o2wMat);
+    B3L_Mat4XMat4(&o2wMat, pCamMat, pO2CMat);
+    B3L_InvertMat4(&o2wMat, pW2OMat); //now the obj r matrix contants the inverse matrix w2o
 
 }
+
+void B3L_InvertMat4(mat4_t* pMatS, mat4_t* pMatI) {
+
+}
+
+void B3L_InvertMat33(mat3_t* pMatS, mat3_t* pMatI) {
+    f32 det;
+#define S(x,y) (pMatS)->m##x##y
+#define I(x,y) (pMatI)->m##x##y
+    I(0, 0) = +S(1, 1) * S(2, 2) - S(2, 1) * S(1, 2);
+    I(1, 0) = -S(1, 0) * S(2, 2) + S(2, 0) * S(1, 2);
+    I(2, 0) = +S(1, 0) * S(2, 1) - S(2, 0) * S(1, 1);
+    I(0, 1) = -S(0, 1) * S(2, 2) + S(2, 1) * S(0, 2);
+    I(1, 1) = +S(0, 0) * S(2, 2) - S(2, 0) * S(0, 2);
+    I(2, 1) = -S(0, 0) * S(2, 1) + S(2, 0) * S(0, 1);
+    I(0, 2) = +S(0, 1) * S(1, 2) - S(1, 1) * S(0, 2);
+    I(1, 2) = -S(0, 0) * S(1, 2) + S(1, 0) * S(0, 2);
+    I(2, 2) = +S(0, 0) * S(1, 1) - S(1, 0) * S(0, 1);
+
+    det = S(0, 0) * I(0, 0) + S(1, 0) * I(0, 1) + S(2, 0) * I(0, 2);
+    det = 1.0f / det;
+    I(0, 0) *= det;
+    I(1, 0) *= det;
+    I(2, 0) *= det;
+    I(0, 1) *= det;
+    I(1, 1) *= det;
+    I(2, 1) *= det;
+    I(0, 2) *= det;
+    I(1, 2) *= det;
+    I(2, 2) *= det;
+
+#undef S(x,y)
+#undef I(x,y)
+}
+void B3L_InvertMat43(mat4_t* pMatS, mat3_t* pMatI) {
+    f32 det;
+#define S(x,y) (pMatS)->m##x##y
+#define I(x,y) (pMatI)->m##x##y
+    I(0,0) = + S(1,1) * S(2,2) - S(2,1) * S(1,2);
+    I(1,0) = - S(1,0) * S(2,2) + S(2,0) * S(1,2);
+    I(2,0) = + S(1,0) * S(2,1) - S(2,0) * S(1,1);
+    I(0,1) = - S(0,1) * S(2,2) + S(2,1) * S(0,2);
+    I(1,1) = + S(0,0) * S(2,2) - S(2,0) * S(0,2);
+    I(2,1) = - S(0,0) * S(2,1) + S(2,0) * S(0,1);
+    I(0,2) = + S(0,1) * S(1,2) - S(1,1) * S(0,2);
+    I(1,2) = - S(0,0) * S(1,2) + S(1,0) * S(0,2);
+    I(2,2) = + S(0,0) * S(1,1) - S(1,0) * S(0,1);
+
+    det = S(0, 0) * I(0, 0) + S(1, 0) * I(0, 1) + S(2, 0) * I(0, 2);
+    det = 1.0f / det;
+    I(0,0) *= det;
+    I(1,0) *= det;
+    I(2,0) *= det;
+    I(0,1) *= det;
+    I(1,1) *= det;
+    I(2,1) *= det;
+    I(0,2) *= det;
+    I(1,2) *= det;
+    I(2,2) *= det;
+
+#undef S(x,y)
+#undef I(x,y)
+}
+
 void B3L_Vect3Xmat4(vect3_t* pV, mat4_t* pMat, vect4_t* pResult) {
     f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
 #define dotCol(col)\
