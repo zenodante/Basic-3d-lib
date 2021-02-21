@@ -79,7 +79,7 @@ void init() {
 
 void render(uint32_t time) {
 
-    B3L_RenderScence(&rnd);
+    B3L_RenderScence(&rnd,time);
     
     screen.pen = Pen(0, 0, 0,1);
     screen.text("Basic 3d engine test", minimal_font, Point(5, 4));

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 #include "b3d_types.h"
-	extern void RenderObjs(render_t* pRender);
+	extern void RenderObjs(render_t* pRender,u32 time);
 
 	
 

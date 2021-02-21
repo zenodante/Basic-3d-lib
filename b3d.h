@@ -17,7 +17,7 @@ extern "C" {
 Render functions
 -----------------------------------------------------------------------------*/
 extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff);
-extern  void B3L_RenderScence(render_t* pRender); //draw work 
+extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work 
 extern  void B3L_ResetScene(scene_t* pScene); //reset all the scene resource
 extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); //clear buffs
 extern  void B3L_Update(render_t* pRender, u32 time); //update particles etc
@@ -60,8 +60,8 @@ extern void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender);
                                                ((pObj)->state=((pObj)->state&(~OBJ_SPECIAL_LIGHT_MASK))|((temp)<<OBJ_SPECIAL_LIGHT_SHIFT))
 #define  GET_OBJ_FIX_LIGHT_VALUE(pObj)         (((s8)(((pObj)->state&OBJ_SPECIAL_LIGHT_MASK)>>OBJ_SPECIAL_LIGHT_SHIFT))-16)
 
-#define  SET_PARTICLE_GENERATOR_ACTIVE(pObj)    B3L_SET((pObj)->state,OBJ_PARTICLE_ACTIVE)
-#define  SET_PARTICLE_GENERATOR_INACTIVE(pObj)  B3L_CLR((pObj)->state,OBJ_PARTICLE_ACTIVE)
+#define  SET_PARTICLE_GENERATOR_ACTIVE(pObj)    B3L_SET((pObj)->state,OBJ_PARTICLE_GEN_ACTIVE)
+#define  SET_PARTICLE_GENERATOR_INACTIVE(pObj)  B3L_CLR((pObj)->state,OBJ_PARTICLE_GEN_ACTIVE)
 
 /*-----------------------------------------------------------------------------
 Target rotate control functions

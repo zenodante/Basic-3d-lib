@@ -394,7 +394,7 @@ static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat4_t* pResult) {
 /*-------------------------------------------------------------------------------------------------
 Generate obj to clip space matrix
 -------------------------------------------------------------------------------------------------*/
-void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat4_t* pCamMat, mat4_t* pO2WMat,mat4_t* pO2CMat) {
+void  B3L_Create_O2W_O2C_Matrix(B3LObj_t* pObj,mat4_t* pCamMat, mat4_t* pO2WMat,mat4_t* pO2CMat) {
     //mat4_t o2wMat;
     //mat3_t rmat;
     //B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &(rmat));

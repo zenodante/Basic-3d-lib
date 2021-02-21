@@ -139,7 +139,7 @@ xx bits have been used for tri test
   B3LObj_t state
      31     2423     1615      87
      ------------------------------------
-  31|$$$$$$$$|******RQ|P**ML*JI|***EDCBA|0
+  31|$$$$$$$$|******RQ|***MLKJI|***EDCBA|0
      ------------------------------------
     A-- mesh obj with texture
     B-- polygon obj
@@ -147,11 +147,10 @@ xx bits have been used for tri test
     D-- particle generator obj
     E-- Bitmap obj
     I-- obj visualization
-    J-- Back face culling state
-
+    J-- Particle generator acitve state
+    K-- Back face culling state
     L-- fix render level switch
-    M-- Particle generator acitve state
-    P-- special light value
+    M-- special light value
     QR-- fix render level number
     $-- the 8 bit special light value defined by P + 16
 
@@ -164,13 +163,10 @@ xx bits have been used for tri test
 #define BITMAP_OBJ                          (4)
   //obj visualizable control
 #define OBJ_VISUALIZABLE                    (8)
-#define OBJ_BACKFACE_CULLING                (9)
-
+#define OBJ_PARTICLE_GEN_ACTIVE             (9)
+#define OBJ_BACKFACE_CULLING               (10)
 #define OBJ_IGNORE_RENDER_LEVEL            (11)
-#define OBJ_PARTICLE_ACTIVE                (12)
-
-
-#define OBJ_SPECIAL_LIGHT_VALUE            (15)
+#define OBJ_SPECIAL_LIGHT_VALUE            (12)
 //render stage information
 #define OBJ_RENDER_LEVEL_MASK        0x00030000
 #define OBJ_FIX_RENDER_LEVEL_SHIFT   (16)
@@ -193,18 +189,37 @@ xx bits have been used for tri test
   //mesh color obj        resource0: mesh, resource1: colors
   //bitmap obj            resource0: texture resource1: top left u, topleft v, bottom right u, bottom right v
   //polygon obj           resource0: line struct  resource1: colors
-  //particle generator    resource0: active particles entry resource1: particle generator config bits
+  //particle generator    resource0: active particles entry resource1: particle life time
+  /*
+  B3LObj_t state for particle generator obj
+
+     31     2423     1615      87
+     ------------------------------------
+  31|$$$$$$$$|########|**NMLKJI|***EDCBA|0
+     ------------------------------------
+    A-- mesh obj with texture
+    B-- polygon obj
+    C-- mesh obj without texture
+    D-- particle generator obj
+    E-- Bitmap obj
+    I-- obj visualization
+    J-- Particle generator acitve state
+    K-- Pixel particle
+    L-- Squre particle 
+    M-- Line particle
+    N-- Circle particle
+    #   size
+    $   life time *(100 ms)
+  */
+
 
   typedef struct {
     B3LObj_t            objBuff[OBJ_BUFF_SIZE];
     u32                 freeObjNum;
     B3LObj_t*           pFreeObjs;
-    B3LObj_t*           pActiveMeshObjs;
-#ifdef B3L_USING_PARTICLE
-    //B3LObj_t*     pActiveParticleGenObjs;
+    B3LObj_t*           pActiveObjs;
     u32                 freeParticleNum;
     B3L_Particle_t*     pfreeParticles;
-#endif
   }scene_t;
 
   //state

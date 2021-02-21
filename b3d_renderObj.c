@@ -24,6 +24,7 @@ static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 b
 static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pO2WMat, u32 renderLevel, u32 bboxResult);
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pO2WMat, u32 renderLevel, u32 bboxResult);
 static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
+static void UpdateParticleGenerator(B3LObj_t* pObj, render_t* pRender, mat4_t* O2Cmat, mat4_t* O2WMat,u32 time);
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly);
 static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum);
@@ -895,14 +896,27 @@ static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat) {
     f32 bv = (f32)((((u32)(pObj->pResource1)) & 0xFF000000) >> 24);
     s8 lightFact = ((s8)(((pObj->state) & OBJ_SPECIAL_LIGHT_MASK) >> OBJ_SPECIAL_LIGHT_SHIFT)) - 16;
     DrawSpaceBitmap(screenX - sizeX, screenY -sizeY, screenX + sizeX, screenY +sizeY, rz,
-        tu, tv, bu, bv,pRender->pFrameBuff, pRender->pZBuff,
-         (B3L_tex_t *)(pObj->pResource0), lightFact);
+                    tu, tv, bu, bv,pRender->pFrameBuff, pRender->pZBuff,
+                    (B3L_tex_t *)(pObj->pResource0), lightFact);
 
 }
+
+static void UpdateParticleGenerator(B3LObj_t* pObj, render_t*  pRender, mat4_t*  O2Cmat, mat4_t*  O2WMat,u32 time) {
+    //update active particles
+
+
+    //generate new particles
+
+
+    //draw the particle list
+
+    
+}
+
 /*-------------------------------------------------------------------------------------------------
 Public Function
 -------------------------------------------------------------------------------------------------*/
-void RenderObjs(render_t* pRender) {
+void RenderObjs(render_t* pRender,u32 time) {
     mat4_t O2Cmat; 
     //mat3_t objMat;
     mat4_t O2WMat;
@@ -910,7 +924,7 @@ void RenderObjs(render_t* pRender) {
     u32 renderLevel;
     f32 distance;
     //get the list enter point obj
-    B3LObj_t* pCurrentObj = pRender->scene.pActiveMeshObjs;
+    B3LObj_t* pCurrentObj = pRender->scene.pActiveObjs;
     f32 lvl0Distance = pRender->lvl0Distance;
     f32 lvl1Distance = pRender->lvl1Distance;
 
@@ -922,15 +936,19 @@ void RenderObjs(render_t* pRender) {
         }
 
         //also process mother obj rotation chain
-        B3L_CreateO2CMatrix(pCurrentObj, &(pRender->camera.camW2CMat),&(O2WMat),&O2Cmat);
+         B3L_Create_O2W_O2C_Matrix(pCurrentObj, &(pRender->camera.camW2CMat),&(O2WMat),&O2Cmat);
         //test boundBoxTestFactor to check if the obj out of clip range
         //Boundbox testing, to check potential near plane clip is necessary or not
         u32 result=0;
-        if ((state & OBJ_TYPE_MASK)!=(1<< BITMAP_OBJ)){
+        if (((state & OBJ_TYPE_MASK)==(1<<MESH_OBJ))||((state & OBJ_TYPE_MASK) == (1 << NOTEX_MESH_OBJ))||((state & OBJ_TYPE_MASK) == (1 << POLYGON_OBJ))){
+            //obj with boundbox
             f32 *pBoundBox = GetBoundBox((B3L_Mesh_t *)(pCurrentObj->pResource0));
             result = BoundBoxTest(pBoundBox, &O2Cmat);
-        }else{
+        }else if ((state & OBJ_TYPE_MASK) == (1 << BITMAP_OBJ)) {
             result = BitmapBoundBoxTest(pCurrentObj,&O2Cmat);
+        }
+        else {//for particle generation obj, always update it
+            result = 1 << BOX_IN_SPACE;
         }
         
         if ((result >> BOX_IN_SPACE) == 0) { //both of 8 points are not in the clip range 
@@ -969,6 +987,9 @@ void RenderObjs(render_t* pRender) {
             break;
         case (1<< BITMAP_OBJ):
             RenderBitmap(pCurrentObj, pRender, &O2Cmat);
+            break;
+        case (1<<PARTICLE_GEN_OBJ):
+            UpdateParticleGenerator(pCurrentObj, pRender, &O2Cmat, &O2WMat,time);
             break;
         }
         //point to the next obj

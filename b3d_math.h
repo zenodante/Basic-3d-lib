@@ -57,7 +57,7 @@ extern void B3L_Mat3ZRotate(mat3_t *pMat,f32 angle);
 extern void B3L_CreateScaleMatrix(f32 scaleX,f32 scaleY,f32 scaleZ,mat4_t *pMat);
 extern void B3L_CreateTranslationMat(f32 offsetX,f32 offsetY,f32 offsetZ,mat4_t *pMat);
 extern void B3L_CreateO2WMat(mat3_t *pRMat, vect3_t *pTranslation, vect3_t *pScale, mat4_t *pResult);
-extern void B3L_CreateO2CMatrix(B3LObj_t* pObj, mat4_t* pCamMat, mat4_t* pO2WMat, mat4_t* pO2CMat);
+extern void  B3L_Create_O2W_O2C_Matrix(B3LObj_t* pObj, mat4_t* pCamMat, mat4_t* pO2WMat, mat4_t* pO2CMat);
 extern void MakeClipMatrix(u32 state,f32 near_plane,f32 far_plane,f32 focalLength, f32 aspectRatio,mat4_t *pMat);
 extern void B3L_Vect3XMat3(vect3_t *pV, mat3_t *pMat, vect3_t *pResult);
 extern void B3L_Vect3Xmat3inMat4Format(vect3_t* pV, mat4_t* pMat, vect4_t* pResult);

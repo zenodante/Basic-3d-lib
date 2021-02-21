@@ -41,24 +41,16 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
 }
 
 
-void B3L_RenderScence(render_t* pRender) {
+void B3L_RenderScence(render_t* pRender,u32 time) {
     ClearZbuff(pRender->pZBuff, Z_BUFF_LENGTH);
     ClearFbuff(pRender->pFrameBuff, F_BUFF_LENGTH,8);
-    //from camera's rotation matrix to create world -> clip space matrix
-    //printf("cleared\n");
     UpdateCam(pRender);
-    //printf("camera updated\n");
-    RenderObjs(pRender);
-    //printf("objs drawed\n");
-#ifdef B3L_USING_PARTICLE
-    RenderParticleObjs(pRender);
-#endif
-
+    RenderObjs(pRender,time);
 }
 
 void B3L_ResetScene(scene_t* pScene) {
     pScene->freeObjNum = OBJ_BUFF_SIZE; //reset free obj numbers
-    pScene->pActiveMeshObjs = (B3LObj_t*)NULL; //reset active obj list
+    pScene->pActiveObjs = (B3LObj_t*)NULL; //reset active obj list
     ResetObjList(pScene);
 #ifdef B3L_USING_PARTICLE
     pScene->pActiveParticleGenObjs = (B3LObj_t*)NULL;//reset particle generator obj list 
@@ -170,7 +162,7 @@ void B3L_AddObjToRenderList(B3LObj_t* pObj, render_t* pRender) {
     //printf("type %d\n",type);
     if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ)) || (type == (1 << BITMAP_OBJ))) {
         //printf("add\n");
-        AddObjToTwoWayList(pObj, &(pRender->scene.pActiveMeshObjs));
+        AddObjToTwoWayList(pObj, &(pRender->scene.pActiveObjs));
     }
 #ifdef B3L_USING_PARTICLE
     if (type == (1 << PARTICLE_GEN_OBJ)) {
@@ -189,9 +181,9 @@ void B3L_PopObjFromRenderList(B3LObj_t* pObj, render_t* pRender) {
     else {
         u32 type = (pObj->state & OBJ_TYPE_MASK);
         if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ))) {
-            pRender->scene.pActiveMeshObjs = pObj->next;
+            pRender->scene.pActiveObjs = pObj->next;
             if (pObj->next != (B3LObj_t*)NULL) {
-                pObj->next->privous = pRender->scene.pActiveMeshObjs;
+                pObj->next->privous = pRender->scene.pActiveObjs;
             }
         }
 #ifdef B3L_USING_PARTICLE
