@@ -47,18 +47,18 @@ void init() {
 
     pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
                                true, false, 0, false, 0,true);
-    //pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
-    //pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
+    pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 
     B3L_SetObjPosition(pShip, 0.0f, 0.0f, 0.0f);
     B3L_SetObjScale(pShip, 30.0f, 30.0f, 30.0f);
 
-   // pBox->pMother = pShip;
-   // B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
-   // B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
-   // pBox2->pMother = pBox;
-   // B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
-   // B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
+    pBox->pMother = pShip;
+    B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
+    B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
+    pBox2->pMother = pBox;
+    B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
+    B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
 
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);

@@ -394,78 +394,195 @@ static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat4_t* pResult) {
 /*-------------------------------------------------------------------------------------------------
 Generate obj to clip space matrix
 -------------------------------------------------------------------------------------------------*/
-void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat4_t* pCamMat, mat4_t* pW2OMat,mat4_t* pO2CMat) {
-    mat4_t o2wMat;
+void B3L_CreateO2CMatrix(B3LObj_t* pObj,mat4_t* pCamMat, mat4_t* pO2WMat,mat4_t* pO2CMat) {
+    //mat4_t o2wMat;
     //mat3_t rmat;
     //B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &(rmat));
-    B3L_CreateO2WChainMatrix(pObj,&o2wMat);
-    B3L_Mat4XMat4(&o2wMat, pCamMat, pO2CMat);
-    B3L_InvertMat4(&o2wMat, pW2OMat); //now the obj r matrix contants the inverse matrix w2o
+    B3L_CreateO2WChainMatrix(pObj,pO2WMat);
+    B3L_Mat4XMat4(pO2WMat, pCamMat, pO2CMat);
+    //B3L_InvertMat4(&o2wMat, pW2OMat); //now the obj r matrix contants the inverse matrix w2o
 
 }
 
 void B3L_InvertMat4(mat4_t* pMatS, mat4_t* pMatI) {
-
-}
-
-void B3L_InvertMat33(mat3_t* pMatS, mat3_t* pMatI) {
     f32 det;
 #define S(x,y) (pMatS)->m##x##y
 #define I(x,y) (pMatI)->m##x##y
-    I(0, 0) = +S(1, 1) * S(2, 2) - S(2, 1) * S(1, 2);
-    I(1, 0) = -S(1, 0) * S(2, 2) + S(2, 0) * S(1, 2);
-    I(2, 0) = +S(1, 0) * S(2, 1) - S(2, 0) * S(1, 1);
-    I(0, 1) = -S(0, 1) * S(2, 2) + S(2, 1) * S(0, 2);
-    I(1, 1) = +S(0, 0) * S(2, 2) - S(2, 0) * S(0, 2);
-    I(2, 1) = -S(0, 0) * S(2, 1) + S(2, 0) * S(0, 1);
-    I(0, 2) = +S(0, 1) * S(1, 2) - S(1, 1) * S(0, 2);
-    I(1, 2) = -S(0, 0) * S(1, 2) + S(1, 0) * S(0, 2);
-    I(2, 2) = +S(0, 0) * S(1, 1) - S(1, 0) * S(0, 1);
+    f32 I00 = +S(1, 1) * S(2, 2) * S(3, 3)
+        - S(1, 1) * S(3, 2) * S(2, 3)
+        - S(1, 2) * S(2, 1) * S(3, 3)
+        + S(1, 2) * S(3, 1) * S(2, 3)
+        + S(1, 3) * S(2, 1) * S(3, 2)
+        - S(1, 3) * S(3, 1) * S(2, 2);
 
-    det = S(0, 0) * I(0, 0) + S(1, 0) * I(0, 1) + S(2, 0) * I(0, 2);
+    f32 I10 =
+        -S(1, 0) * S(2, 2) * S(3, 3)
+        + S(1, 0) * S(3, 2) * S(2, 3)
+        + S(1, 2) * S(2, 0) * S(3, 3)
+        - S(1, 2) * S(3, 0) * S(2, 3)
+        - S(1, 3) * S(2, 0) * S(3, 2)
+        + S(1, 3) * S(3, 0) * S(2, 2);
+
+    f32 I20 =
+        +S(1, 0) * S(2, 1) * S(3, 3)
+        - S(1, 0) * S(3, 1) * S(2, 3)
+        - S(1, 1) * S(2, 0) * S(3, 3)
+        + S(1, 1) * S(3, 0) * S(2, 3)
+        + S(1, 3) * S(2, 0) * S(3, 1)
+        - S(1, 3) * S(3, 0) * S(2, 1);
+
+    f32 I30 =
+        -S(1, 0) * S(2, 1) * S(3, 2)
+        + S(1, 0) * S(3, 1) * S(2, 2)
+        + S(1, 1) * S(2, 0) * S(3, 2)
+        - S(1, 1) * S(3, 0) * S(2, 2)
+        - S(1, 2) * S(2, 0) * S(3, 1)
+        + S(1, 2) * S(3, 0) * S(2, 1);
+
+    f32 I01 =
+        -S(0, 1) * S(2, 2) * S(3, 3)
+        + S(0, 1) * S(3, 2) * S(2, 3)
+        + S(0, 2) * S(2, 1) * S(3, 3)
+        - S(0, 2) * S(3, 1) * S(2, 3)
+        - S(0, 3) * S(2, 1) * S(3, 2)
+        + S(0, 3) * S(3, 1) * S(2, 2);
+
+    f32 I11 =
+        +S(0, 0) * S(2, 2) * S(3, 3)
+        - S(0, 0) * S(3, 2) * S(2, 3)
+        - S(0, 2) * S(2, 0) * S(3, 3)
+        + S(0, 2) * S(3, 0) * S(2, 3)
+        + S(0, 3) * S(2, 0) * S(3, 2)
+        - S(0, 3) * S(3, 0) * S(2, 2);
+
+    f32 I21 =
+        -S(0, 0) * S(2, 1) * S(3, 3)
+        + S(0, 0) * S(3, 1) * S(2, 3)
+        + S(0, 1) * S(2, 0) * S(3, 3)
+        - S(0, 1) * S(3, 0) * S(2, 3)
+        - S(0, 3) * S(2, 0) * S(3, 1)
+        + S(0, 3) * S(3, 0) * S(2, 1);
+
+    f32 I31 =
+        +S(0, 0) * S(2, 1) * S(3, 2)
+        - S(0, 0) * S(3, 1) * S(2, 2)
+        - S(0, 1) * S(2, 0) * S(3, 2)
+        + S(0, 1) * S(3, 0) * S(2, 2)
+        + S(0, 2) * S(2, 0) * S(3, 1)
+        - S(0, 2) * S(3, 0) * S(2, 1);
+
+    f32 I02 =
+        +S(0, 1) * S(1, 2) * S(3, 3)
+        - S(0, 1) * S(3, 2) * S(1, 3)
+        - S(0, 2) * S(1, 1) * S(3, 3)
+        + S(0, 2) * S(3, 1) * S(1, 3)
+        + S(0, 3) * S(1, 1) * S(3, 2)
+        - S(0, 3) * S(3, 1) * S(1, 2);
+
+    f32 I12 =
+        -S(0, 0) * S(1, 2) * S(3, 3)
+        + S(0, 0) * S(3, 2) * S(1, 3)
+        + S(0, 2) * S(1, 0) * S(3, 3)
+        - S(0, 2) * S(3, 0) * S(1, 3)
+        - S(0, 3) * S(1, 0) * S(3, 2)
+        + S(0, 3) * S(3, 0) * S(1, 2);
+
+    f32 I22 =
+        +S(0, 0) * S(1, 1) * S(3, 3)
+        - S(0, 0) * S(3, 1) * S(1, 3)
+        - S(0, 1) * S(1, 0) * S(3, 3)
+        + S(0, 1) * S(3, 0) * S(1, 3)
+        + S(0, 3) * S(1, 0) * S(3, 1)
+        - S(0, 3) * S(3, 0) * S(1, 1);
+
+    f32 I32 =
+        -S(0, 0) * S(1, 1) * S(3, 2)
+        + S(0, 0) * S(3, 1) * S(1, 2)
+        + S(0, 1) * S(1, 0) * S(3, 2)
+        - S(0, 1) * S(3, 0) * S(1, 2)
+        - S(0, 2) * S(1, 0) * S(3, 1)
+        + S(0, 2) * S(3, 0) * S(1, 1);
+
+    f32 I03 =
+        -S(0, 1) * S(1, 2) * S(2, 3)
+        + S(0, 1) * S(2, 2) * S(1, 3)
+        + S(0, 2) * S(1, 1) * S(2, 3)
+        - S(0, 2) * S(2, 1) * S(1, 3)
+        - S(0, 3) * S(1, 1) * S(2, 2)
+        + S(0, 3) * S(2, 1) * S(1, 2);
+
+    f32 I13 =
+        +S(0, 0) * S(1, 2) * S(2, 3)
+        - S(0, 0) * S(2, 2) * S(1, 3)
+        - S(0, 2) * S(1, 0) * S(2, 3)
+        + S(0, 2) * S(2, 0) * S(1, 3)
+        + S(0, 3) * S(1, 0) * S(2, 2)
+        - S(0, 3) * S(2, 0) * S(1, 2);
+
+    f32 I23 =
+        -S(0, 0) * S(1, 1) * S(2, 3)
+        + S(0, 0) * S(2, 1) * S(1, 3)
+        + S(0, 1) * S(1, 0) * S(2, 3)
+        - S(0, 1) * S(2, 0) * S(1, 3)
+        - S(0, 3) * S(1, 0) * S(2, 1)
+        + S(0, 3) * S(2, 0) * S(1, 1);
+
+    f32 I33 =
+        +S(0, 0) * S(1, 1) * S(2, 2)
+        - S(0, 0) * S(2, 1) * S(1, 2)
+        - S(0, 1) * S(1, 0) * S(2, 2)
+        + S(0, 1) * S(2, 0) * S(1, 2)
+        + S(0, 2) * S(1, 0) * S(2, 1)
+        - S(0, 2) * S(2, 0) * S(1, 1);
+    det = +S(0,0) * I00 + S(1,0) * I01 + S(2,0) * I02 + S(3,0) * I03;
     det = 1.0f / det;
-    I(0, 0) *= det;
-    I(1, 0) *= det;
-    I(2, 0) *= det;
-    I(0, 1) *= det;
-    I(1, 1) *= det;
-    I(2, 1) *= det;
-    I(0, 2) *= det;
-    I(1, 2) *= det;
-    I(2, 2) *= det;
+    I(0, 0) = I00 * det;I(1, 0) = I10 * det;I(2, 0) = I20 * det;I(3, 0) = I30 * det;
+    I(0, 1) = I01 * det;I(1, 1) = I11 * det;I(2, 1) = I21 * det;I(3, 1) = I31 * det;
+    I(0, 2) = I02 * det;I(1, 2) = I12 * det;I(2, 2) = I22 * det;I(3, 2) = I32 * det;
+    I(0, 3) = I03 * det;I(1, 3) = I13 * det;I(2, 3) = I23 * det;I(3, 3) = I33 * det;
+#undef S(x,y)
+#undef I(x,y)
+}
+
+void B3L_InvertMat3(mat3_t* pMatS, mat3_t* pMatI) {
+    f32 det;
+#define S(x,y) (pMatS)->m##x##y
+#define I(x,y) (pMatI)->m##x##y
+    f32 I00 = +S(1, 1) * S(2, 2) - S(2, 1) * S(1, 2);
+    f32 I10 = -S(1, 0) * S(2, 2) + S(2, 0) * S(1, 2);
+    f32 I20 = +S(1, 0) * S(2, 1) - S(2, 0) * S(1, 1);
+    f32 I01 = -S(0, 1) * S(2, 2) + S(2, 1) * S(0, 2);
+    f32 I11 = +S(0, 0) * S(2, 2) - S(2, 0) * S(0, 2);
+    f32 I21 = -S(0, 0) * S(2, 1) + S(2, 0) * S(0, 1);
+    f32 I02 = +S(0, 1) * S(1, 2) - S(1, 1) * S(0, 2);
+    f32 I12 = -S(0, 0) * S(1, 2) + S(1, 0) * S(0, 2);
+    f32 I22 = +S(0, 0) * S(1, 1) - S(1, 0) * S(0, 1);
+
+    det = S(0, 0) * I00 + S(1, 0) * I01 + S(2, 0) * I02;
+    det = 1.0f / det;
+    I(0, 0) = I00*det;I(1, 0) = I10*det;I(2, 0) = I20*det;
+    I(0, 1) = I01*det;I(1, 1) = I11*det;I(2, 1) = I21*det;
+    I(0, 2) = I02*det;I(1, 2) = I12*det;I(2, 2) = I22*det;
 
 #undef S(x,y)
 #undef I(x,y)
 }
-void B3L_InvertMat43(mat4_t* pMatS, mat3_t* pMatI) {
-    f32 det;
-#define S(x,y) (pMatS)->m##x##y
-#define I(x,y) (pMatI)->m##x##y
-    I(0,0) = + S(1,1) * S(2,2) - S(2,1) * S(1,2);
-    I(1,0) = - S(1,0) * S(2,2) + S(2,0) * S(1,2);
-    I(2,0) = + S(1,0) * S(2,1) - S(2,0) * S(1,1);
-    I(0,1) = - S(0,1) * S(2,2) + S(2,1) * S(0,2);
-    I(1,1) = + S(0,0) * S(2,2) - S(2,0) * S(0,2);
-    I(2,1) = - S(0,0) * S(2,1) + S(2,0) * S(0,1);
-    I(0,2) = + S(0,1) * S(1,2) - S(1,1) * S(0,2);
-    I(1,2) = - S(0,0) * S(1,2) + S(1,0) * S(0,2);
-    I(2,2) = + S(0,0) * S(1,1) - S(1,0) * S(0,1);
 
-    det = S(0, 0) * I(0, 0) + S(1, 0) * I(0, 1) + S(2, 0) * I(0, 2);
-    det = 1.0f / det;
-    I(0,0) *= det;
-    I(1,0) *= det;
-    I(2,0) *= det;
-    I(0,1) *= det;
-    I(1,1) *= det;
-    I(2,1) *= det;
-    I(0,2) *= det;
-    I(1,2) *= det;
-    I(2,2) *= det;
 
-#undef S(x,y)
-#undef I(x,y)
+void B3L_Vect3Xmat3inMat4Format(vect3_t* pV, mat4_t* pMat, vect4_t* pResult) {
+    f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
+#define dotCol(col)\
+        ((x*(pMat->m##col##0)) +\
+        (y*(pMat->m##col##1)) +\
+        (z*(pMat->m##col##2)))
+
+    pResult->x = dotCol(0);
+    pResult->y = dotCol(1);
+    pResult->z = dotCol(2);
+    pResult->w = dotCol(3);
+#undef dotCol
 }
+
 
 void B3L_Vect3Xmat4(vect3_t* pV, mat4_t* pMat, vect4_t* pResult) {
     f32 x = pV->x; f32 y = pV->y; f32 z = pV->z;
