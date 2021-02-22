@@ -64,6 +64,7 @@ extern "C" {
   __STATIC_FORCEINLINE f32      B3L_Sqrtf(f32 in);
   __STATIC_FORCEINLINE f32      B3L_Absf(f32 in);
 __STATIC_FORCEINLINE u32 VcvtF32ToU32_Fix(f32 in);
+  __STATIC_FORCEINLINE s32 arm_F32toFixPointI32 (f32 x, s32 bits);
 #else
 #define B3L_Sqrtf(a)   sqrtf(a)
 #define B3L_Absf(a)    fabsf(a)
@@ -98,11 +99,30 @@ Math function
     return (result);
   }
 
-  __STATIC_FORCEINLINE  u32   VcvtF32ToU32_Fix(float in) {
-    //uint32_t result;
-    __ASM("vcvt.u32.f32 %0,%0,#16" : "=t"(in) : "t"(in));
-    return in;
-}
+
+
+  __STATIC_FORCEINLINE  u32 VcvtF32ToU32_Fix(f32 x)
+  {
+      u32 y;
+      __ASM(
+          "VCVT.u32.f32 %[y], %[x], #16"
+          : [y] "=t" (y) /* output */
+          : [x] "0" (x) /* input(s) */
+          : /* list of clobbered registers */);
+      return y;
+  }
+
+  __STATIC_FORCEINLINE s32 arm_F32toFixPointI32 (f32 x, s32 bits)
+  {
+    s32 y;
+    __asm__ __volatile__ (
+      "VCVT.s32.f32 %[y], %[x], %[bits]"
+        : [y] "=t" (y) /* output */
+        : [x] "0" (x), [bits] "I" (bits) /* input(s) */
+        : /* list of clobbered registers */);
+    return y;
+  }
+
   __STATIC_FORCEINLINE u32   SatToU4(s32 in) {
     u32 result;
     __ASM("usat %0, %1, %2" : "=r" (result) : "I" (4), "r" (in));

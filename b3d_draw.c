@@ -15,12 +15,12 @@ __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
 
 
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z) {
-//#if B3L_ARM  == 1
-    //return  VcvtF32ToU32_Fix(z);
+#if B3L_ARM  == 1
+    return  VcvtF32ToU32_Fix(z);
     
-//#else
+#else
     return B3L_RoundingToS(z * (65535.0f));
-//#endif
+#endif
 }
 
 
