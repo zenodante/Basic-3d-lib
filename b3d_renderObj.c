@@ -29,6 +29,11 @@ static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly);
 static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum);
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
+static u16 GetID(B3L_Mesh_t* start);
+static u16 GetTriNum(B3L_Mesh_t* start);
+static u16 GetLinNum(B3L_Polygon_t* start);
+static u16 GetVectNum(B3L_Mesh_t* start);
+static u16 GetUVNum(B3L_Mesh_t* start);
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static u16 * GetTriIdx(B3L_Mesh_t *start,u16 vectNum, u16 triNum);
 static f32 * GetBoundBox(B3L_Mesh_t *start);
@@ -122,12 +127,12 @@ __STATIC_FORCEINLINE bool Vect4BoundTest(vect4_t* pV) {
 
 }
 
-#define SIZE_SHIFT          8
+#define SIZE_SHIFT          12
 
 
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum) {
     u8* u8Start = (u8*)start;
-    u16 uvNum = ((u16*)(start))[2];
+    u16 uvNum = GetUVNum(start);
     vect3_t* pNormal;
     if (uvNum != 0) {
         //this mesh array has uv section
@@ -153,13 +158,27 @@ static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly) {
 }
 static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum) {
     u8* u8Start = (u8*)pPoly;
-    //u16 vectNum = ((u16*)(start))[0];
-    //u16 triNum = ((u16*)(start))[1];
     u16* pLin = (u16*)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12);
     return pLin;
 }
 
+static u16 GetID(B3L_Mesh_t* start) {
+    return ((u32*)(start))[0];
+}
 
+static u16 GetTriNum(B3L_Mesh_t* start) {
+    return ((u16*)(start))[3];
+}
+
+static u16 GetLinNum(B3L_Polygon_t* start) {
+    return ((u16*)(start))[3];
+}
+static u16 GetVectNum(B3L_Mesh_t* start) {
+    return ((u16*)(start))[2];
+}
+static u16 GetUVNum(B3L_Mesh_t * start) {
+    return ((u16*)(start))[4];
+}
 static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
     vect3_t* pVect = (vect3_t *)(u8Start + SIZE_SHIFT + 24);
@@ -167,23 +186,17 @@ static vect3_t * GetVect(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
 }
 static u8 * GetUV(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
-    //u16 vectNum = ((u16*)(start))[0];
-    //u16 triNum = ((u16*)(start))[1];
     u8* pUV = u8Start + SIZE_SHIFT + 24 + ((u32)vectNum) * 12 + ((u32)triNum) * 6;
     return pUV;
 }
 static u16 * GetTriIdx(B3L_Mesh_t *start,u16 vectNum, u16 triNum){
     u8 * u8Start = (u8 *)start;
-    //u16 vectNum = ((u16*)(start))[0];
-    //u16 triNum = ((u16*)(start))[1];
     u16* pTri = (u16 *)(u8Start + SIZE_SHIFT + 24 + ((u32)vectNum)*12);
     return pTri;
 }
 
 static f32 * GetBoundBox(B3L_Mesh_t *start){
     u8 * u8Start = (u8 *)start;
-    //u16 vectNum = ((u16*)(start))[0];
-    //u16 triNum = ((u16*)(start))[1];
     f32* pBound = (f32 *)(u8Start + SIZE_SHIFT);
     return pBound;
 }
@@ -364,8 +377,8 @@ static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 b
     s8 lightValue = GET_OBJ_FIX_LIGHT_VALUE(pObj);
     B3L_Polygon_t *pPoly = (B3L_Polygon_t*)(pObj->pResource0);
     B3L_tex_t* pColor = (B3L_tex_t*)(pObj->pResource1);
-    u16 vectNum = ((u16*)(pPoly))[0];
-    u16 linNum = ((u16*)(pPoly))[1];
+    u16 vectNum = GetVectNum((B3L_Mesh_t *)pPoly);
+    u16 linNum = GetLinNum(pPoly);
     vect4_t* pVectTarget = pRender->pVectBuff;
     fBuff_t* pFrameBuff = pRender->pFrameBuff;
     zBuff_t* pZBuff = pRender->pZBuff;
@@ -427,8 +440,8 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, 
     s8 lightValue = 0;
     B3L_Mesh_t* pMesh = (B3L_Mesh_t*)(pObj->pResource0);
     B3L_tex_t* pColor = (B3L_tex_t*)(pObj->pResource1);
-    u16 vectNum = ((u16*)(pMesh))[0];
-    u16 triNum = ((u16*)(pMesh))[1];
+    u16 vectNum = GetVectNum(pMesh);
+    u16 triNum = GetTriNum(pMesh);
     vect3_t* pVectSource = GetVect(pMesh, vectNum, triNum);
     u16* pTriIdx = GetTriIdx(pMesh, vectNum, triNum);
     vect4_t* pVectTarget = pRender->pVectBuff;
@@ -458,7 +471,8 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, 
     vect3_t* pNormal = MeshGetNormal(pMesh, vectNum, triNum);
     vect4_t pointToLightVect;
     f32 normalFact, normalDotLight;
-    f32 lightFactor0, lightFactor1;
+    f32 lightFactor0 = 0.0f;
+    f32 lightFactor1 = 0.0f;
     vect3_t normalVect;
     if (renderLevel == 0) {
         B3L_InvertMat4(pO2WMat, pO2WMat);//do the invert operation on o2w matrix
@@ -585,8 +599,8 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, ma
     s8 lightValue = 0;
     B3L_Mesh_t* pMesh = (B3L_Mesh_t*)(pObj->pResource0);
     B3L_tex_t* pTexture = (B3L_tex_t*)(pObj->pResource1);
-    u16 vectNum = ((u16*)(pMesh))[0];
-    u16 triNum = ((u16*)(pMesh))[1];
+    u16 vectNum = GetVectNum(pMesh);
+    u16 triNum = GetTriNum(pMesh);
     vect3_t* pVectSource = GetVect(pMesh, vectNum, triNum);
     u16* pTriIdx = GetTriIdx(pMesh, vectNum, triNum);
     u8* pUV = GetUV(pMesh, vectNum, triNum);

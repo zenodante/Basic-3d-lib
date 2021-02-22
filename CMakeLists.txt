@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.9)
 project(game)
 
 # This is the default value for 32BLIT_PATH, usually you would set this through -D32BLIT_PATH=the/path, but you can change the default here for convenience
-set(32BLIT_PATH "c:/project/32blit-sdk" CACHE PATH "Path to the directory containing 32blit.cmake")
+set(32BLIT_PATH "d:/project/32blit-sdk" CACHE PATH "Path to the directory containing 32blit.cmake")
 
 # Add your sources here (adding headers is optional, but helps some CMake generators)
 set(PROJECT_SOURCE game.cpp game.hpp b3d.c b3d.h b3d_common.h b3d_config.h b3d_types.h

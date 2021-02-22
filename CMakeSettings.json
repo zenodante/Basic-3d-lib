@@ -13,7 +13,25 @@
       "variables": [
         {
           "name": "32BLIT_PATH",
-          "value": "C:/project/32blit-sdk",
+          "value": "D:/project/32blit-sdk",
+          "type": "PATH"
+        }
+      ]
+    },
+    {
+      "name": "x86-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x86" ],
+      "variables": [
+        {
+          "name": "32BLIT_PATH",
+          "value": "D:/project/32blit-sdk",
           "type": "PATH"
         }
       ]

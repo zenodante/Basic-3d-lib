@@ -6,7 +6,7 @@
 
 u32 B3L_seed = 0x31415926;
 
-static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat3_t* pRMat, mat4_t* pResult);
+static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat4_t* pResult);
 /*-----------------------------------------------------------------------------
 Triangle functions
 -----------------------------------------------------------------------------*/

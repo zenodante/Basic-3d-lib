@@ -10,17 +10,17 @@ __STATIC_FORCEINLINE void DrawPixel(fBuff_t color, s32 x, s32 y, f32 z, fBuff_t*
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
 
 
-
+#define UV_DATA_SHIFT       6
 
 
 
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z) {
-#if B3L_ARM  == 1
-    return  VcvtF32ToU32_Fix(z);
+//#if B3L_ARM  == 1
+    //return  VcvtF32ToU32_Fix(z);
     
-#else
+//#else
     return B3L_RoundingToS(z * (65535.0f));
-#endif
+//#endif
 }
 
 
@@ -315,7 +315,7 @@ __STATIC_FORCEINLINE  void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* f
 
 }
 __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx) {
-  u8 size = tx[0];
+  u8 size = tx[4];
   f32 dx = b - a;
   f32 dxInv = 1.0f / dx;
   f32 dz = (bZ - aZ) * dxInv;
@@ -355,7 +355,7 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
       iZ = GetZtestValue(aZ);
     if (iZ <= (u32)(*pCurrentZ)) {
       //get color
-      uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + 2;
+      uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
       color = tx[uvShift];
       if (color != 0) {
 #ifdef USING_COLOR_LEVEL
@@ -590,7 +590,7 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
   xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1)-1);
   u32 uvShift;
   f32 currentU;
-  u8 size = texture[0];
+  u8 size = texture[4];
   B3L_tex_t color;
   u8 colorRow;
   s8 colorColumn;
@@ -608,7 +608,7 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
     for (x = sx; x <= xEnd; x++) {
 
       if (iZ<=*pCurrentZ) {
-         uvShift = B3L_RoundingToS(currentU) + svMultSize + 2;
+         uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
          color = texture[uvShift];
          if (color != 0) {
 #ifdef USING_COLOR_LEVEL
