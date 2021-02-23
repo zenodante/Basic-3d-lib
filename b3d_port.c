@@ -11,6 +11,7 @@
 zBuff_t zbuff[Z_BUFF_LENGTH];
 vect4_t vectBuff[VECT_BUFF_SIZE]; //10KB
 
+u8    ucHeap[437 * 1024];
 #endif
 
 #ifdef B3L_USING_PARTICLE

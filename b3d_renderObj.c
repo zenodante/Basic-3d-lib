@@ -486,7 +486,9 @@ static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, 
             B3L_Vect3Xmat3inMat4Format(&(pRender->light.lightVect), pO2WMat, &pointToLightVect);
             //normalize the vect
         }
+
         B3L_Vect3Normalize((vect3_t *)&pointToLightVect, (vect3_t*)&pointToLightVect);
+
         lightFactor0 = pRender->light.factor_0;
         lightFactor1 = pRender->light.factor_1;
     }
@@ -650,7 +652,9 @@ static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, ma
             //normalize the vect
             
         }
+
         B3L_Vect3Normalize((vect3_t*)&pointToLightVect, (vect3_t*)&pointToLightVect);
+
         lightFactor0 = pRender->light.factor_0;
         lightFactor1 = pRender->light.factor_1;
     }
