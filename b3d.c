@@ -517,9 +517,16 @@ _RAM_FUNC static void CamCalNewTrackQuaternion(camera_t* pCam) {
 static void  UpdateCam(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);
     mat3_t rotateMat;
-    B3L_QuaternionToMatrix(&(pCam->transform.quaternion), &rotateMat);
-    GenerateW2CMatrix(&(pRender->camera),&rotateMat);
-    B3L_Mat4XMat4(&(pCam->camW2CMat), &(pCam->clipMat), &(pCam->camW2CMat));
+    mat4_t o2wMat;
+    B3L_CreateO2WChainMatrixForCam(pCam, &o2wMat);
+    vect3_t camPosition;
+    camPosition.x = -o2wMat.m03;
+    camPosition.y = -o2wMat.m13;
+    camPosition.z = -o2wMat.m23;
+    B3L_CreateO2WChainMatrixOnlyRotationForCam(pCam, &rotateMat);
+    B3L_InvertMat3(&rotateMat, &rotateMat);
+    B3L_GenerateMat4FromMat3ForCam(&(o2wMat), &rotateMat, &camPosition);
+    B3L_Mat4XMat4(&(o2wMat), &(pCam->clipMat), &(pCam->camW2CMat));
 
 }
 

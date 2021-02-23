@@ -51,11 +51,11 @@ void init() {
     pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 
     B3L_SetObjPosition(pShip, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pShip, 30.0f, 30.0f, 30.0f);
+    B3L_SetObjScale(pShip, 20.0f, 20.0f, 20.0f);
 
-    pBox->pMother = pShip;
+    //pBox->pMother = pShip;
     B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
-    B3L_SetObjScale(pBox, 1.0f,1.0f, 1.0f);
+    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
     pBox2->pMother = pBox;
     B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
@@ -63,8 +63,9 @@ void init() {
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f, 100.0f, -173.0f);
-    ROTATE_IN_BODY_X(&(rnd.camera), 0.083333333f);
+    B3L_CameraMoveTo(&rnd, 0.0f, 6.0f, -6.0f);
+    ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
+    rnd.camera.pMother = pShip;
 
 }
 

@@ -391,6 +391,70 @@ static void B3L_CreateO2WChainMatrix(B3LObj_t* pObj, mat4_t* pResult) {
 
 }
 
+static void B3L_CreateO2WChainMatrixOnlyRotation(B3LObj_t* pObj, mat3_t* pResult) {
+    B3L_QuaternionToMatrix(&(pObj->transform.quaternion), pResult);
+    B3LObj_t* pMotherObj = pObj->pMother;
+    if (pMotherObj != (B3LObj_t*)NULL) {
+        //has mother obj
+        mat3_t motherMat;
+        B3L_CreateO2WChainMatrixOnlyRotation(pMotherObj, &motherMat);
+        //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
+        //B3L_Mat3XMat3(pResult, &motherMat, pResult);
+        B3L_Mat3MultMat3ABA(pResult, &motherMat);
+    }
+}
+
+void B3L_CreateO2WChainMatrixOnlyRotationForCam(camera_t* pObj, mat3_t* pResult) {
+
+    B3L_QuaternionToMatrix(&(pObj->transform.quaternion), pResult);
+    B3LObj_t* pMotherObj = pObj->pMother;
+    if (pMotherObj != (B3LObj_t*)NULL) {
+        //has mother obj
+        mat3_t motherMat;
+        B3L_CreateO2WChainMatrixOnlyRotation(pMotherObj, &motherMat);
+        //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
+        //B3L_Mat3XMat3(pResult, &motherMat, pResult);
+        B3L_Mat3MultMat3ABA(pResult, &motherMat);
+    }
+
+}
+
+void B3L_CreateO2WChainMatrixForCam(camera_t* pObj, mat4_t* pResult) {
+    //mat4_t o2wMat;
+    mat3_t rMat;
+    B3L_QuaternionToMatrix(&(pObj->transform.quaternion), &(rMat));
+    vect3_t* pTrans = &(pObj->transform.translation);
+    vect3_t* pScale = &(pObj->transform.scale);
+    B3L_CreateO2WMat(&rMat, pTrans, pScale, pResult);
+    B3LObj_t* pMotherObj = pObj->pMother;
+    if (pMotherObj != (B3LObj_t*)NULL) {
+        //has mother obj
+        mat4_t motherMat;
+        B3L_CreateO2WChainMatrix(pMotherObj, &motherMat);
+        //B3L_Mat4XMat4(&o2wMat, &motherMat, pResult);
+        B3L_Mat4XMat4(pResult, &motherMat, pResult);
+    }
+
+
+}
+
+void B3L_GenerateMat4FromMat3ForCam(mat4_t* pResult, mat3_t* pSource, vect3_t* pVect) {
+    f32 x = pVect->x;f32 y = pVect->y;f32 z = pVect->z;
+    pResult->m00 = pSource->m00;
+    pResult->m01 = pSource->m01;
+    pResult->m02 = pSource->m02;
+    pResult->m10 = pSource->m10;
+    pResult->m11 = pSource->m11;
+    pResult->m12 = pSource->m12;  
+    pResult->m20 = pSource->m20;
+    pResult->m21 = pSource->m21;
+    pResult->m22 = pSource->m22; 
+    pResult->m30 = 0.0f; pResult->m31 = 0.0f; pResult->m32 = 0.0f; pResult->m33 = 1.0f;
+    pResult->m03 = x * pResult->m00 + y * pResult->m01 + z * pResult->m02;
+    pResult->m13 = x * pResult->m10 + y * pResult->m11 + z * pResult->m12;
+    pResult->m23 = x * pResult->m20 + y * pResult->m21 + z * pResult->m22;
+
+}
 /*-------------------------------------------------------------------------------------------------
 Generate obj to clip space matrix
 -------------------------------------------------------------------------------------------------*/
