@@ -525,7 +525,7 @@ static void  UpdateCam(render_t* pRender) {
     camPosition.z = -o2wMat.m23;
     B3L_CreateO2WChainMatrixOnlyRotationForCam(pCam, &rotateMat);
     B3L_InvertMat3(&rotateMat, &rotateMat);
-    B3L_GenerateMat4FromMat3ForCam(&(o2wMat), &rotateMat, &camPosition);
+    B3L_GenerateW2CMat(&(o2wMat), &rotateMat, &camPosition);
     B3L_Mat4XMat4(&(o2wMat), &(pCam->clipMat), &(pCam->camW2CMat));
 
 }

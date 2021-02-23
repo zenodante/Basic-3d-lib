@@ -66,7 +66,7 @@ extern void B3L_InvertMat3(mat3_t* pMatS, mat3_t* pMatI);
 extern void B3L_InvertMat4(mat4_t* pMatS, mat4_t* pMatI);
 extern void B3L_CreateO2WChainMatrixForCam(camera_t* pObj, mat4_t* pResult);
 extern void B3L_CreateO2WChainMatrixOnlyRotationForCam(camera_t* pObj, mat3_t* pResult);
-extern void B3L_GenerateMat4FromMat3ForCam(mat4_t* pResult, mat3_t* pSource, vect3_t* pVect);
+extern void B3L_GenerateW2CMat(mat4_t* pResult, mat3_t* pSource, vect3_t* pVect);
 /*-----------------------------------------------------------------------------
 Rotation convert functions
 -----------------------------------------------------------------------------*/
