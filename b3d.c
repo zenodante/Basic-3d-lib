@@ -460,10 +460,13 @@ static void  UpdateCam(render_t* pRender) {
     camPosition.x = -o2wMat.m03;
     camPosition.y = -o2wMat.m13;
     camPosition.z = -o2wMat.m23;
-    B3L_CreateO2WChainMatrixOnlyRotationForCam(pCam, &rotateMat);//generate rotation matrix from obj chain
-    B3L_InvertMat3(&rotateMat, &rotateMat);//inverse matrix for w2c
-    B3L_GenerateW2CMat(&(pCam->camW2CMat), &rotateMat, &camPosition);//from w2camera to w2clip
-    B3L_Mat4XMat4(&(pCam->camW2CMat), &(pCam->clipMat), &(pCam->camW2CMat));
+
+    B3L_CreateO2WChainMatrixOnlyRotationForCam(pCam, &rotateMat);
+    B3L_InvertMat3(&rotateMat, &rotateMat);
+    B3L_GenerateW2CMat(&(o2wMat), &rotateMat, &camPosition);
+    B3L_Mat4XMat4(&(o2wMat), &(pCam->clipMat), &(pCam->camW2CMat));
+
+
 
 }
 
