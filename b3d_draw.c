@@ -2,6 +2,7 @@
 #include "b3d_types.h"
 #include "b3d_common.h"
 #include <stdio.h>
+#include <math.h>
 
 __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx);
 __STATIC_FORCEINLINE void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* fbuff, zBuff_t* zbuff, fBuff_t color);

@@ -438,7 +438,7 @@ void B3L_CreateO2WChainMatrixForCam(camera_t* pObj, mat4_t* pResult) {
 
 }
 
-void B3L_GenerateMat4FromMat3ForCam(mat4_t* pResult, mat3_t* pSource, vect3_t* pVect) {
+void B3L_GenerateW2CMat(mat4_t* pResult, mat3_t* pSource, vect3_t* pVect) {
     f32 x = pVect->x;f32 y = pVect->y;f32 z = pVect->z;
     pResult->m00 = pSource->m00;
     pResult->m01 = pSource->m01;

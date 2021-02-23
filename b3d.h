@@ -11,7 +11,7 @@ extern "C" {
 #include "b3d_math.h"
 #include "b3d_testObj.h"
 #include "b3d_renderObj.h"
-
+#include "heap_4.h"
 
 /*-----------------------------------------------------------------------------
 Render functions
@@ -92,7 +92,7 @@ extern void B3L_UpdateClipMatrix(render_t* pRender);
 extern void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov);
 extern void B3L_CameraMoveTo(render_t* pRender, f32 x,f32 y,f32 z);
 extern void B3L_CameraMoveToV(render_t* pRender,vect3_t position);
-extern void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt, vect3_t* pUp);//has bug...
+extern void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt);
 
 /*-----------------------------------------------------------------------------
 Light functions

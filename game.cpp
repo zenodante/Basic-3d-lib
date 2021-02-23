@@ -21,23 +21,19 @@ euler3_t angle;
    ,(m).m00,(m).m10,(m).m20,\
     (m).m01,(m).m11,(m).m21,\
     (m).m02,(m).m12,(m).m22)
+f32 upAngle = 0.0f;
 ////////////////////////////////////////////////////////
 //
 // init()
 //
 // setup your game here
 //
+vect3_t at = { 0.0f,0.0f,0.0f };
+
 void init() {
 
     set_screen_mode(ScreenMode::hires_palette);
     set_screen_palette((const Pen *)(pal), 256);
-    //angle = {0.11f,0.02f,-0.05f};
-    //B3L_EulerToMatrix(&angle, &sourceMat3);
-
-   // B3L_InvertMat33(&sourceMat3, &invMat);
-    //B3L_Mat3MultMat3ABB(&sourceMat3, &invMat);
-
-    //B3L_logMat3(invMat);
 
 
 
@@ -64,7 +60,9 @@ void init() {
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
     B3L_CameraMoveTo(&rnd, 0.0f, 6.0f, -6.0f);
-    ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
+    //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
+
+    B3L_CameraLookAt(&(rnd.camera), &at);
     rnd.camera.pMother = pShip;
 
 }
@@ -80,6 +78,8 @@ void init() {
 
 void render(uint32_t time) {
 
+    B3L_CameraLookAt(&(rnd.camera), &at);
+    B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
     screen.pen = Pen(0, 0, 0,1);
@@ -112,16 +112,16 @@ void update(uint32_t time) {
       ROTATE_IN_BODY_Y(pShip, xAngle);
   }
   if (pressed(A)) {
-      rnd.camera.transform.translation.x += 1.0f;
+
   }
   if (pressed(B)) {
-      rnd.camera.transform.translation.x -= 1.0f;
+
   }
   if (pressed(X)) {
-      
+      upAngle += 0.01f;
   }
   if (pressed(Y)) {
-      
+      upAngle -= 0.01f;
   }
 }
 

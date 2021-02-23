@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include "b3d_types.h"
   extern void DrawTriangleColor(f32 x0, f32 y0, f32 z0,
                                 f32 x1, f32 y1, f32 z1,
