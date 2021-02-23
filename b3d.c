@@ -29,8 +29,8 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
 #endif
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff;
-  //pRender->pVectBuff = vectBuff;
-  pRender->pVectBuff = pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE);
+  pRender->pVectBuff = vectBuff;
+  //pRender->pVectBuff = pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE);
   pRender->lvl0Distance = LEVEL_0_DEFAULT_DISTANCE;
   pRender->lvl1Distance = LEVEL_1_DEFAULT_DISTANCE;
   pRender->lvl1Light = LEVEL_1_DEFAULT_LIGHT;
