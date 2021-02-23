@@ -17,7 +17,7 @@ static void B3d_FPU_Init() {
 #endif
 
 static void ResetObjList(scene_t* pScene);
-static void GenerateW2CMatrix(camera_t* pCam, mat3_t* pMat3);
+
 static void  UpdateCam(render_t* pRender);
 static void AddObjToTwoWayList(B3LObj_t *pObj, B3LObj_t **pStart);
 
@@ -428,22 +428,6 @@ _RAM_FUNC void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov) {
     B3L_UpdateClipMatrix(pRender);
 }
 
-static void GenerateW2CMatrix(camera_t* pCam,mat3_t* pMat3) {
-    //mat3_t* pMat3 = &(pCam->mat);
-    mat4_t* pW2CMat = &(pCam->camW2CMat);
-    f32 x = -(pCam->transform.translation.x);
-    f32 y = -(pCam->transform.translation.y);
-    f32 z = -(pCam->transform.translation.z);
-    //get the shift by translation
-    f32 zero = 0.0f;
-    pW2CMat->m33 = 1.0f; pW2CMat->m30 = zero; pW2CMat->m31 = zero; pW2CMat->m32 = zero;
-    pW2CMat->m00 = pMat3->m00; pW2CMat->m01 = pMat3->m10; pW2CMat->m02 = pMat3->m20;
-    pW2CMat->m10 = pMat3->m01; pW2CMat->m11 = pMat3->m11; pW2CMat->m12 = pMat3->m21;
-    pW2CMat->m20 = pMat3->m02; pW2CMat->m21 = pMat3->m12; pW2CMat->m22 = pMat3->m22;
-    pW2CMat->m03 = x * pW2CMat->m00 + y * pW2CMat->m01 + z * pW2CMat->m02;
-    pW2CMat->m13 = x * pW2CMat->m10 + y * pW2CMat->m11 + z * pW2CMat->m12;
-    pW2CMat->m23 = x * pW2CMat->m20 + y * pW2CMat->m21 + z * pW2CMat->m22;
-}
 
 void B3L_CameraMoveTo(render_t* pRender, f32 x, f32 y, f32 z) {
     camera_t *pCam = &(pRender->camera);
