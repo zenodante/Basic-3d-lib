@@ -5,14 +5,18 @@ extern "C" {
 #endif
 #include "b3d_types.h"
 #include "b3d_config.h"
+#include "b3d_common.h"
 
 #if B3L_ARM  == 1
 extern char __ltdc_start, __ltdc_end;
 extern char __fb_start, __fb_end;
 
-#define zbuff     (((zBuff_t *)&__fb_start)+38400)
+extern zBuff_t*  const zbuff;
+extern vect4_t*  const vectBuff;
+extern u8 ucHeap[ENGINE_HEAP_SIZE];
+//#define zbuff     (((zBuff_t *)&__fb_start)+38400)
 //#define vectBuff  ((vect4_t *)&__ltdc_start)
-#define ucHeap    ((u8 *)(0x24000000))
+//#define ucHeap    ((u8 *)(0x24000000))
 static inline uint32_t __get_FPSCR(void);
 static inline void __set_FPSCR(uint32_t fpscr);
 
@@ -38,7 +42,7 @@ extern u8    ucHeap[437 * 1024];
 #ifdef B3L_USING_PARTICLE
 extern B3L_Particle_t  particleBuff[B3L_PARTICLE_BUFF_DEPTH];
 #endif
-
+ 
 
 
 #ifdef __cplusplus

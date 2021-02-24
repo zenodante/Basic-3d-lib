@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include "b3d_types.h"
 #include "b3d_config.h"
 #include "b3d_draw.h"
@@ -11,7 +12,7 @@ extern "C" {
 #include "b3d_math.h"
 #include "b3d_testObj.h"
 #include "b3d_renderObj.h"
-
+#include "heap_4.h"
 
 /*-----------------------------------------------------------------------------
 Render functions
@@ -121,3 +122,4 @@ extern void B3L_UpdateAllParticlesStatesInGen(render_t* pRender, B3LParticleGenO
 }
 #endif
 #endif
+>>>>>>> dev

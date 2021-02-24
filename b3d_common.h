@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #ifndef   __ASM
-#define   __ASM        __asm
+#define   __ASM         __asm
 #endif
 
 #ifndef   __STATIC_FORCEINLINE                 

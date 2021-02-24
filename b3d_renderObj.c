@@ -201,7 +201,7 @@ static f32 * GetBoundBox(B3L_Mesh_t *start){
     return pBound;
 }
 
-static void ClipLineInScreen(screen3f_t* a, screen3f_t* b) {
+static void ClipLineInScreen(screen3f_t* a, screen3f_t* b) { 
     screen3f_t* temp;
     //test left x
     s32 cax = B3L_CeilToS(a->x);
