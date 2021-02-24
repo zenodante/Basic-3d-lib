@@ -1,7 +1,7 @@
 
 #include "b3d_types.h"
 
-B3L_Mesh_t b3d_box[] ={
+const B3L_Mesh_t b3d_box[] ={
 0x00000000,0x000C0008,0x0000000C,//32bit ID, vect num, tri num, uv num, 16bit DUMMY
 0x3f000000,0x3f000000,0x3f000000,0xbf000000,0xbf000000,0xbf000000,//boundbox
 0x3f000000,0xbf000000,0xbf000000,0xbf000000,0xbf000000,0xbf000000,0x3f000000,0x3f000000,//vects

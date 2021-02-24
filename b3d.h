@@ -12,7 +12,7 @@ extern "C" {
 #include "b3d_math.h"
 #include "b3d_testObj.h"
 #include "b3d_renderObj.h"
-
+#include "heap_4.h"
 
 /*-----------------------------------------------------------------------------
 Render functions

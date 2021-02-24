@@ -5,13 +5,15 @@ extern "C" {
 #endif
 #include "b3d_types.h"
 #include "b3d_config.h"
+#include "b3d_common.h"
 
 #if B3L_ARM  == 1
 extern char __ltdc_start, __ltdc_end;
 extern char __fb_start, __fb_end;
 
-extern zBuff_t* const zbuff;
-extern vect4_t* const vectBuff;
+extern zBuff_t*  const zbuff;
+extern vect4_t*  const vectBuff;
+extern u8 ucHeap[ENGINE_HEAP_SIZE];
 //#define zbuff     (((zBuff_t *)&__fb_start)+38400)
 //#define vectBuff  ((vect4_t *)&__ltdc_start)
 //#define ucHeap    ((u8 *)(0x24000000))

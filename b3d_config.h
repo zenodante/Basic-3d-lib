@@ -6,6 +6,9 @@
 #else
 #define B3L_ARM       0
 #endif
+
+#define ENGINE_HEAP_SIZE        ((u32)(1024*437))
+
 #define B3L_FIX_BITS            16
 //vect buff size limited the max vectors in single obj
 #define VECT_BUFF_SIZE          1024
