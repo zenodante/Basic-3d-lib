@@ -505,4 +505,4 @@ void B3L_SetLightVect(render_t* pRender, f32 x, f32 y, f32 z) {
 }
 
 
->>>>>>> dev
+
