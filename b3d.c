@@ -28,7 +28,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
   B3d_FPU_Init();
 #endif
   pRender->pFrameBuff = pFrameBuff;
-  pRender->pZBuff = zbuff;
+  pRender->pZBuff = zbuff; 
   pRender->pVectBuff = vectBuff;
   //pRender->pVectBuff = pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE);
   pRender->lvl0Distance = LEVEL_0_DEFAULT_DISTANCE;

@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include "b3d_types.h"
 #include "b3d_config.h"
 #include "b3d_draw.h"

@@ -10,8 +10,10 @@ extern "C" {
 extern char __ltdc_start, __ltdc_end;
 extern char __fb_start, __fb_end;
 
-#define zbuff     (((zBuff_t *)&__fb_start)+38400)
-#define vectBuff  ((vect4_t *)&__ltdc_start)
+extern zBuff_t* const zbuff;
+extern vect4_t* const vectBuff;
+//#define zbuff     (((zBuff_t *)&__fb_start)+38400)
+//#define vectBuff  ((vect4_t *)&__ltdc_start)
 //#define ucHeap    ((u8 *)(0x24000000))
 static inline uint32_t __get_FPSCR(void);
 static inline void __set_FPSCR(uint32_t fpscr);
@@ -38,7 +40,7 @@ extern u8    ucHeap[437 * 1024];
 #ifdef B3L_USING_PARTICLE
 extern B3L_Particle_t  particleBuff[B3L_PARTICLE_BUFF_DEPTH];
 #endif
-
+ 
 
 
 #ifdef __cplusplus

@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 # Replace "game" with a name for your project (this is used the name of the output)
 project(game)
 
+set(MCU_LINKER_SCRIPT STM32H750VBTxNew.ld CACHE BOOL "Set different ld")
 
 # Add your sources here (adding headers is optional, but helps some CMake generators)
 set(PROJECT_SOURCE game.cpp game.hpp b3d.c b3d.h b3d_common.h b3d_config.h b3d_types.h
