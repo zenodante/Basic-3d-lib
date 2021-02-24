@@ -9,15 +9,11 @@ extern char __ltdc_start, __ltdc_end;
 extern char __fb_start, __fb_end;
 
 zBuff_t* const zbuff = (((zBuff_t *)&__fb_start)+38400);
-vect4_t* const vectBuff = ((vect4_t *)&__ltdc_start);
-//u8* const ucHeap = ((u8 *)(0x24000000));
 __attribute__((section(".main_ram")))  u8 ucHeap[ENGINE_HEAP_SIZE];
 #else
 
 zBuff_t zbuff[Z_BUFF_LENGTH];
-vect4_t vectBuff[VECT_BUFF_SIZE]; //10KB
-
-//u8    ucHeap[437 * 1024];
+u8 ucHeap[ENGINE_HEAP_SIZE];
 #endif
 
 #ifdef B3L_USING_PARTICLE

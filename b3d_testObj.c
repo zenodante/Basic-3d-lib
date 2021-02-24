@@ -2,7 +2,7 @@
 #include "b3d_types.h"
 
 const B3L_Mesh_t b3d_box[] ={
-0x00000000,0x000C0008,0x0000000C,//32bit ID, vect num, tri num, uv num, 16bit DUMMY
+0x00000000,0x000C0008,0x000C000C,//32bit ID, vect num, tri num, uv num, normal num
 0x3f000000,0x3f000000,0x3f000000,0xbf000000,0xbf000000,0xbf000000,//boundbox
 0x3f000000,0xbf000000,0xbf000000,0xbf000000,0xbf000000,0xbf000000,0x3f000000,0x3f000000,//vects
 0xbf000000,0xbf000000,0x3f000000,0xbf000000,0x3f000000,0xbf000000,0x3f000000,0xbf000000,
@@ -22,6 +22,7 @@ const B3L_Mesh_t b3d_box[] ={
 } ;
 
 const B3L_tex_t box_color[] = {
+    0x00,0x00,0x00,0x00,0x0C,0x00,
     24,24,40,40,56,56,72,72,88,88,104,104
 };
 

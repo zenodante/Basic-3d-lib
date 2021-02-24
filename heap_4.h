@@ -65,7 +65,7 @@ extern "C" {
 
 
 /* 函数声明 */
-void *pvPortMalloc(size_t xWantedSize);
+	void* pvPortMalloc(size_t xWantedSize, dataType_e dType);
 void vPortFree(void *pv);
 size_t xPortGetFreeHeapSize(void);
 size_t xPortGetMinimumEverFreeHeapSize(void);

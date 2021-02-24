@@ -42,7 +42,7 @@ void init() {
     B3L_RenderInit(&rnd,(fBuff_t *)(screen.data));
 
     pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
-                               true, false, 0, false, 0,true);
+                               true, false, 0, false, 0,true,true);
     pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
     pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 

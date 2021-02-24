@@ -20,6 +20,8 @@ extern "C" {
   typedef u16   zBuff_t;
   typedef uint8_t B3L_tex_t;
 
+#define TEXTURE_HEAD_SHIFT        6
+#define MESH_HEAD_SHIFT           12
 
   typedef struct {
     f32                 x;
@@ -289,24 +291,12 @@ O-- need update matrix
     s8                  lvl1Light;
   }render_t;
 
-  /*
-  typedef struct PARTICLEGENOBJ {
-    B3LObj_t* privous;//8  4
-    B3LObj_t* next;//8   4
-    u32                 state;//4   4
-    mat3_t              mat;//36    36
-    transform3D_t       transform;//40    40
-    u32                 lastTime;//4   4
-    u32                 particleNum;//4   4
-    B3L_Particle_t* pParticleActive;//8   4   
-    void      (*DrawFunc)(B3L_Particle_t*, screen4_t*, fBuff_t*, zBuff_t*);//8   4
-    void      (*PtlUpdFunc)(u32, struct PARTICLEGENOBJ*, mat3_t*, vect3_t*, render_t*); //8    4  
-    //time, self, obj->world matrix,free particle num pointer,free particle pool  
-  }B3LParticleGenObj_t; //15 not common on ARM32,22 not common on WIN64
-
-  typedef void (*B3L_DrawFunc_t)(B3L_Particle_t*, screen4_t*, fBuff_t*, zBuff_t*);
-*/
-
+  typedef enum {
+      B3L_DATA_OTHER_E = 0,
+      B3L_DATA_MESH_E = 1,
+      B3L_DATA_TEX_E = 2,
+      B3L_DATA_COLOR_E = 3,
+}dataType_e;
 #ifdef __cplusplus
 }
 #endif

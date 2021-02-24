@@ -109,6 +109,8 @@ typedef struct A_BLOCK_LINK
 {
 	struct A_BLOCK_LINK *pxNextFreeBlock;	/*<< The next free block in the list. */
 	size_t xBlockSize;						/*<< The size of the free block. */
+	u32    dataType;
+	u32    refCount;
 } BlockLink_t;
 
 /*-----------------------------------------------------------*/
@@ -149,7 +151,7 @@ static size_t xBlockAllocatedBit = 0;
 
 /*-----------------------------------------------------------*/
 
-void *pvPortMalloc(size_t xWantedSize)
+void *pvPortMalloc(size_t xWantedSize, dataType_e dType)
 {
 	BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
 	void *pvReturn = NULL;
@@ -260,6 +262,7 @@ void *pvPortMalloc(size_t xWantedSize)
 					by the application and has no "next" block. */
 					pxBlock->xBlockSize |= xBlockAllocatedBit;
 					pxBlock->pxNextFreeBlock = NULL;
+					pxBlock->dataType = dType;
 				}
 				else
 				{

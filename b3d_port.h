@@ -12,11 +12,9 @@ extern char __ltdc_start, __ltdc_end;
 extern char __fb_start, __fb_end;
 
 extern zBuff_t*  const zbuff;
-extern vect4_t*  const vectBuff;
+//extern vect4_t*  const vectBuff;
 extern u8 ucHeap[ENGINE_HEAP_SIZE];
-//#define zbuff     (((zBuff_t *)&__fb_start)+38400)
-//#define vectBuff  ((vect4_t *)&__ltdc_start)
-//#define ucHeap    ((u8 *)(0x24000000))
+
 static inline uint32_t __get_FPSCR(void);
 static inline void __set_FPSCR(uint32_t fpscr);
 
@@ -35,7 +33,7 @@ static inline void __set_FPSCR(uint32_t fpscr)
 
 extern zBuff_t zbuff[Z_BUFF_LENGTH];
 extern vect4_t vectBuff[VECT_BUFF_SIZE]; 
-extern u8    ucHeap[437 * 1024];
+extern u8 ucHeap[ENGINE_HEAP_SIZE];
 #endif
 
 

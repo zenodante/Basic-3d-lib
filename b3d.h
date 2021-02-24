@@ -30,14 +30,14 @@ extern u32 B3L_GetFreeObjNum(render_t* pRender);
 extern B3LObj_t* B3L_GetFreeObj(render_t* pRender);
 extern B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pTexture,
                                      bool backfaceCulling, bool fix_render_level, u8 render_level, 
-                                     bool fix_light_value, u8 light_value, bool Add_To_RenderList);
+                                     bool fix_light_value, u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram);
 extern B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pColor,
                                         bool backfaceCulling, bool fix_render_level, u8 render_level,
-                                        bool fix_light_value, u8 light_value, bool Add_To_RenderList);
+                                        bool fix_light_value, u8 light_value, bool Add_To_RenderList,bool Buff_In_Ram);
 extern B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu,u8 tv,u8 bu,u8 bv,
-                                    u8 light_value, bool Add_To_RenderList);
-#define B3L_CreatTexMeshObj_Simple(pRnd,m,t)      B3L_CreatTexMeshObj((pRnd),(B3L_Mesh_t*)(m),(B3L_tex_t*)(t),true,false,0,false,0,true)
-#define B3L_CreatColorMeshObj_Simple(pRnd,m,t)      B3L_CreatColorMeshObj((pRnd),(B3L_Mesh_t*)(m),(B3L_tex_t*)(t),true,false,0,false,0,true)
+                                    u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram);
+#define B3L_CreatTexMeshObj_Simple(pRnd,m,t)      B3L_CreatTexMeshObj((pRnd),(B3L_Mesh_t*)(m),(B3L_tex_t*)(t),true,false,0,false,0,true,true)
+#define B3L_CreatColorMeshObj_Simple(pRnd,m,t)      B3L_CreatColorMeshObj((pRnd),(B3L_Mesh_t*)(m),(B3L_tex_t*)(t),true,false,0,false,0,true,true)
 extern void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z);
 extern void B3L_SetObjScale(B3LObj_t* pObj, f32 xScale, f32 yScale, f32 zScale);
 /*

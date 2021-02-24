@@ -1,6 +1,6 @@
 #include "b3d.h"
 
-
+#include <string.h>
 
 #if B3L_ARM  == 1
 
@@ -20,7 +20,9 @@ static void ResetObjList(scene_t* pScene);
 
 static void  UpdateCam(render_t* pRender);
 static void AddObjToTwoWayList(B3LObj_t *pObj, B3LObj_t **pStart);
-
+static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture, u32 slot);
+static bool MeshBuffInRam(B3LObj_t* pObj, B3L_Mesh_t* pMesh, u32 slot);
+static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot);
 
 
 void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
@@ -30,7 +32,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
   //pRender->pVectBuff = vectBuff;
-  pRender->pVectBuff = (vect4_t *)pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE);
+  pRender->pVectBuff = (vect4_t *)pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE,B3L_DATA_OTHER_E);
   //pRender->pVectBuff = (vect4_t *)0x24000000;
   pRender->lvl0Distance = LEVEL_0_DEFAULT_DISTANCE;
   pRender->lvl1Distance = LEVEL_1_DEFAULT_DISTANCE;
@@ -212,9 +214,73 @@ void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender) {
 }
 
 
+
+static bool MeshBuffInRam(B3LObj_t* pObj,B3L_Mesh_t* pMesh,u32 slot) {
+    u32 size = B3L_GetMeshResouceSize(pMesh);
+    void** ppResource;
+    if (slot == 0) {
+        ppResource = &(pObj->pResource0);
+    }
+    else {
+        ppResource = &(pObj->pResource1);
+    }
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E);
+    if (*ppResource != (void*)NULL) {
+        memcpy((void*)(*ppResource), (const void*)pMesh, size);
+        return true;
+    }
+    else {
+        *ppResource = (void*)pMesh;
+        return false;
+    }
+}
+
+static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture,u32 slot) {
+    u32 size = B3L_GetTexResouceSize(pTexture);
+    void** ppResource;
+    if (slot == 0) {
+        ppResource = &(pObj->pResource0);
+    }
+    else {
+        ppResource = &(pObj->pResource1);
+    }
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_TEX_E);
+    //copy the data into the position
+    if (*ppResource != (void*)NULL) {
+        memcpy((void*)(*ppResource), (const void*)pTexture, size);
+        return true;
+    }
+    else {
+        *ppResource = (void*)pTexture;
+        return false;
+    }
+}
+
+static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot) {
+    u32 size = ((u16*)pColor)[2] +6;
+    void** ppResource;
+    if (slot == 0) {
+        ppResource = &(pObj->pResource0);
+    }
+    else {
+        ppResource = &(pObj->pResource1);
+    }
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E);
+    //copy the data into the position
+    if (*ppResource != (void*)NULL) {
+        memcpy((void*)(*ppResource), (const void*)pColor, size);
+        return true;
+    }
+    else {
+        *ppResource = (void*)pColor;
+        return false;
+    }
+
+}
+
 B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pTexture,
     bool backfaceCulling, bool fix_render_level,u8 render_level, bool fix_light_value,
-    u8 light_value,bool Add_To_RenderList) {
+    u8 light_value,bool Add_To_RenderList, bool Buff_In_Ram) {
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL){
         return pObj;
@@ -222,9 +288,15 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
-
-    pObj->pResource0 = (void*)pMesh;
-    pObj->pResource1 = (void*)pTexture;
+    if (Buff_In_Ram) {
+        MeshBuffInRam(pObj, pMesh, 0);
+        TexBuffInRam(pObj, pTexture, 1);
+    }
+    else {//link to the obj in flash
+        pObj->pResource0 = (void*)pMesh;
+        pObj->pResource1 = (void*)pTexture;
+    }
+    
     if (backfaceCulling==true){
         ENABLE_OBJ_BACKFACE_CULLING(pObj);
     }
@@ -255,7 +327,7 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
 }
 B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pColor,
                                 bool backfaceCulling, bool fix_render_level, u8 render_level,
-                                bool fix_light_value, u8 light_value, bool Add_To_RenderList) {
+                                bool fix_light_value, u8 light_value, bool Add_To_RenderList,bool Buff_In_Ram) {
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
@@ -263,9 +335,16 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, NOTEX_MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
+    if (Buff_In_Ram) {
+        MeshBuffInRam(pObj, pMesh, 0);
+        ColorBuffInRam(pObj, pColor, 1);
+    }
+    else {
+        pObj->pResource0 = (void*)pMesh;
+        pObj->pResource1 = (void*)pColor;
 
-    pObj->pResource0 = (void*)pMesh;
-    pObj->pResource1 = (void*)pColor;
+    }
+
     if (backfaceCulling == true) {
         ENABLE_OBJ_BACKFACE_CULLING(pObj);
     }
@@ -296,7 +375,7 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
 }
 
 B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 tv, u8 bu, u8 bv,
-    u8 light_value, bool Add_To_RenderList) {
+    u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram) {
 
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL) {
@@ -305,8 +384,12 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     pObj->pMother = (B3LObj_t*)NULL;
     B3L_SET(pObj->state, BITMAP_OBJ);
     SET_OBJ_VISIABLE(pObj);
-    pObj->pResource0 = (void*)pTexture;
-
+    if (Buff_In_Ram) {
+        TexBuffInRam(pObj, pTexture, 0);
+    }
+    else {//link to the obj in flash
+        pObj->pResource0 = (void*)pTexture;
+    }
     u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
     pObj->pResource1 = (void*)resource1;
     SET_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
@@ -314,9 +397,7 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     if (Add_To_RenderList == true) {
         B3L_AddObjToRenderList(pObj, pRender);
     }
-
     return pObj;
-
 }
 
 void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z) {
