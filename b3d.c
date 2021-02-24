@@ -20,9 +20,9 @@ static void ResetObjList(scene_t* pScene);
 
 static void  UpdateCam(render_t* pRender);
 static void AddObjToTwoWayList(B3LObj_t *pObj, B3LObj_t **pStart);
-static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture, u32 slot);
-static bool MeshBuffInRam(B3LObj_t* pObj, B3L_Mesh_t* pMesh, u32 slot);
-static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot);
+static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture, u32 slot, u16 priority);
+static bool MeshBuffInRam(B3LObj_t* pObj, B3L_Mesh_t* pMesh, u32 slot, u16 priority);
+static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot, u16 priority);
 
 
 void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
@@ -32,7 +32,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff) {
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
   //pRender->pVectBuff = vectBuff;
-  pRender->pVectBuff = (vect4_t *)pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE,B3L_DATA_OTHER_E);
+  pRender->pVectBuff = (vect4_t *)pvPortMalloc(sizeof(vect4_t)*VECT_BUFF_SIZE,B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
   //pRender->pVectBuff = (vect4_t *)0x24000000;
   pRender->lvl0Distance = LEVEL_0_DEFAULT_DISTANCE;
   pRender->lvl1Distance = LEVEL_1_DEFAULT_DISTANCE;
@@ -215,7 +215,7 @@ void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender) {
 
 
 
-static bool MeshBuffInRam(B3LObj_t* pObj,B3L_Mesh_t* pMesh,u32 slot) {
+static bool MeshBuffInRam(B3LObj_t* pObj,B3L_Mesh_t* pMesh,u32 slot,u16 priority) {
     u32 size = B3L_GetMeshResouceSize(pMesh);
     void** ppResource;
     if (slot == 0) {
@@ -224,7 +224,8 @@ static bool MeshBuffInRam(B3LObj_t* pObj,B3L_Mesh_t* pMesh,u32 slot) {
     else {
         ppResource = &(pObj->pResource1);
     }
-    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E);
+
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);
     if (*ppResource != (void*)NULL) {
         memcpy((void*)(*ppResource), (const void*)pMesh, size);
         return true;
@@ -233,9 +234,11 @@ static bool MeshBuffInRam(B3LObj_t* pObj,B3L_Mesh_t* pMesh,u32 slot) {
         *ppResource = (void*)pMesh;
         return false;
     }
+
+    
 }
 
-static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture,u32 slot) {
+static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture,u32 slot, u16 priority) {
     u32 size = B3L_GetTexResouceSize(pTexture);
     void** ppResource;
     if (slot == 0) {
@@ -244,7 +247,7 @@ static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture,u32 slot) {
     else {
         ppResource = &(pObj->pResource1);
     }
-    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_TEX_E);
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_TEX_E, priority);
     //copy the data into the position
     if (*ppResource != (void*)NULL) {
         memcpy((void*)(*ppResource), (const void*)pTexture, size);
@@ -256,7 +259,7 @@ static bool TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture,u32 slot) {
     }
 }
 
-static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot) {
+static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot, u16 priority) {
     u32 size = ((u16*)pColor)[2] +6;
     void** ppResource;
     if (slot == 0) {
@@ -265,7 +268,7 @@ static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot) {
     else {
         ppResource = &(pObj->pResource1);
     }
-    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E);
+    *ppResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E, priority);
     //copy the data into the position
     if (*ppResource != (void*)NULL) {
         memcpy((void*)(*ppResource), (const void*)pColor, size);
@@ -280,7 +283,7 @@ static bool  ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot) {
 
 B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pTexture,
     bool backfaceCulling, bool fix_render_level,u8 render_level, bool fix_light_value,
-    u8 light_value,bool Add_To_RenderList, bool Buff_In_Ram) {
+    u8 light_value,bool Add_To_RenderList, bool Buff_In_Ram, u16 Buff_priority) {
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL){
         return pObj;
@@ -289,8 +292,8 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     B3L_SET(pObj->state, MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
     if (Buff_In_Ram) {
-        MeshBuffInRam(pObj, pMesh, 0);
-        TexBuffInRam(pObj, pTexture, 1);
+        MeshBuffInRam(pObj, pMesh, 0, Buff_priority);
+        TexBuffInRam(pObj, pTexture, 1, Buff_priority);
     }
     else {//link to the obj in flash
         pObj->pResource0 = (void*)pMesh;
@@ -327,7 +330,8 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
 }
 B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pColor,
                                 bool backfaceCulling, bool fix_render_level, u8 render_level,
-                                bool fix_light_value, u8 light_value, bool Add_To_RenderList,bool Buff_In_Ram) {
+                                bool fix_light_value, u8 light_value, bool Add_To_RenderList,
+                                 bool Buff_In_Ram, u16 Buff_priority) {
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL) {
         return pObj;
@@ -336,8 +340,8 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     B3L_SET(pObj->state, NOTEX_MESH_OBJ);
     SET_OBJ_VISIABLE(pObj);
     if (Buff_In_Ram) {
-        MeshBuffInRam(pObj, pMesh, 0);
-        ColorBuffInRam(pObj, pColor, 1);
+        MeshBuffInRam(pObj, pMesh, 0,Buff_priority);
+        ColorBuffInRam(pObj, pColor, 1 ,Buff_priority);
     }
     else {
         pObj->pResource0 = (void*)pMesh;
@@ -375,7 +379,7 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
 }
 
 B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 tv, u8 bu, u8 bv,
-    u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram) {
+    u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram, u16 Buff_priority) {
 
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);
     if (pObj == (B3LObj_t*)NULL) {
@@ -385,7 +389,7 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     B3L_SET(pObj->state, BITMAP_OBJ);
     SET_OBJ_VISIABLE(pObj);
     if (Buff_In_Ram) {
-        TexBuffInRam(pObj, pTexture, 0);
+        TexBuffInRam(pObj, pTexture, 0 ,Buff_priority);
     }
     else {//link to the obj in flash
         pObj->pResource0 = (void*)pTexture;

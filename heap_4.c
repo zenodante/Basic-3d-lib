@@ -103,15 +103,7 @@ extern uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 static uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
-/* Define the linked list structure.  This is used to link free blocks in order
-of their memory address. */
-typedef struct A_BLOCK_LINK
-{
-	struct A_BLOCK_LINK *pxNextFreeBlock;	/*<< The next free block in the list. */
-	size_t xBlockSize;						/*<< The size of the free block. */
-	u32    dataType;
-	u32    refCount;
-} BlockLink_t;
+
 
 /*-----------------------------------------------------------*/
 
@@ -150,8 +142,13 @@ space. */
 static size_t xBlockAllocatedBit = 0;
 
 /*-----------------------------------------------------------*/
+void* FindExistBuff(u32 ID, dataType_e type) {
+	void* pResource = (void* )NULL;
 
-void *pvPortMalloc(size_t xWantedSize, dataType_e dType)
+	return pResource;
+
+}
+void *pvPortMalloc(size_t xWantedSize, dataType_e dType,u16 priority)
 {
 	BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
 	void *pvReturn = NULL;
@@ -263,6 +260,8 @@ void *pvPortMalloc(size_t xWantedSize, dataType_e dType)
 					pxBlock->xBlockSize |= xBlockAllocatedBit;
 					pxBlock->pxNextFreeBlock = NULL;
 					pxBlock->dataType = dType;
+					pxBlock->refCount = 1;
+					pxBlock->priority = priority;
 				}
 				else
 				{

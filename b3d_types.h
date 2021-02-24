@@ -297,6 +297,21 @@ O-- need update matrix
       B3L_DATA_TEX_E = 2,
       B3L_DATA_COLOR_E = 3,
 }dataType_e;
+
+
+#define B3L_MEM_HIGH_PRIORITY  0xFFFF
+#define B3L_MEM_LOW_PRIORITY   0x0000
+
+  /* Define the linked list structure.  This is used to link free blocks in order
+of their memory address. */
+  typedef struct A_BLOCK_LINK
+  {
+      struct A_BLOCK_LINK* pxNextFreeBlock;	/*<< The next free block in the list. */
+      size_t xBlockSize;						/*<< The size of the free block. */
+      u32    dataType;
+      u16    priority;
+      u16    refCount;
+  } BlockLink_t;
 #ifdef __cplusplus
 }
 #endif
