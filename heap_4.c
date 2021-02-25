@@ -119,7 +119,7 @@ static void prvInsertBlockIntoFreeList(BlockLink_t *pxBlockToInsert);
  * Called automatically to setup the required heap structures the first time
  * pvPortMalloc() is called.
  */
-static void prvHeapInit(void);
+
 
 /*-----------------------------------------------------------*/
 
@@ -142,12 +142,7 @@ space. */
 static size_t xBlockAllocatedBit = 0;
 
 /*-----------------------------------------------------------*/
-void* FindExistBuff(u32 ID, dataType_e type) {
-	void* pResource = (void* )NULL;
 
-	return pResource;
-
-}
 void *pvPortMalloc(size_t xWantedSize, dataType_e dType,u16 priority)
 {
 	BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
@@ -367,7 +362,7 @@ void vPortInitialiseBlocks(void)
 }
 /*-----------------------------------------------------------*/
 
-static void prvHeapInit(void)
+void prvHeapInit(void)
 {
 	BlockLink_t *pxFirstFreeBlock;
 	uint8_t *pucAlignedHeap;

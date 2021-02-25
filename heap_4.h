@@ -67,7 +67,7 @@ extern "C" {
 /* 函数声明 */
 void* pvPortMalloc(size_t xWantedSize, dataType_e dType, u16 priority);
 void vPortFree(void *pv);
-void* FindExistBuff(u32 ID, dataType_e type);
+void prvHeapInit(void);
 size_t xPortGetFreeHeapSize(void);
 size_t xPortGetMinimumEverFreeHeapSize(void);
 

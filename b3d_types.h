@@ -216,7 +216,8 @@ xx bits have been used for tri test
 
 
   typedef struct {
-    B3LObj_t            objBuff[OBJ_BUFF_SIZE];
+    //B3LObj_t            objBuff[OBJ_BUFF_SIZE];
+    B3LObj_t*           pObjBuff;
     u32                 freeObjNum;
     B3LObj_t*           pFreeObjs;
     B3LObj_t*           pActiveObjs;
@@ -277,10 +278,20 @@ O-- need update matrix
     f32                 focalLength;
   }camera_t;
 
+  typedef struct A_BLOCK_LINK
+  {
+      struct A_BLOCK_LINK* pxNextFreeBlock;	/*<< The next free block in the list. */
+      size_t xBlockSize;						/*<< The size of the free block. */
+      u32    dataType;
+      u16    priority;
+      u16    refCount;
+  } BlockLink_t;
+
   typedef struct {
     fBuff_t*            pFrameBuff;
     zBuff_t*            pZBuff;
     vect4_t*            pVectBuff;
+    BlockLink_t*        pBuffResouce;
     camera_t            camera;
     light_t             light;
     scene_t             scene;
@@ -304,14 +315,7 @@ O-- need update matrix
 
   /* Define the linked list structure.  This is used to link free blocks in order
 of their memory address. */
-  typedef struct A_BLOCK_LINK
-  {
-      struct A_BLOCK_LINK* pxNextFreeBlock;	/*<< The next free block in the list. */
-      size_t xBlockSize;						/*<< The size of the free block. */
-      u32    dataType;
-      u16    priority;
-      u16    refCount;
-  } BlockLink_t;
+
 #ifdef __cplusplus
 }
 #endif

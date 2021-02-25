@@ -39,7 +39,7 @@ void init() {
 
 
 
-    B3L_RenderInit(&rnd,(fBuff_t *)(screen.data));
+    B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
 
     pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
                                true, false, 0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);

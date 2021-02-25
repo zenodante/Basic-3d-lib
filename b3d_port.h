@@ -13,7 +13,6 @@ extern char __fb_start, __fb_end;
 
 extern zBuff_t*  const zbuff;
 //extern vect4_t*  const vectBuff;
-extern u8 ucHeap[ENGINE_HEAP_SIZE];
 
 static inline uint32_t __get_FPSCR(void);
 static inline void __set_FPSCR(uint32_t fpscr);
@@ -33,9 +32,10 @@ static inline void __set_FPSCR(uint32_t fpscr)
 
 extern zBuff_t zbuff[Z_BUFF_LENGTH];
 extern vect4_t vectBuff[VECT_BUFF_SIZE]; 
-extern u8 ucHeap[ENGINE_HEAP_SIZE];
+
 #endif
 
+extern u8 ucHeap[ENGINE_HEAP_SIZE];
 
 #ifdef B3L_USING_PARTICLE
 extern B3L_Particle_t  particleBuff[B3L_PARTICLE_BUFF_DEPTH];
