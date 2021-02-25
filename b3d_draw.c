@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#pragma GCC optimize("-O3")
+
 __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx);
 __STATIC_FORCEINLINE void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* fbuff, zBuff_t* zbuff, fBuff_t color);
 __STATIC_FORCEINLINE void DrawPixelWithTest(B3L_tex_t color, s32 x, s32 y, f32 z, fBuff_t* pFrameBuff, zBuff_t* pZbuff);

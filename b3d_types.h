@@ -112,15 +112,6 @@ xx bits have been used for tri test
   24byte :boundbox
   12* vect number   vect;     start + 4 + 24
   6* tri number    triIndx;   start + 4 + 24 + vectNum*12
-  12* tri number    normal;   start + 4 + 24 + vectNum*12 + triNum*6 + triNum*6 + (2)
-  */
-  typedef u32 B3L_Mesh_NoTex_t;
-  /*
-  2byte : vect number
-  2byte : tri number
-  24byte :boundbox
-  12* vect number   vect;     start + 4 + 24
-  6* tri number    triIndx;   start + 4 + 24 + vectNum*12
   6* tri number    uv;        start + 4 + 24 + vectNum*12 + triNum*6
   12* tri number    normal;   start + 4 + 24 + vectNum*12 + triNum*6 + triNum*6
   */
@@ -141,7 +132,7 @@ xx bits have been used for tri test
   B3LObj_t state
      31     2423     1615      87
      ------------------------------------
-  31|$$$$$$$$|******RQ|***MLKJI|***EDCBA|0
+  31|$$$$$$$$|******RQ|*ONMLKJI|***EDCBA|0
      ------------------------------------
     A-- mesh obj with texture
     B-- polygon obj
@@ -153,6 +144,8 @@ xx bits have been used for tri test
     K-- Back face culling state
     L-- fix render level switch
     M-- special light value
+    N-- Ram buffered resource 0
+    O-- Ram buffered resource 1
     QR-- fix render level number
     $-- the 8 bit special light value defined by P + 16
 
@@ -169,6 +162,8 @@ xx bits have been used for tri test
 #define OBJ_BACKFACE_CULLING               (10)
 #define OBJ_IGNORE_RENDER_LEVEL            (11)
 #define OBJ_SPECIAL_LIGHT_VALUE            (12)
+#define OBJ_RAM_BUFF_RESOURCE_0            (13)
+#define OBJ_RAM_BUFF_RESOURCE_1            (14)
 //render stage information
 #define OBJ_RENDER_LEVEL_MASK        0x00030000
 #define OBJ_FIX_RENDER_LEVEL_SHIFT   (16)
@@ -192,27 +187,7 @@ xx bits have been used for tri test
   //bitmap obj            resource0: texture resource1: top left u, topleft v, bottom right u, bottom right v
   //polygon obj           resource0: line struct  resource1: colors
   //particle generator    resource0: active particles entry resource1: particle life time
-  /*
-  B3LObj_t state for particle generator obj
-
-     31     2423     1615      87
-     ------------------------------------
-  31|$$$$$$$$|########|**NMLKJI|***EDCBA|0
-     ------------------------------------
-    A-- mesh obj with texture
-    B-- polygon obj
-    C-- mesh obj without texture
-    D-- particle generator obj
-    E-- Bitmap obj
-    I-- obj visualization
-    J-- Particle generator acitve state
-    K-- Pixel particle
-    L-- Squre particle 
-    M-- Line particle
-    N-- Circle particle
-    #   size
-    $   life time *(100 ms)
-  */
+ 
 
 
   typedef struct {
@@ -278,13 +253,21 @@ O-- need update matrix
     f32                 focalLength;
   }camera_t;
 
+  typedef enum {
+      B3L_DATA_OTHER_E = 0,
+      B3L_DATA_MESH_E = 1,
+      B3L_DATA_TEX_E = 2,
+      B3L_DATA_COLOR_E = 3,
+      B3L_DATA_POLYGON_E = 4,
+}dataType_e;
+
   typedef struct A_BLOCK_LINK
   {
       struct A_BLOCK_LINK* pxNextFreeBlock;	/*<< The next free block in the list. */
       size_t xBlockSize;						/*<< The size of the free block. */
       u32    dataType;
       u16    priority;
-      u16    refCount;
+      s16    refCount;
   } BlockLink_t;
 
   typedef struct {
@@ -302,12 +285,7 @@ O-- need update matrix
     s8                  lvl1Light;
   }render_t;
 
-  typedef enum {
-      B3L_DATA_OTHER_E = 0,
-      B3L_DATA_MESH_E = 1,
-      B3L_DATA_TEX_E = 2,
-      B3L_DATA_COLOR_E = 3,
-}dataType_e;
+
 
 
 #define B3L_MEM_HIGH_PRIORITY  0xFFFF

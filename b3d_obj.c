@@ -111,6 +111,20 @@ void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender) {
         B3L_PopObjFromRenderList(pObj, pRender);
     }
     //clean the obj statement
+    
+
+    if (B3L_TEST(pObj->state, OBJ_RAM_BUFF_RESOURCE_0)) {
+        B3L_ChangeResourceReference(pObj->pResource0, -1);//decrease the reference count
+    }    
+    if (B3L_TEST(pObj->state, OBJ_RAM_BUFF_RESOURCE_1)) {
+        B3L_ChangeResourceReference(pObj->pResource1, -1);//decrease the reference count
+        
+    }
+    pObj->next = NULL;
+    pObj->pMother = NULL;
+    pObj->privous = NULL;
+    pObj->pResource0 = NULL;
+    pObj->pResource1 = NULL;
     pObj->state = 0x00000000;
     pRender->scene.freeObjNum += 1;
     AddObjToTwoWayList(pObj, &(pRender->scene.pFreeObjs));
@@ -132,6 +146,15 @@ B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* p
     if (Buff_In_Ram) {
         pObj->pResource0 = (void*)B3L_MeshBuffInRam(pRender, pMesh,Buff_priority);
         pObj->pResource1 = (void*)B3L_TexBuffInRam(pRender, pTexture, Buff_priority);
+        if (pObj->pResource0 != pMesh) {//success buffered
+            B3L_SET(pObj->state, OBJ_RAM_BUFF_RESOURCE_0);
+            B3L_ChangeResourceReference(pObj->pResource0, 1);//add 1 to reference, if the resource is low priority 
+                                                             //and reference == 0, it would be free by garbage collection
+        }
+        if (pObj->pResource1 != pTexture) {//success buffered
+            B3L_SET(pObj->state, OBJ_RAM_BUFF_RESOURCE_1);
+            B3L_ChangeResourceReference(pObj->pResource1, 1);
+        }
     }
     else {//link to the obj in flash
         pObj->pResource0 = (void*)pMesh;
@@ -180,6 +203,14 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     if (Buff_In_Ram) {
         pObj->pResource0 = (void*)B3L_MeshBuffInRam(pRender, pMesh, Buff_priority);
         pObj->pResource1 = (void*)B3L_ColorBuffInRam(pRender, pColor,  Buff_priority);
+        if (pObj->pResource0 != pMesh) {//success buffered
+            B3L_SET(pObj->state, OBJ_RAM_BUFF_RESOURCE_0);
+            B3L_ChangeResourceReference(pObj->pResource0, 1);
+        }
+        if (pObj->pResource1 != pColor) {//success buffered
+            B3L_SET(pObj->state, OBJ_RAM_BUFF_RESOURCE_1);
+            B3L_ChangeResourceReference(pObj->pResource1, 1);
+        }
     }
     else {
         pObj->pResource0 = (void*)pMesh;
@@ -228,6 +259,10 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     SET_OBJ_VISIABLE(pObj);
     if (Buff_In_Ram) {
         pObj->pResource0 = (void*)B3L_TexBuffInRam(pRender,pTexture,Buff_priority);
+        if (pObj->pResource0 != pTexture) { //success buffered
+            B3L_SET(pObj->state, OBJ_RAM_BUFF_RESOURCE_0);
+            B3L_ChangeResourceReference(pObj->pResource0, 1);
+        }
     }
     else {//link to the obj in flash
         pObj->pResource0 = (void*)pTexture;

@@ -125,7 +125,7 @@ static void prvInsertBlockIntoFreeList(BlockLink_t *pxBlockToInsert);
 
 /* The size of the structure placed at the beginning of each allocated memory
 block must by correctly byte aligned. */
-static const size_t xHeapStructSize = ((sizeof(BlockLink_t) + (((size_t)portBYTE_ALIGNMENT_MASK) - (size_t)1)) & ~((size_t)portBYTE_ALIGNMENT_MASK));
+const size_t xHeapStructSize = ((sizeof(BlockLink_t) + (((size_t)portBYTE_ALIGNMENT_MASK) - (size_t)1)) & ~((size_t)portBYTE_ALIGNMENT_MASK));
 
 /* Create a couple of list links to mark the start and end of the list. */
 static BlockLink_t xStart, *pxEnd = NULL;
@@ -255,7 +255,7 @@ void *pvPortMalloc(size_t xWantedSize, dataType_e dType,u16 priority)
 					pxBlock->xBlockSize |= xBlockAllocatedBit;
 					pxBlock->pxNextFreeBlock = NULL;
 					pxBlock->dataType = dType;
-					pxBlock->refCount = 1;
+					pxBlock->refCount = 0;//reset reference to zero
 					pxBlock->priority = priority;
 				}
 				else

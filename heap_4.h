@@ -1,7 +1,4 @@
-﻿/*
- *	为FreeRTOS中的heap_4移植添加头文件，加入一些移植所需定义和配置选项
- */
-
+﻿
 #ifndef __HEAP_4_H
 #define __HEAP_4_H
 #ifdef __cplusplus
@@ -11,13 +8,13 @@ extern "C" {
 #include "stdint.h"
 #include "b3d_types.h"
 #include "b3d_config.h"
-#define configTOTAL_HEAP_SIZE                   ENGINE_HEAP_SIZE   //堆空间大小配置
-#define configAPPLICATION_ALLOCATED_HEAP        1                             //使用用户自定义空间作为堆分配内存
-#define configUSE_MALLOC_FAILED_HOOK            0                             //使用malloc失败回调函数
+#define configTOTAL_HEAP_SIZE                   ENGINE_HEAP_SIZE   //stack size
+#define configAPPLICATION_ALLOCATED_HEAP        1                             //use customer defined array as heap
+#define configUSE_MALLOC_FAILED_HOOK            0                             //using failure callback
 
 
-#define vTaskSuspendAll()    NULL       //挂起所有任务
-#define xTaskResumeAll()     NULL       //继续所有任务
+#define vTaskSuspendAll()    NULL       
+#define xTaskResumeAll()     NULL       
 
  /* Normal assert() semantics without relying on the provision of an assert.h
  header file. */
@@ -26,7 +23,7 @@ extern "C" {
 
 
 
- //字节对齐，以这个的倍数分配内存
+ 
 #define portBYTE_ALIGNMENT			8
 #if portBYTE_ALIGNMENT == 8
 #define portBYTE_ALIGNMENT_MASK ( 0x0007 )
@@ -49,11 +46,11 @@ extern "C" {
 #endif
 
 
-//malloc追踪
+//
 #ifndef traceMALLOC
 #define traceMALLOC( pvAddress, uiSize )
 #endif
-//free追踪
+//
 #ifndef traceFREE
 #define traceFREE( pvAddress, uiSize )
 #endif
@@ -62,9 +59,11 @@ extern "C" {
 #define mtCOVERAGE_TEST_MARKER()
 #endif
 
+extern const size_t xHeapStructSize;
 
-
-/* 函数声明 */
+/*------------------------------------------------------------------------------------------------- 
+Function declaration 
+-------------------------------------------------------------------------------------------------*/
 void* pvPortMalloc(size_t xWantedSize, dataType_e dType, u16 priority);
 void vPortFree(void *pv);
 void prvHeapInit(void);

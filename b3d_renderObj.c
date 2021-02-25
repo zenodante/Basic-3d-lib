@@ -4,7 +4,7 @@
 #include "b3d_config.h"
 #include "b3d.h"
 #include <stdio.h>
-
+#pragma GCC optimize("-O3")
 
 
 /*-------------------------------------------------------------------------------------------------
@@ -1054,15 +1054,22 @@ u32 B3L_GetMeshResouceSize(B3L_Mesh_t* pMesh) {
     }
 
     return returnVal;
-
-    
-
 }
 
 u32 B3L_GetTexResouceSize(B3L_tex_t* pTexture) {
     u32 size = pTexture[4];
-    return (size * size) + 6;
+    return (size * size) + TEXTURE_HEAD_SHIFT;
 }
 
+u32 B3L_GetPolyResouceSize(B3L_Polygon_t* pPoly) {
+    u32 linNum = GetLinNum(pPoly);
+    u32 vectNum = GetVectNum((B3L_Mesh_t*)pPoly);
+
+
+    u32 returnVal = vectNum * 12 + MESH_HEAD_SHIFT + 24 + linNum * 4;
+
+
+    return returnVal;
+}
 
 

@@ -43,16 +43,16 @@ void init() {
 
     pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
                                true, false, 0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    //pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
     pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 
     B3L_SetObjPosition(pShip, 0.0f, 0.0f, 0.0f);
     B3L_SetObjScale(pShip, 20.0f, 20.0f, 20.0f);
 
     //pBox->pMother = pShip;
-    B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
-    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
-    pBox2->pMother = pBox;
+   // B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
+    //B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
+   // pBox2->pMother = pBox;
     B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
     B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
 
@@ -64,7 +64,7 @@ void init() {
 
     B3L_CameraLookAt(&(rnd.camera), &at);
     rnd.camera.pMother = pShip;
-
+    B3L_TexBuffInRam(&rnd,(B3L_tex_t*) tex, B3L_MEM_LOW_PRIORITY);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,7 @@ void render(uint32_t time) {
     
     screen.pen = Pen(0, 0, 0,1);
     screen.text("Basic 3d engine test", minimal_font, Point(5, 4));
+    B3L_GarbageCollection(&rnd,time);
 
 }
 

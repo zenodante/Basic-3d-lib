@@ -27,6 +27,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
 #if B3L_ARM  == 1
   B3d_FPU_Init();
 #endif
+  pRender->pBuffResouce = NULL;
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
   pRender->scene.pObjBuff = (B3LObj_t *)pvPortMalloc(sizeof(B3LObj_t) * objNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
@@ -42,7 +43,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
 }
 
 
-void B3L_RenderDeInit(render_t* pRender,bool resetBuff) {
+void B3L_RenderDeInit(render_t* pRender) {
     pRender->pFrameBuff = NULL;
     pRender->pZBuff = NULL;
     vPortFree(pRender->scene.pObjBuff);//release memory
@@ -54,10 +55,10 @@ void B3L_RenderDeInit(render_t* pRender,bool resetBuff) {
     pRender->lvl1Light = 0;
     pRender->farPlane = 1.0f;
     pRender->nearPlane = 100.0f;
-    if (resetBuff) {
-        prvHeapInit();
-        pRender->pBuffResouce = NULL;
-    }
+    
+    prvHeapInit();
+    pRender->pBuffResouce = NULL;
+    
 }
 
 void B3L_RenderScence(render_t* pRender,u32 time) {
@@ -81,41 +82,89 @@ void B3L_ResetScene(scene_t* pScene,u32 freeObjNum) {
 
 
 void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource) {
+    BlockLink_t* nextBlock = pRender->pBuffResouce;
+    BlockLink_t* currentBlock = (BlockLink_t*)((u8*)pResource - xHeapStructSize);
+    pRender->pBuffResouce = currentBlock;
+    currentBlock->pxNextFreeBlock = nextBlock;
+    
+}
+
+void* B3L_FindResouceInBuff(render_t* pRender, void* pResource, dataType_e dType) {
+
+    BlockLink_t* currentBlock = pRender->pBuffResouce;
+    u32 resourceID = ((u32*)pResource)[0];
+    u32 dataType;
+    u32 ID;
+    while (currentBlock != NULL) {
+        dataType = currentBlock->dataType;
+        ID = (u32*)((u8*)currentBlock + xHeapStructSize)[0];
+        if ((dataType == dType) && (ID == resourceID)) {
+            return (void*)((u8 *)currentBlock + xHeapStructSize);
+        }
+        currentBlock = currentBlock->pxNextFreeBlock;
+    }
+    return NULL;
 
 }
 
+void B3L_ChangeResourceReference(void *pResource, s32 num) {
+    BlockLink_t* ctlBlock = (BlockLink_t*)((u8*)pResource - xHeapStructSize);
+    ctlBlock->refCount += num;
+
+}
+
+
 void* B3L_MeshBuffInRam(render_t* pRender, B3L_Mesh_t* pMesh, u16 priority) {
-    u32 size = B3L_GetMeshResouceSize(pMesh);
+    u32 size = B3L_GetMeshResouceSize(pMesh);//calculate the resource size in byte
     void* pResource;
+    pResource = B3L_FindResouceInBuff(pRender, pMesh, B3L_DATA_MESH_E);//find if it already buffed in the heap
+    if (pResource == NULL) {//not buffered
+        pResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);//try to alloc memory in heap
+        if (pResource != (void*)NULL) { //if get the memory
+            B3L_AddResouceBuffToPool(pRender, pResource);//also add the resource in pool for future search
+            memcpy((void*)(pResource), (const void*)pMesh, size); //copy the resource
+        }
+        else {
+            pResource = (void*)pMesh; //fail to get the memory, just point to the original resource
+        }
+    }  
+    return pResource;
+}
 
 
-    pResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);
-
-    if (pResource != (void*)NULL) {
-        B3L_AddResouceBuffToPool(pRender, pResource);
-        memcpy((void*)(pResource), (const void*)pMesh, size);
-    }
-    else {
-        pResource = (void*)pMesh;
+void* B3L_PolygonBuffInRam(render_t* pRender, B3L_Polygon_t* pPoly, u16 priority) {
+    u32 size = B3L_GetPolyResouceSize(pPoly);
+    void* pResource;
+    pResource = B3L_FindResouceInBuff(pRender, pPoly, B3L_DATA_POLYGON_E);
+    if (pResource == NULL) {
+        pResource = (void*)pvPortMalloc(size, B3L_DATA_POLYGON_E, priority);
+        if (pResource != (void*)NULL) {
+            B3L_AddResouceBuffToPool(pRender, pResource);
+            memcpy((void*)(pResource), (const void*)pPoly, size);
+        }
+        else {
+            pResource = (void*)pPoly;
+        }
     }
     return pResource;
 
-
 }
+
 
 void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority) {
     u32 size = B3L_GetTexResouceSize(pTexture);
     void* pResource;
+    pResource = B3L_FindResouceInBuff(pRender, pTexture, B3L_DATA_TEX_E);
+    if (pResource == NULL) {
+        pResource = (void*)pvPortMalloc(size, B3L_DATA_TEX_E, priority);
 
-
-    pResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);
-
-    if (pResource != (void*)NULL) {
-        B3L_AddResouceBuffToPool(pRender, pResource);
-        memcpy((void*)(pResource), (const void*)pTexture, size);
-    }
-    else {
-        pResource = (void*)pTexture;
+        if (pResource != (void*)NULL) {
+            B3L_AddResouceBuffToPool(pRender, pResource);
+            memcpy((void*)(pResource), (const void*)pTexture, size);
+        }
+        else {
+            pResource = (void*)pTexture;
+        }
     }
     return pResource;
 }
@@ -123,19 +172,54 @@ void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority) {
 void* B3L_ColorBuffInRam(render_t* pRender, B3L_tex_t* pColor, u16 priority) {
     u32 size = ((u16*)pColor)[2] + 6;
     void* pResource;
-
-    pResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E, priority);
-    if (pResource != (void*)NULL) {
-        B3L_AddResouceBuffToPool(pRender, pResource);
-        memcpy((void*)(pResource), (const void*)pColor, size);
-    }
-    else {
-        pResource = (void*)pColor;
+    pResource = B3L_FindResouceInBuff(pRender, pColor, B3L_DATA_COLOR_E);
+    if (pResource == NULL) {
+        pResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E, priority);
+        if (pResource != (void*)NULL) {
+            B3L_AddResouceBuffToPool(pRender, pResource);
+            memcpy((void*)(pResource), (const void*)pColor, size);
+            
+        }
+        else {
+            pResource = (void*)pColor;
+        }
     }
     return pResource;
 }
 
+void B3L_GarbageCollection(render_t* pRender,u32 time) {
+    static u32 oldTime = 0;
+    if ((time - oldTime) > B3L_GARBAGE_COLLECTION_PERIOD) {
+        oldTime = time;
+        BlockLink_t* currentBlock = pRender->pBuffResouce;
+        BlockLink_t* prvBlock = NULL;
+        BlockLink_t* nxtBlock;
+        while (currentBlock != NULL) {
+            nxtBlock = currentBlock->pxNextFreeBlock;
+           //recycle all the resource with 0 reference and low priority, high priority resource need to be free manually
+            if ((currentBlock->refCount<=0)&&(currentBlock->priority == B3L_MEM_LOW_PRIORITY)) {
+                //pop current block
+                
+                if (prvBlock == NULL) {//first one
+                    pRender->pBuffResouce = nxtBlock;
+                }
+                else {
+                    prvBlock->pxNextFreeBlock = nxtBlock;
+                }
+                currentBlock->pxNextFreeBlock = NULL;
+                vPortFree((void*)((u8*)currentBlock + xHeapStructSize));
+                currentBlock = nxtBlock;
+            }
+            else {
+                prvBlock = currentBlock;
+                currentBlock = nxtBlock;
+            }
+        
+        }
 
+    }
+    
+}
 
 
 void B3L_NewRenderStart(render_t* pRender, fBuff_t color) {

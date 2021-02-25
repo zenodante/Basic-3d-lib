@@ -17,10 +17,16 @@ extern "C" {
 /*-----------------------------------------------------------------------------
 Resource management functions
 -----------------------------------------------------------------------------*/
-extern void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
+extern void  B3L_GarbageCollection(render_t* pRender,u32 time);
+
+extern void* B3L_FindResouceInBuff(render_t* pRender, void* pResource, dataType_e dType);
+extern void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
+extern void  B3L_ChangeResourceReference(void* pResource, s32 num);
+
 extern void* B3L_MeshBuffInRam(render_t* pRender, B3L_Mesh_t* pMesh, u16 priority);
 extern void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority);
 extern void* B3L_ColorBuffInRam(render_t* pRender, B3L_tex_t* pColor, u16 priority);
+extern void* B3L_PolygonBuffInRam(render_t* pRender, B3L_Polygon_t* pPoly, u16 priority);
 /*-----------------------------------------------------------------------------
 Render functions
 -----------------------------------------------------------------------------*/
@@ -29,7 +35,7 @@ extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, 
 #define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,\
                                                 LEVEL_0_DEFAULT_DISTANCE,LEVEL_1_DEFAULT_DISTANCE,\
                                                 LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE)
-extern  void B3L_RenderDeInit(render_t* pRender, bool resetBuff);
+extern  void B3L_RenderDeInit(render_t* pRender);
 extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work 
 extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum); //reset all the scene resource
 extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); //clear buffs
