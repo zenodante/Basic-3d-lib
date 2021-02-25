@@ -643,28 +643,28 @@ void ClearZbuff(zBuff_t* pZbuff, u32 length) {
    u32 *Addr=(u32 *)pZbuff;
    u32 value = 0xFFFFFFFF;
    while (length--) {
-     *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-     *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-     *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-     *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-     *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-     *Addr = value; Addr+=1;
+     *Addr++ = value; *Addr++ = value; *Addr++ = value;
+     *Addr++ = value; *Addr++ = value; *Addr++ = value;
+     *Addr++ = value; *Addr++ = value; *Addr++ = value;
+     *Addr++ = value; *Addr++ = value; *Addr++ = value;
+     *Addr++ = value; *Addr++ = value; *Addr++ = value;
+     *Addr++ = value;
    }
    switch (i) {
-   case 15:*Addr = value; Addr+=1;
-   case 14:*Addr = value; Addr+=1;
-   case 13:*Addr = value; Addr+=1;
-   case 12:*Addr = value; Addr+=1;
-   case 11:*Addr = value; Addr+=1;
-   case 10:*Addr = value; Addr+=1;
-   case 9:*Addr = value; Addr+=1;
-   case 8:*Addr = value; Addr+=1;
-   case 7:*Addr = value; Addr+=1;
-   case 6:*Addr = value; Addr+=1;
-   case 5:*Addr = value; Addr+=1;
-   case 4:*Addr = value; Addr+=1;
-   case 3:*Addr = value; Addr+=1;
-   case 2:*Addr = value; Addr+=1;
+   case 15:*Addr++ = value;
+   case 14:*Addr++ = value;
+   case 13:*Addr++ = value;
+   case 12:*Addr++ = value;
+   case 11:*Addr++ = value;
+   case 10:*Addr++ = value;
+   case 9:*Addr++ = value;
+   case 8:*Addr++ = value;
+   case 7:*Addr++ = value;
+   case 6:*Addr++ = value;
+   case 5:*Addr++ = value;
+   case 4:*Addr++ = value;
+   case 3:*Addr++ = value;
+   case 2:*Addr++ = value;
    case 1:*Addr = value;
    case 0:break;
    }
@@ -679,28 +679,28 @@ void ClearFbuff(fBuff_t* pFbuff, u32 length, fBuff_t color) {
   u32 *Addr=((u32 *)pFbuff);
   u32 value = color | (color << 8) | (color << 16) | (color << 24);
   while (length--) {
-    *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-    *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-    *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-    *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-    *Addr = value; Addr+=1; *Addr = value; Addr+=1; *Addr = value; Addr+=1;
-    *Addr = value; Addr+=1;
+      *Addr++ = value; *Addr++ = value; *Addr++ = value;
+      *Addr++ = value; *Addr++ = value; *Addr++ = value;
+      *Addr++ = value; *Addr++ = value; *Addr++ = value;
+      *Addr++ = value; *Addr++ = value; *Addr++ = value;
+      *Addr++ = value; *Addr++ = value; *Addr++ = value;
+      *Addr++ = value;
   }
   switch (i) {
-  case 15:*Addr = value; Addr+=1;
-  case 14:*Addr = value; Addr+=1;
-  case 13:*Addr = value; Addr+=1;
-  case 12:*Addr = value; Addr+=1;
-  case 11:*Addr = value; Addr+=1;
-  case 10:*Addr = value; Addr+=1;
-  case 9:*Addr = value; Addr+=1;
-  case 8:*Addr = value; Addr+=1;
-  case 7:*Addr = value; Addr+=1;
-  case 6:*Addr = value; Addr+=1;
-  case 5:*Addr = value; Addr+=1;
-  case 4:*Addr = value; Addr+=1;
-  case 3:*Addr = value; Addr+=1;
-  case 2:*Addr = value; Addr+=1;
+  case 15:*Addr++ = value;
+  case 14:*Addr++ = value;
+  case 13:*Addr++ = value;
+  case 12:*Addr++ = value;
+  case 11:*Addr++ = value;
+  case 10:*Addr++ = value;
+  case 9:*Addr++ = value;
+  case 8:*Addr++ = value;
+  case 7:*Addr++ = value;
+  case 6:*Addr++ = value;
+  case 5:*Addr++ = value;
+  case 4:*Addr++ = value;
+  case 3:*Addr++ = value;
+  case 2:*Addr++ = value;
   case 1:*Addr = value;
   case 0:break;
   }
