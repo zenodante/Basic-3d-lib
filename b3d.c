@@ -97,7 +97,7 @@ void* B3L_FindResouceInBuff(render_t* pRender, void* pResource, dataType_e dType
     u32 ID;
     while (currentBlock != NULL) {
         dataType = currentBlock->dataType;
-        ID = (u32*)((u8*)currentBlock + xHeapStructSize)[0];
+        ID = (((u32*)((u8*)currentBlock + xHeapStructSize)))[0];
         if ((dataType == dType) && (ID == resourceID)) {
             return (void*)((u8 *)currentBlock + xHeapStructSize);
         }

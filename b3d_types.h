@@ -5,6 +5,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "b3d_config.h"
   /*Type defines---------------------------------------------------------------*/
   typedef float    f32;
