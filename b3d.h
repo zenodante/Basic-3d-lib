@@ -15,6 +15,13 @@ extern "C" {
 #include "heap_4.h"
 #include "b3d_obj.h"
 /*-----------------------------------------------------------------------------
+Resource management functions
+-----------------------------------------------------------------------------*/
+extern void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
+extern void* B3L_MeshBuffInRam(render_t* pRender, B3L_Mesh_t* pMesh, u16 priority);
+extern void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority);
+extern void* B3L_ColorBuffInRam(render_t* pRender, B3L_tex_t* pColor, u16 priority);
+/*-----------------------------------------------------------------------------
 Render functions
 -----------------------------------------------------------------------------*/
 extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize,

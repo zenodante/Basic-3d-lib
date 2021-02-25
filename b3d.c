@@ -80,6 +80,63 @@ void B3L_ResetScene(scene_t* pScene,u32 freeObjNum) {
 }
 
 
+void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource) {
+
+}
+
+void* B3L_MeshBuffInRam(render_t* pRender, B3L_Mesh_t* pMesh, u16 priority) {
+    u32 size = B3L_GetMeshResouceSize(pMesh);
+    void* pResource;
+
+
+    pResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);
+
+    if (pResource != (void*)NULL) {
+        B3L_AddResouceBuffToPool(pRender, pResource);
+        memcpy((void*)(pResource), (const void*)pMesh, size);
+    }
+    else {
+        pResource = (void*)pMesh;
+    }
+    return pResource;
+
+
+}
+
+void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority) {
+    u32 size = B3L_GetTexResouceSize(pTexture);
+    void* pResource;
+
+
+    pResource = (void*)pvPortMalloc(size, B3L_DATA_MESH_E, priority);
+
+    if (pResource != (void*)NULL) {
+        B3L_AddResouceBuffToPool(pRender, pResource);
+        memcpy((void*)(pResource), (const void*)pTexture, size);
+    }
+    else {
+        pResource = (void*)pTexture;
+    }
+    return pResource;
+}
+
+void* B3L_ColorBuffInRam(render_t* pRender, B3L_tex_t* pColor, u16 priority) {
+    u32 size = ((u16*)pColor)[2] + 6;
+    void* pResource;
+
+    pResource = (void*)pvPortMalloc(size, B3L_DATA_COLOR_E, priority);
+    if (pResource != (void*)NULL) {
+        B3L_AddResouceBuffToPool(pRender, pResource);
+        memcpy((void*)(pResource), (const void*)pColor, size);
+    }
+    else {
+        pResource = (void*)pColor;
+    }
+    return pResource;
+}
+
+
+
 
 void B3L_NewRenderStart(render_t* pRender, fBuff_t color) {
 

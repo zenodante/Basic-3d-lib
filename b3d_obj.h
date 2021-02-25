@@ -4,22 +4,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "b3d_types.h"
-#include "b3d_config.h"
-#include "b3d_draw.h"
-#include "b3d_common.h"
-#include "b3d_port.h"
-#include "b3d_math.h"
-#include "b3d_testObj.h"
-#include "b3d_renderObj.h"
-#include "heap_4.h"
+//#include "b3d_types.h"
+//#include "b3d_config.h"
+//#include "b3d_draw.h"
+//#include "b3d_common.h"
+//#include "b3d_port.h"
+//#include "b3d_math.h"
+//#include "b3d_testObj.h"
+//#include "b3d_renderObj.h"
+//#include "heap_4.h"
+#include "b3d.h"
 /*-----------------------------------------------------------------------------
 Render obj functions
 -----------------------------------------------------------------------------*/
 extern void B3L_ResetObjList(scene_t* pScene,u32 objNum);
-extern bool B3L_TexBuffInRam(B3LObj_t* pObj, B3L_tex_t* pTexture, u32 slot, u16 priority);
-extern bool B3L_MeshBuffInRam(B3LObj_t* pObj, B3L_Mesh_t* pMesh, u32 slot, u16 priority);
-extern bool  B3L_ColorBuffInRam(B3LObj_t* pObj, B3L_tex_t* pColor, u32 slot, u16 priority);
+
 
 
 extern u32 B3L_GetFreeObjNum(render_t* pRender);
