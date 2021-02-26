@@ -604,8 +604,8 @@ void B3L_InvertMat4(mat4_t* pMatS, mat4_t* pMatI) {
     I(0, 1) = I01 * det;I(1, 1) = I11 * det;I(2, 1) = I21 * det;I(3, 1) = I31 * det;
     I(0, 2) = I02 * det;I(1, 2) = I12 * det;I(2, 2) = I22 * det;I(3, 2) = I32 * det;
     I(0, 3) = I03 * det;I(1, 3) = I13 * det;I(2, 3) = I23 * det;I(3, 3) = I33 * det;
-#undef S(x,y)
-#undef I(x,y)
+#undef S
+#undef I
 }
 
 void B3L_InvertMat3(mat3_t* pMatS, mat3_t* pMatI) {
@@ -628,8 +628,8 @@ void B3L_InvertMat3(mat3_t* pMatS, mat3_t* pMatI) {
     I(0, 1) = I01*det;I(1, 1) = I11*det;I(2, 1) = I21*det;
     I(0, 2) = I02*det;I(1, 2) = I12*det;I(2, 2) = I22*det;
 
-#undef S(x,y)
-#undef I(x,y)
+#undef S
+#undef I
 }
 
 
