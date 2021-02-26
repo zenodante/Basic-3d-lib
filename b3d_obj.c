@@ -1,4 +1,4 @@
-#include "b3d_obj.h"
+#include "b3d.h"
 #include <string.h>
 
 
@@ -20,6 +20,11 @@ static void AddObjToTwoWayList(B3LObj_t* pObj, B3LObj_t** pStart) {
 /*
 Public functions
 */
+
+
+
+
+
 void B3L_ResetObjList(scene_t* pScene,u32 objNum) {
     u32 i;
     pScene->pFreeObjs = pScene->pObjBuff;  //reset all the obj buffer
@@ -287,4 +292,11 @@ void B3L_SetObjScale(B3LObj_t* pObj, f32 xScale, f32 yScale, f32 zScale) {
     pObj->transform.scale.x = xScale;
     pObj->transform.scale.y = yScale;
     pObj->transform.scale.z = zScale;
+}
+
+
+//TODO
+f32 B3L_ObjDistance(B3LObj_t* pA, B3LObj_t* pB) {
+
+
 }

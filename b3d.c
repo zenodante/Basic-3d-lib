@@ -18,7 +18,7 @@ static void B3d_FPU_Init() {
 
 
 static void  UpdateCam(render_t* pRender);
-
+static void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
 
 
 
@@ -81,7 +81,7 @@ void B3L_ResetScene(scene_t* pScene,u32 freeObjNum) {
 }
 
 
-void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource) {
+static void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource) {
     BlockLink_t* nextBlock = pRender->pBuffResouce;
     BlockLink_t* currentBlock = (BlockLink_t*)((u8*)pResource - xHeapStructSize);
     pRender->pBuffResouce = currentBlock;

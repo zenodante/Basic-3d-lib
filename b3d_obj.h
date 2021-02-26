@@ -4,16 +4,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//#include "b3d_types.h"
-//#include "b3d_config.h"
-//#include "b3d_draw.h"
-//#include "b3d_common.h"
+#include "b3d_types.h"
+#include "b3d_config.h"
+#include "b3d_draw.h"
+#include "b3d_common.h"
 //#include "b3d_port.h"
-//#include "b3d_math.h"
+#include "b3d_math.h"
 //#include "b3d_testObj.h"
-//#include "b3d_renderObj.h"
+#include "b3d_renderObj.h"
 //#include "heap_4.h"
-#include "b3d.h"
+//#include "b3d.h"
+
+
+/*-----------------------------------------------------------------------------
+Process obj functions
+-----------------------------------------------------------------------------*/
+extern f32 B3L_ObjDistance(B3LObj_t* pA, B3LObj_t* pB);
+
 /*-----------------------------------------------------------------------------
 Render obj functions
 -----------------------------------------------------------------------------*/
@@ -63,3 +70,4 @@ extern void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender);
 }
 #endif
 #endif
+

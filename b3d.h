@@ -17,29 +17,40 @@ extern "C" {
 /*-----------------------------------------------------------------------------
 Resource management functions
 -----------------------------------------------------------------------------*/
+//Garbage collection function, the process period of time could be defined in config 
 extern void  B3L_GarbageCollection(render_t* pRender,u32 time);
-
+//Check if the flash resource already has a ram buff copy
 extern void* B3L_FindResouceInBuff(render_t* pRender, void* pResource, dataType_e dType);
-extern void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
+//If some object reference to a resorce, using this function to change the resource ref count num
 extern void  B3L_ChangeResourceReference(void* pResource, s32 num);
-
+//Buff mesh resource
 extern void* B3L_MeshBuffInRam(render_t* pRender, B3L_Mesh_t* pMesh, u16 priority);
+//Buff texture resource
 extern void* B3L_TexBuffInRam(render_t* pRender, B3L_tex_t* pTexture, u16 priority);
+//Buff color list resource
 extern void* B3L_ColorBuffInRam(render_t* pRender, B3L_tex_t* pColor, u16 priority);
+//Buff polygon resource
 extern void* B3L_PolygonBuffInRam(render_t* pRender, B3L_Polygon_t* pPoly, u16 priority);
 /*-----------------------------------------------------------------------------
 Render functions
 -----------------------------------------------------------------------------*/
+//Init render, it would also relocate the vect buff and obj buff, make sure first deinit before reinit
 extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize,
                             f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane, f32 nearPlane);
+//a = pRender, b = pFrameBuff
 #define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,\
                                                 LEVEL_0_DEFAULT_DISTANCE,LEVEL_1_DEFAULT_DISTANCE,\
                                                 LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE)
+//Deinit render, release the vect buff and obj buff resource
 extern  void B3L_RenderDeInit(render_t* pRender);
+//Render all object
 extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work 
-extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum); //reset all the scene resource
-extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); //clear buffs
-extern  void B3L_Update(render_t* pRender, u32 time); //update particles etc
+ //reset all the scene resource
+extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum);
+//clear buffs
+extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); 
+//update particles etc, not used 
+extern  void B3L_Update(render_t* pRender, u32 time); 
 
 
 /*-----------------------------------------------------------------------------
