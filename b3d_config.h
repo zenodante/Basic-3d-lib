@@ -16,7 +16,7 @@
 #define VECT_BUFF_SIZE          1024
 //obj buff size limited the max objs in a scene 
 #define OBJ_BUFF_SIZE           64
-//#define LIGHT_BUFF_SIZE         1024
+
 
 
 #define Z_LIMIT_NUM            (0xffff)

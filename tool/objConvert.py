@@ -271,19 +271,21 @@ class ObjProcessor():
             outFile.write("};\n")
 
 if __name__ == "__main__":
+
     for i, arg in enumerate(sys.argv):
         print(f"Argument {i:>6}: {arg}")
     fileName = sys.argv[1]
     objName = sys.argv[2]
     objID = int(sys.argv[3])
-    if len(sys.argv)>=5:
-        if sys.argv[4] == 'UV':
-            includeUV= True
-        else:
-            includeUV= False
-    else :
-        includeUV= True
-        includeNormal = True
+    
+    uvline = sys.argv[4].split("=")
+    uvSize = int(uvline[1])
+    if uvSize == 0 :
+        includeUV = False
+        op=ObjProcessor()
+    else:
+        includeUV = True
+        op=ObjProcessor(uvSize)
     if len(sys.argv)>=6:
         if sys.argv[5] == 'Normal':
             includeNormal = True
@@ -291,7 +293,8 @@ if __name__ == "__main__":
             includeNormal = False
     else:
         includeNormal = True
-    op=ObjProcessor()
+    
+    
     op.ReadInObj(fileName)
     op.GenerateOutput(objName,objID,includeUV ,includeNormal)
     

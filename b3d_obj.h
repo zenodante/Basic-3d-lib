@@ -18,9 +18,6 @@ extern "C" {
 Render obj functions
 -----------------------------------------------------------------------------*/
 extern void B3L_ResetObjList(scene_t* pScene,u32 objNum);
-
-
-
 extern u32 B3L_GetFreeObjNum(render_t* pRender);
 extern B3LObj_t* B3L_GetFreeObj(render_t* pRender);
 extern B3LObj_t* B3L_CreatTexMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t* pTexture,

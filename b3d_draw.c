@@ -318,7 +318,7 @@ __STATIC_FORCEINLINE  void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* f
 
 }
 __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx) {
-  u8 size = tx[4];
+  u32 size = ((u16*)tx)[2];
   f32 dx = b - a;
   f32 dxInv = 1.0f / dx;
   f32 dz = (bZ - aZ) * dxInv;
@@ -593,7 +593,7 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
   xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1)-1);
   u32 uvShift;
   f32 currentU;
-  u8 size = texture[4];
+  u32 size = ((u16 *)texture)[2];
   B3L_tex_t color;
   u8 colorRow;
   s8 colorColumn;
