@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.9)
 project(game)
 
 
-
 # Add your sources here (adding headers is optional, but helps some CMake generators)
 set(PROJECT_SOURCE game.cpp game.hpp b3d.c b3d.h b3d_common.h b3d_config.h b3d_types.h
 b3d_draw.c b3d_draw.h b3d_port.h b3d_port.c  b3d_math.c b3d_math.h
@@ -29,7 +28,7 @@ blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
 blit_assets_yaml (${PROJECT_NAME} assets.yml)
 blit_metadata (${PROJECT_NAME} metadata.yml)
 add_custom_target (flash DEPENDS ${PROJECT_NAME}.flash)
-
+set_property(TARGET game APPEND_STRING PROPERTY LINK_FLAGS " -T ${CMAKE_CURRENT_SOURCE_DIR}/STM32H750VBTxNEW.ld")
 # setup release packages
 install (FILES ${PROJECT_DISTRIBS} DESTINATION .)
 set (CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

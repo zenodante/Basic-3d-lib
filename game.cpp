@@ -84,17 +84,19 @@ void init() {
 // amount if milliseconds elapsed since the start of your game
 //
 
-
+char stringBuff[10];
 void render(uint32_t time) {
-
+    uint32_t ms_begin = now();
     B3L_CameraLookAt(&(rnd.camera), &at);
     B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
-    screen.pen = Pen(0, 0, 0,1);
-    screen.text("Basic 3d engine test", minimal_font, Point(5, 4));
     B3L_GarbageCollection(&rnd,time);
-
+    uint32_t ms_end = now();
+    screen.pen = Pen(0, 0, 0,1);
+    sprintf(stringBuff, "%d", (ms_end - ms_begin));
+    screen.text(stringBuff, minimal_font, Point(5, 4));
+    
 }
 
 ///////////////////////////////////////////////////////////////////////////
