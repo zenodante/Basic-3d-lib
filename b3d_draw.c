@@ -358,8 +358,9 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
       iZ = GetZtestValue(aZ);
     if (iZ <= (u32)(*pCurrentZ)) {
       //get color
-      uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
-      color = tx[uvShift];
+      //uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
+        uvShift = B3L_FloorToS(aU) + size * B3L_FloorToS(aV) + UV_DATA_SHIFT;
+        color = tx[uvShift];
       if (color != 0) {
 #ifdef USING_COLOR_LEVEL
         colorRow = color & 0xF0;
@@ -606,13 +607,15 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
     currentU = u0;
     pCurrentPixel = fbuff+ y * RENDER_X_SHIFT + sx;
     pCurrentZ = zbuff + sx + RENDER_RESOLUTION_X * y;
-    //zShift = RENDER_RESOLUTION_X * y + sx;
-    svMultSize = B3L_RoundingToS(v0)*size;
+    
+    //svMultSize = B3L_RoundingToS(v0)*size;
+    svMultSize = B3L_FloorToS(v0) * size; 
     for (x = sx; x <= xEnd; x++) {
 
       if (iZ<=*pCurrentZ) {
-         uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
-         color = texture[uvShift];
+         //uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
+          uvShift = B3L_FloorToS(currentU) + svMultSize + UV_DATA_SHIFT;
+          color = texture[uvShift];
          if (color != 0) {
 #ifdef USING_COLOR_LEVEL
            colorRow = color & 0xF0;

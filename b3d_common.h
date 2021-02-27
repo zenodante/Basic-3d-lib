@@ -72,6 +72,8 @@ __STATIC_FORCEINLINE u32 VcvtF32ToU32_Fix(f32 in);
 #endif 
   __STATIC_FORCEINLINE s32    B3L_CeilToS(f32 in);  
   __STATIC_FORCEINLINE s32      B3L_RoundingToS(f32 in);
+
+  __STATIC_FORCEINLINE s32   B3L_FloorToS(f32 in);
  // __STATIC_FORCEINLINE s32      B3L_RoundingToU(f32 in);
   __STATIC_FORCEINLINE f32      FastInvertSqrt(f32 x);
   //__STATIC_FORCEINLINE s32      VcvtF32ToS32_Fix(f32 in);
@@ -155,6 +157,13 @@ Math function
     //__ASM ("vcvt.s32.f32 %0,%1" : "=t"(result) : "t"(in));
     return result;
   }
+
+  __STATIC_FORCEINLINE s32   B3L_FloorToS(f32 in) {
+      s32 result;
+      result = B3L_RoundingToS(in - 0.5f);
+      //__ASM ("vcvt.s32.f32 %0,%1" : "=t"(result) : "t"(in));
+      return result;
+  }
   /*
   __STATIC_FORCEINLINE s32   B3L_RoundingToU(f32 in) {
     u32 result;
@@ -198,6 +207,10 @@ Math function
 */
   __STATIC_FORCEINLINE s32   B3L_CeilToS(f32 in) {
       return (u32)ceilf(in);
+  }
+
+  __STATIC_FORCEINLINE s32   B3L_FloorToS(f32 in) {
+      return (u32)floorf(in);
   }
 #endif //end of B3L_ARM
 

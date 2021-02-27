@@ -27,7 +27,7 @@ f32 upAngle = 0.0f;
 //
 // setup your game here
 //
-vect3_t at = { 0.0f,120.0f,0.0f };
+vect3_t at = { 0.0f,0.0f,0.0f };
 
 void init() {
 
@@ -42,25 +42,25 @@ void init() {
 
     //pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    //pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
-    pMan = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t*)manobj_Mesh_Tex, (B3L_tex_t*)body_tex,
-                                   true, false,0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    //pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)body_tex, 0, 0,255, 255,
+    pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    //pMan = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t*)manobj_Mesh_Tex, (B3L_tex_t*)body_tex,
+    //                               true, false,0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
+    //pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0,8, 8,
     //    0, true, true, B3L_MEM_LOW_PRIORITY);
 
     //B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
-    //B3L_SetObjScale(pBitmap, 300.0f, 300.0f, 300.0f);
+    //B3L_SetObjScale(pBitmap, 100.0f, 100.0f, 100.0f);
 
-    B3L_SetObjPosition(pMan, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pMan, 10.0f, 10.0f, 10.0f);
+    //B3L_SetObjPosition(pMan, 0.0f, 0.0f, 0.0f);
+    //B3L_SetObjScale(pMan, 10.0f, 10.0f, 10.0f);
     //pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 
     //B3L_SetObjPosition(pShip, 0.0f, 0.0f, 0.0f);
     //B3L_SetObjScale(pShip, 20.0f, 20.0f, 20.0f);
 
     //pBox->pMother = pShip;
-   // B3L_SetObjPosition(pBox, 1.0f, 1.0f, 1.0f);
-    //B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
+   B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
+    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
    // pBox2->pMother = pBox;
    // B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
    // B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
@@ -68,7 +68,7 @@ void init() {
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f,150.0f, -150.0f);
+    B3L_CameraMoveTo(&rnd, 0.0f,0.0f, -150.0f);
     //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
 
     B3L_CameraLookAt(&(rnd.camera), &at);
@@ -110,18 +110,18 @@ f32 xAngle = 0.01f;
 void update(uint32_t time) {
   
   if (pressed(DPAD_UP)) {
-
+      rnd.camera.transform.translation.z -= 1.0f;
   }
   if (pressed(DPAD_DOWN)) {
-
+      rnd.camera.transform.translation.z += 1.0f;
   }
   if (pressed(DPAD_LEFT)) {
 
-      ROTATE_IN_BODY_Y(pMan, -xAngle);
+      ROTATE_IN_BODY_Y(pBox, -xAngle);
   }
   if (pressed(DPAD_RIGHT)){
 
-      ROTATE_IN_BODY_Y(pMan, xAngle);
+      ROTATE_IN_BODY_Y(pBox, xAngle);
   }
   if (pressed(A)) {
 
