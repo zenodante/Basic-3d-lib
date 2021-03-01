@@ -358,8 +358,7 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
       iZ = GetZtestValue(aZ);
     if (iZ <= (u32)(*pCurrentZ)) {
       //get color
-      //uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
-        uvShift = B3L_FloorToS(aU) + size * B3L_FloorToS(aV) + UV_DATA_SHIFT;
+        uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
         color = tx[uvShift];
       if (color != 0) {
 #ifdef USING_COLOR_LEVEL
