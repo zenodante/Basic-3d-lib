@@ -559,83 +559,106 @@ Function: DrawSpaceBitmap
 
 ---------------------------------------------------------------------------------------*/
 void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
-                      f32 u0, f32 v0, f32 u1, f32 v1,
-                      fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* texture, s8 lightFact) {
-  s32 x,y, xEnd,yEnd;//current y and the end of the y loop
-  if (y0 > y1) {
-    _swap_f32_t(y0, y1);_swap_f32_t(v0, v1);
-   
-  }//make sure y0 <=y1
-  if (x0 > x1) {
-    _swap_f32_t(x0, x1); _swap_f32_t(u0, u1); 
-  }//make sure x0 <= x1
-  //if draw area totally out of range, skip following drawing
+    f32 u0, f32 v0, f32 u1, f32 v1,
+    fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* texture, s8 lightFact) {
+    s32 x, y, xEnd, yEnd;//current y and the end of the y loop
+    if (y0 > y1) {
+        _swap_f32_t(y0, y1); _swap_f32_t(v0, v1);
 
-  if ((y0 >= RENDER_RESOLUTION_Y)||(y1 <0.0f)||(x0>= RENDER_RESOLUTION_X)||(x1<0.0f)||((y1-y0)<=1.0f)||((x1-x0)<=1.0f)) {
-      return;
+    }//make sure y0 <=y1
+    if (x0 > x1) {
+        _swap_f32_t(x0, x1); _swap_f32_t(u0, u1);
+    }//make sure x0 <= x1
+    //if draw area totally out of range, skip following drawing
+
+    if ((y0 >= RENDER_RESOLUTION_Y) || (y1 < 0.0f) || (x0 >= RENDER_RESOLUTION_X) || (x1 < 0.0f) || ((y1 - y0) <= 1.0f) || ((x1 - x0) <= 1.0f)) {
+        return;
     }
-  f32 dy = y1 - y0;
-  f32 dx = x1 - x0;
-  f32 du = (u1 - u0)/dx;
-  f32 dv = (v1 - v0)/dy;
-  if (y0 < 0.0f) {
-    v0 -= dv * y0;
-    y0 = 0.0f;
-  }
-  if (x0 < 0.0f) {
-    u0 -= du * x0;
-    x0 = 0.0f;
-  }
-  s32 sy = B3L_CeilToS(y0);
-  s32 sx = B3L_CeilToS(x0);
-  u0 += (sx - x0) * du;
-  v0 += (sy - y0) * dv;
-  yEnd = B3L_MIN((RENDER_RESOLUTION_Y - 1), B3L_CeilToS(y1)-1); 
-  xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1)-1);
-  u32 uvShift;
-  f32 currentU;
-  u32 size = ((u16 *)texture)[2];
-  B3L_tex_t color;
-  u8 colorRow;
-  s8 colorColumn;
-  fBuff_t* pCurrentPixel;
-  zBuff_t * pCurrentZ;
-  s32 svMultSize;
-   u32 iZ = GetZtestValue(z);
-  for (y = sy ; y <= yEnd; y++) {
-    //draw line
-    currentU = u0;
-    pCurrentPixel = fbuff+ y * RENDER_X_SHIFT + sx;
-    pCurrentZ = zbuff + sx + RENDER_RESOLUTION_X * y;
-    
-    //svMultSize = B3L_RoundingToS(v0)*size;
-    svMultSize = B3L_FloorToS(v0) * size; 
-    for (x = sx; x <= xEnd; x++) {
+    f32 dy = y1 - y0;
+    f32 dx = x1 - x0;
+    f32 du = (u1 - u0);
+    f32 halfPixelCorrectX, halfPixelCorrectY;
+    if (du < 0.0f) {
+        du = du - 1.0f;
+        halfPixelCorrectX = 0.5f;
+    }
+    else {
+        du = du + 1.0f;
+        halfPixelCorrectX = -0.5f;
+    }
+    du = du / dx;
+    f32 dv = (v1 - v0);
+    if (dv < 0.0f) {
+        dv = dv - 1.0f;
+        halfPixelCorrectY = 0.5f;
+    }
+    else {
+        dv = dv + 1.0f;
+        halfPixelCorrectY = -0.5f;
+    }
+    dv = dv / dy;
 
-      if (iZ<=*pCurrentZ) {
-         //uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
-          uvShift = B3L_FloorToS(currentU) + svMultSize + UV_DATA_SHIFT;
-          color = texture[uvShift];
-         if (color != 0) {
+    if (y0 < 0.0f) {
+        v0 -= dv * y0;
+        y0 = 0.0f;
+    }
+    if (x0 < 0.0f) {
+        u0 -= du * x0;
+        x0 = 0.0f;
+    }
+    s32 sy = B3L_CeilToS(y0);
+    s32 sx = B3L_CeilToS(x0);
+    u0 += (sx - x0) * du;
+    v0 += (sy - y0) * dv;
+    yEnd = B3L_MIN((RENDER_RESOLUTION_Y - 1), B3L_CeilToS(y1) - 1);
+    xEnd = B3L_MIN((RENDER_RESOLUTION_X - 1), B3L_CeilToS(x1) - 1);
+    u32 uvShift;
+    f32 currentU;
+    u32 size = ((u16*)texture)[2];
+    B3L_tex_t color;
+    u8 colorRow;
+    s8 colorColumn;
+    fBuff_t* pCurrentPixel;
+    zBuff_t* pCurrentZ;
+    s32 svMultSize;
+    u32 iZ = GetZtestValue(z);
+    for (y = sy; y <= yEnd; y++) {
+        //draw line
+        currentU = u0;
+        pCurrentPixel = fbuff + y * RENDER_X_SHIFT + sx;
+        pCurrentZ = zbuff + sx + RENDER_RESOLUTION_X * y;
+
+        //svMultSize = B3L_RoundingToS(v0)*size;
+        svMultSize = B3L_RoundingToS(v0 + halfPixelCorrectY) * size;
+        for (x = sx; x <= xEnd; x++) {
+
+            if (iZ <= *pCurrentZ) {
+                //uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
+                uvShift = B3L_RoundingToS(currentU + halfPixelCorrectX) + svMultSize + UV_DATA_SHIFT;
+                color = texture[uvShift];
+                if (color != 0) {
 #ifdef USING_COLOR_LEVEL
-           colorRow = color & 0xF0;
-           colorColumn = color & 0x0F;
-           color = SatToU4(colorColumn + lightFact) + colorRow;
+                    colorRow = color & 0xF0;
+                    colorColumn = color & 0x0F;
+                    color = SatToU4(colorColumn + lightFact) + colorRow;
 #endif
-           *pCurrentPixel = color;
-           
-           *pCurrentZ = iZ;
-           
-         }
-      }
-      pCurrentPixel++;
-      pCurrentZ++;
-      currentU += du; 
-    }
-    v0 += dv;
-  }
+                    * pCurrentPixel = color;
 
- }
+                    *pCurrentZ = iZ;
+
+                }
+            }
+            pCurrentPixel++;
+            pCurrentZ++;
+            currentU += du;
+        }
+        v0 += dv;
+    }
+
+}
+
+
+
  
 
 void ClearZbuff(zBuff_t* pZbuff, u32 length) {  
