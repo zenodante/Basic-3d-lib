@@ -7,6 +7,9 @@ extern "C" {
 #include "b3d_types.h"
 
 	extern f32 rainPerMs;
+	extern f32 lowestY;
+	extern f32 rainYSpeed;
+	extern u8  rainColor;
 	extern B3LObj_t* RainGeneratorInit(render_t* pRender, bool active);
 	extern void StopRain(B3LObj_t* pObj);
 
