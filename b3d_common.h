@@ -63,8 +63,9 @@ extern "C" {
 #if  B3L_ARM == 1
   __STATIC_FORCEINLINE f32      B3L_Sqrtf(f32 in);
   __STATIC_FORCEINLINE f32      B3L_Absf(f32 in);
-__STATIC_FORCEINLINE u32 VcvtF32ToU32_Fix(f32 in);
+  __STATIC_FORCEINLINE u32 VcvtF32ToFixPoint_FixQ16(f32 x);
   __STATIC_FORCEINLINE s32 arm_F32toFixPointI32 (f32 x, s32 bits);
+  __STATIC_FORCEINLINE u32 VcvtFixPointToF32_FixQ32(u32 x);
 #else
 #define B3L_Sqrtf(a)   sqrtf(a)
 #define B3L_Absf(a)    fabsf(a)
@@ -103,7 +104,7 @@ Math function
 
 
 
-  __STATIC_FORCEINLINE  u32 VcvtF32ToU32_Fix(f32 x)
+  __STATIC_FORCEINLINE  u32 VcvtF32ToFixPoint_FixQ16(f32 x)
   {
       u32 y;
       __ASM(
@@ -124,6 +125,18 @@ Math function
         : /* list of clobbered registers */);
     return y;
   }
+
+  __STATIC_FORCEINLINE u32 VcvtFixPointToF32_FixQ32(u32 x) {
+      f32 y;
+      __ASM(
+          "VCVT.f32.u32 %[y], %[x], #32"
+          : [y] "=t" (y) /* output */
+          : [x] "0" (x) /* input(s) */
+          : /* list of clobbered registers */);
+      return y;
+
+  }
+
 
   __STATIC_FORCEINLINE u32   SatToU4(s32 in) {
     u32 result;

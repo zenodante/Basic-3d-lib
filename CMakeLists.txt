@@ -10,7 +10,7 @@ set(PROJECT_SOURCE game.cpp game.hpp b3d.c b3d.h b3d_common.h b3d_config.h b3d_t
 b3d_draw.c b3d_draw.h b3d_port.h b3d_port.c  b3d_math.c b3d_math.h
 b3d_renderObj.c b3d_renderObj.h b3d_testObj.c b3d_testObj.h
 ship2.c ship2.h heap_4.c heap_4.h b3d_obj.c b3d_obj.h manlowpoly.c manlowpoly.h
-b3d_particle.h b3d_particle.c)
+b3d_particle.h b3d_particle.c b3d_particle_rain.h b3d_particle_rain.c)
 
 
 # ... and any other files you want in the release here

@@ -122,12 +122,13 @@ xx bits have been used for tri test
 
   //36 byte for single particle
   typedef struct B3L_PARTICLE {
-    struct B3L_PARTICLE* next;
-    uint32_t            state;
-    int32_t             life;
-    vect3_t             position;
-    vect3_t             delta;
-  }B3L_Particle_t;
+    struct B3L_PARTICLE* next; //4
+    struct B3L_PARTICLE* prev; //4
+    uint32_t            state; //4
+    int32_t             life;  //4
+    vect3_t             position;  //12
+    vect3_t             delta; //12
+  }B3L_Particle_t;//40byte
 
   /*
   B3LObj_t state
@@ -171,6 +172,8 @@ xx bits have been used for tri test
 
 #define OBJ_SPECIAL_LIGHT_MASK       0xFF000000
 #define OBJ_SPECIAL_LIGHT_SHIFT      (24)
+#define PARTICLE_NUM_MASK            0xFFF00000
+#define PARTICLE_NUM_SHIFT           (20)
 
 //all different obj types's size is <= sizeof(B3LObj_t)
   typedef struct B3LOBJ {
@@ -290,8 +293,6 @@ O-- need update matrix
 
 
   typedef struct {
-      s32  lifeTime;
-      u32  particleNum;
       void (*pParticleGenFunc)(render_t*, B3LObj_t*, mat4_t*, u32);
       void (*pParticleUpdateFunc)(render_t*, B3LObj_t*, mat4_t*, u32);
   }particleGenerator_t;

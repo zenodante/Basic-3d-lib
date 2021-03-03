@@ -72,7 +72,7 @@ void B3L_AddObjToRenderList(B3LObj_t* pObj, render_t* pRender) {
     //get the statement
     u32 type = (pObj->state & OBJ_TYPE_MASK);
     //printf("type %d\n",type);
-    if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ)) || (type == (1 << BITMAP_OBJ))) {
+    if ((type == (1 << MESH_OBJ)) || (type == (1 << POLYGON_OBJ)) || (type == (1 << NOTEX_MESH_OBJ)) || (type == (1 << BITMAP_OBJ))|| (type == (1 << PARTICLE_GEN_OBJ))) {
         //printf("add\n");
         AddObjToTwoWayList(pObj, &(pRender->scene.pActiveObjs));
     }
@@ -124,6 +124,16 @@ void B3L_ReturnObjToInactiveList(B3LObj_t* pObj, render_t* pRender) {
     if (B3L_TEST(pObj->state, OBJ_RAM_BUFF_RESOURCE_1)) {
         B3L_ChangeResourceReference(pObj->pResource1, -1);//decrease the reference count
         
+    }
+    if (B3L_TEST((pObj->state), PARTICLE_GEN_OBJ)) {
+        //empty the particle below to the generator
+        u32 num = (pObj->state) >> PARTICLE_NUM_SHIFT;
+        s32 i;
+        for (i = 0; i < num; i++) {
+            B3L_Particle_t* temp = (B3L_Particle_t*)(pObj->pResource0);
+            B3L_PopParticleFromGenerator(pObj, temp);
+            B3L_ReturnParticleToPool(temp, pRender);
+        }
     }
     pObj->next = NULL;
     pObj->pMother = NULL;
@@ -281,6 +291,25 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     }
     return pObj;
 }
+
+B3LObj_t* B3L_CreatParticleGenObj(render_t* pRender, particleGenerator_t* pGenFunc, bool Add_To_RenderList, bool active) {
+    B3LObj_t* pObj = B3L_GetFreeObj(pRender);
+    if (pObj == (B3LObj_t*)NULL) {
+        return pObj;
+    }
+    pObj->pMother = (B3LObj_t*)NULL;
+    B3L_SET(pObj->state, PARTICLE_GEN_OBJ);
+    SET_OBJ_VISIABLE(pObj);
+    pObj->pResource0 = NULL;
+    pObj->pResource1 = (void*)pGenFunc;
+    if (active == true) {
+        B3L_SET(pObj->state, OBJ_PARTICLE_GEN_ACTIVE);
+    }
+    if (Add_To_RenderList == true) {
+        B3L_AddObjToRenderList(pObj, pRender);
+    }
+}
+
 
 void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z) {
     pObj->transform.translation.x = x;

@@ -23,6 +23,7 @@ Random functions
 extern  void B3L_SetSeed(u32 seed);
 extern  u32  B3L_Random(void); 
 extern  u32  B3L_Rnd(u32 range);
+extern  f32  B3L_FloatRandom(void);
 /*-----------------------------------------------------------------------------
 Vector functions
 -----------------------------------------------------------------------------*/

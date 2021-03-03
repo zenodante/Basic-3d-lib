@@ -5,6 +5,7 @@
 #include "b3d_port.h"
 #include "ship2.h"
 #include "manlowpoly.h"
+#include "b3d_particle_rain.h"
 using namespace blit;
 
 render_t rnd;
@@ -13,7 +14,7 @@ B3LObj_t *pBox;
 B3LObj_t* pBox2;
 B3LObj_t* pBitmap;
 B3LObj_t* pMan;
-
+B3LObj_t* pRain;
 euler3_t angle;
 #define B3L_logMat3(m)\
   printf("Matrix3:\n  %.3f %.3f %.3f \n  %.3f %.3f %.3f \n  %.3f %.3f %.3f \n"\
@@ -39,10 +40,14 @@ void init() {
 
 
     B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
-
+    pRain = RainGeneratorInit(&rnd, true);
+    B3L_SetObjPosition(pRain, 0.0f, 100.0f, 0.0f);
+    B3L_SetObjScale(pRain, 100.0f, 10.0f, 100.0f);
     //pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
     pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
+    B3L_SetObjScale(pBox, 10.0f,10.0f, 10.0f);
     //pMan = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t*)manobj_Mesh_Tex, (B3L_tex_t*)body_tex,
     //                               true, false,0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
     //pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0,8, 8,
@@ -59,8 +64,7 @@ void init() {
     //B3L_SetObjScale(pShip, 20.0f, 20.0f, 20.0f);
 
     //pBox->pMother = pShip;
-   B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
+
    // pBox2->pMother = pBox;
    // B3L_SetObjPosition(pBox2, 1.0f, 1.0f, 1.0f);
    // B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
@@ -68,12 +72,13 @@ void init() {
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f,0.0f, -150.0f);
+    B3L_CameraMoveTo(&rnd, 0.0f,100.0f, -150.0f);
     //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
 
     B3L_CameraLookAt(&(rnd.camera), &at);
     //rnd.camera.pMother = pMan;
     //B3L_TexBuffInRam(&rnd,(B3L_tex_t*) tex, B3L_MEM_LOW_PRIORITY);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////

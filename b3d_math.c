@@ -1,7 +1,7 @@
 #include "b3d_common.h"
 #include "b3d_types.h"
 #include "b3d_math.h"
-
+#include "b3d_config.h"
 #pragma GCC optimize("-O3")
 
 u32 B3L_seed = 0x31415926;
@@ -89,6 +89,15 @@ u32  B3L_Rnd(u32 range) {
     return B3L_Random() % range;
 }
 
+f32  B3L_FloatRandom(void) {
+    u32 temp = B3L_Random();
+#if B3L_ARM == 1
+    return VcvtFixPointToF32_FixQ32(temp);
+#else
+    return ((f32)temp) / ((f32)0xFFFFFFFFUL);
+
+#endif
+}
 /*-----------------------------------------------------------------------------
 Vector functions
 -----------------------------------------------------------------------------*/
