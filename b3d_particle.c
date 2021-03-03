@@ -35,7 +35,7 @@ void B3L_ReturnParticleToPool(B3L_Particle_t* pParticle, render_t* pRender) {
 }
 
 void B3L_PopParticleFromGenerator(B3LObj_t* pGen, B3L_Particle_t* pParticle) {
-    B3L_Particle_t** ppActive = &((B3L_Particle_t*)(pGen->pResource0));
+    B3L_Particle_t** ppActive = (B3L_Particle_t**)(&(pGen->pResource0));
     if (*ppActive == pParticle) {
         //pop the first one
         *ppActive = pParticle->next;
