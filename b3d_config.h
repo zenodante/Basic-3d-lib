@@ -74,13 +74,13 @@ Default render range config
 /*-------------------------------------------------------------------------------------------------
 Particle config
 -------------------------------------------------------------------------------------------------*/
-//#define B3L_USING_PARTICLE   
+
 
 //max particle numbers in a scene, different particle generator share the same buff pool for the particle
 //36 byte per particle for ARM32 system, it is ~18KB for 512 particle
-#ifdef B3L_USING_PARTICLE
-#define B3L_PARTICLE_BUFF_DEPTH    512
-#endif
+
+#define B3L_DEFAULT_PARTICLE_BUFF_DEPTH    512
+
 
 #define _RAM_FUNC   __attribute__((long_call,section(".itcm")))
 

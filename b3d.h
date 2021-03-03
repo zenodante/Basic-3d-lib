@@ -14,6 +14,7 @@ extern "C" {
 #include "b3d_renderObj.h"
 #include "heap_4.h"
 #include "b3d_obj.h"
+#include "b3d_particle.h"
 /*-----------------------------------------------------------------------------
 Resource management functions
 -----------------------------------------------------------------------------*/
@@ -35,10 +36,10 @@ extern void* B3L_PolygonBuffInRam(render_t* pRender, B3L_Polygon_t* pPoly, u16 p
 Render functions
 -----------------------------------------------------------------------------*/
 //Init render, it would also relocate the vect buff and obj buff, make sure first deinit before reinit
-extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize,
+extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize, u32 particleNum,
                             f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane, f32 nearPlane);
 //a = pRender, b = pFrameBuff
-#define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,\
+#define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,B3L_DEFAULT_PARTICLE_BUFF_DEPTH,\
                                                 LEVEL_0_DEFAULT_DISTANCE,LEVEL_1_DEFAULT_DISTANCE,\
                                                 LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE)
 //Deinit render, release the vect buff and obj buff resource
@@ -46,7 +47,7 @@ extern  void B3L_RenderDeInit(render_t* pRender);
 //Render all object
 extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work 
  //reset all the scene resource
-extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum);
+extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum, u32 freeParticleNum);
 //clear buffs
 extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); 
 //update particles etc, not used 

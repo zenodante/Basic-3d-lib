@@ -22,7 +22,7 @@ static void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
 
 
 
-void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectBuffSize,
+void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectBuffSize,u32 particleNum,
                     f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane,f32 nearPlane) {
 #if B3L_ARM  == 1
   B3d_FPU_Init();
@@ -31,13 +31,19 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
   pRender->scene.pObjBuff = (B3LObj_t *)pvPortMalloc(sizeof(B3LObj_t) * objNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
+  if (particleNum != 0) {
+      pRender->scene.pParticleBuff = (B3L_Particle_t*)pvPortMalloc(sizeof(B3L_Particle_t) * particleNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
+  }
+  else {
+      pRender->scene.pParticleBuff = NULL;
+  }
   pRender->pVectBuff = (vect4_t *)pvPortMalloc(sizeof(vect4_t)* vectBuffSize,B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
   pRender->lvl0Distance = lv0Distance;
   pRender->lvl1Distance = lv1Distance;
   pRender->lvl1Light = lv1DefaultLight;
   pRender->farPlane = farPlane;
   pRender->nearPlane = nearPlane;
-  B3L_ResetScene(&(pRender->scene),objNum);
+  B3L_ResetScene(&(pRender->scene),objNum, particleNum);
   B3L_InitCamera(pRender);
   B3L_ResetLight(&(pRender->light));
 }
@@ -50,6 +56,10 @@ void B3L_RenderDeInit(render_t* pRender) {
     pRender->scene.pObjBuff = NULL;
     vPortFree(pRender->pVectBuff);//release memory
     pRender->pVectBuff = NULL;
+    if (pRender->scene.pParticleBuff != NULL) {
+        vPortFree(pRender->scene.pParticleBuff);
+        pRender->scene.pParticleBuff = NULL;
+    }
     pRender->lvl0Distance = 0.0f;
     pRender->lvl1Distance = 0.0f;
     pRender->lvl1Light = 0;
@@ -68,16 +78,18 @@ void B3L_RenderScence(render_t* pRender,u32 time) {
     RenderObjs(pRender,time);
 }
 
-void B3L_ResetScene(scene_t* pScene,u32 freeObjNum) {
+void B3L_ResetScene(scene_t* pScene,u32 freeObjNum,u32 freeParticleNum) {
     pScene->freeObjNum = freeObjNum; //reset free obj numbers
     pScene->pActiveObjs = (B3LObj_t*)NULL; //reset active obj list
     B3L_ResetObjList(pScene,freeObjNum);
-#ifdef B3L_USING_PARTICLE
-    pScene->pActiveParticleGenObjs = (B3LObj_t*)NULL;//reset particle generator obj list 
-    pScene->freeParticleNum = B3L_PARTICLE_BUFF_DEPTH;   //reset particle numbers
-    ResetParticleList(particleBuff, &(pScene->pfreeParticles), B3L_PARTICLE_BUFF_DEPTH); //reset particle list
-    //call reset particle one-way list function
-#endif
+
+   
+    pScene->freeParticleNum = freeParticleNum;   //reset particle numbers
+    if (freeParticleNum != 0) {
+        B3L_ResetParticleList(pScene->pParticleBuff, &(pScene->pfreeParticles), freeParticleNum); //reset particle list
+    }
+
+
 }
 
 

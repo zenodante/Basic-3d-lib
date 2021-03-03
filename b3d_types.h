@@ -141,7 +141,7 @@ xx bits have been used for tri test
     D-- particle generator obj
     E-- Bitmap obj
     I-- obj visualization
-    J-- Particle generator acitve state
+    J-- Particle generator active state
     K-- Back face culling state
     L-- fix render level switch
     M-- special light value
@@ -179,7 +179,6 @@ xx bits have been used for tri test
     struct B3LOBJ*        pMother;//4
     u32                   state;//4
     transform3D_t         transform;//40
-    //f32                 boundBox[6];//24
     void*                 pResource0;//4
     void*                 pResource1;//4  
   }B3LObj_t;
@@ -187,8 +186,10 @@ xx bits have been used for tri test
   //mesh color obj        resource0: mesh, resource1: colors
   //bitmap obj            resource0: texture resource1: top left u, topleft v, bottom right u, bottom right v
   //polygon obj           resource0: line struct  resource1: colors
-  //particle generator    resource0: active particles entry resource1: particle life time
+  //particle generator    resource0: active particles entry resource1: pointer to particle generator controlling block str
  
+
+
 
 
   typedef struct {
@@ -197,6 +198,7 @@ xx bits have been used for tri test
     u32                 freeObjNum;
     B3LObj_t*           pFreeObjs;
     B3LObj_t*           pActiveObjs;
+    B3L_Particle_t*     pParticleBuff;
     u32                 freeParticleNum;
     B3L_Particle_t*     pfreeParticles;
   }scene_t;
@@ -287,7 +289,12 @@ O-- need update matrix
   }render_t;
 
 
-
+  typedef struct {
+      s32  lifeTime;
+      u32  particleNum;
+      void (*pParticleGenFunc)(render_t*, B3LObj_t*, mat4_t*, u32);
+      void (*pParticleUpdateFunc)(render_t*, B3LObj_t*, mat4_t*, u32);
+  }particleGenerator_t;
 
 #define B3L_MEM_HIGH_PRIORITY  0xFFFF
 #define B3L_MEM_LOW_PRIORITY   0x0000

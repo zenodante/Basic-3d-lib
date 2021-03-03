@@ -24,7 +24,7 @@ static void RenderPolygon(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat, u32 b
 static void RenderTexMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pO2WMat, u32 renderLevel, u32 bboxResult);
 static void RenderColorMesh(B3LObj_t* pObj, render_t* pRender, mat4_t* pO2CMat, mat4_t* pO2WMat, u32 renderLevel, u32 bboxResult);
 static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat);
-static void UpdateParticleGenerator(B3LObj_t* pObj, render_t* pRender, mat4_t* O2Cmat, mat4_t* O2WMat,u32 time);
+static void UpdateParticleGenerator(B3LObj_t* pObj, render_t* pRender, mat4_t* O2Cmat, mat4_t* O2WMat,u32 timePassed);
 static vect3_t* MeshGetNormal(B3L_Mesh_t* start, u16 vectNum, u16 triNum);
 static vect3_t* GetPolygonVect(B3L_Polygon_t* pPoly);
 static u16* GetPolygonLin(B3L_Polygon_t* pPoly, u16 vectNum);
@@ -932,22 +932,23 @@ static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat) {
 
 }
 
-static void UpdateParticleGenerator(B3LObj_t* pObj, render_t*  pRender, mat4_t*  O2Cmat, mat4_t*  O2WMat,u32 time) {
+static void UpdateParticleGenerator(B3LObj_t* pObj, render_t*  pRender, mat4_t*  O2Cmat, mat4_t*  O2WMat,u32 timePassed) {
     //update active particles
-
-
-    //generate new particles
-
-
-    //draw the particle list
-
-    
+    //draw generate box?
+    particleGenerator_t* pGen = ((particleGenerator_t*)(pObj->pResource1));
+    if (B3L_TEST(pObj->state, OBJ_PARTICLE_GEN_ACTIVE)) { //if the generator is active, add new particles
+        pGen->pParticleGenFunc(pRender, pObj, O2WMat, timePassed);
+    }
+    pGen->pParticleUpdateFunc(pRender, pObj, O2WMat, timePassed);
 }
 
 /*-------------------------------------------------------------------------------------------------
 Public Function
 -------------------------------------------------------------------------------------------------*/
 void RenderObjs(render_t* pRender,u32 time) {
+    static u32 oldTime = 0;
+    u32 timePassed = time - oldTime;
+    oldTime = time;
     mat4_t O2Cmat; 
     //mat3_t objMat;
     mat4_t O2WMat;
@@ -1020,7 +1021,7 @@ void RenderObjs(render_t* pRender,u32 time) {
             RenderBitmap(pCurrentObj, pRender, &O2Cmat);
             break;
         case (1<<PARTICLE_GEN_OBJ):
-            UpdateParticleGenerator(pCurrentObj, pRender, &O2Cmat, &O2WMat,time);
+            UpdateParticleGenerator(pCurrentObj, pRender, &O2Cmat, &O2WMat, timePassed);
             break;
         }
         //point to the next obj

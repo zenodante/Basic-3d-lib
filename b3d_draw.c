@@ -338,17 +338,14 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
     aZ += dz * sa;
     aU += du * sa;
     aV += dv * sa;
-  }
-   
+  } 
   s32 cb = B3L_CeilToS(b);
   if ((ca >= RENDER_RESOLUTION_X) || (cb <= 0)) {
     return;
   }
-  
   s32 right = B3L_MIN(RENDER_RESOLUTION_X , cb);
   u8 color;
   zBuff_t* pCurrentZ = zbuff + ca + RENDER_RESOLUTION_X * y;
-
   fBuff_t* pCurrentPixel = fbuff + ca + RENDER_X_SHIFT * y;
   uint32_t uvShift;
   u8 colorRow;
@@ -365,12 +362,9 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
         colorRow = color & 0xF0;
         colorColumn = color & 0x0F;
         color = SatToU4(colorColumn + lightFactor) + colorRow;
-#endif
-        
-        *pCurrentPixel = color;
-        
+#endif      
+        *pCurrentPixel = color;     
         *pCurrentZ = (u16)iZ;
-        //}
       }
     }
     pCurrentPixel++;
