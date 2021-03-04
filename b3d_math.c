@@ -91,12 +91,12 @@ u32  B3L_Rnd(u32 range) {
 
 f32  B3L_FloatRandom(void) {
     u32 temp = B3L_Random();
-#if B3L_ARM == 1
-    return VcvtFixPointToF32_FixQ32(temp);
-#else
+//#if B3L_ARM == 1
+//    return VcvtFixPointToF32_FixQ32(temp);
+//#else
     return ((f32)temp) / ((f32)0xFFFFFFFFUL);
 
-#endif
+//#endif
 }
 /*-----------------------------------------------------------------------------
 Vector functions

@@ -129,7 +129,7 @@ Math function
   __STATIC_FORCEINLINE u32 VcvtFixPointToF32_FixQ32(u32 x) {
       f32 y;
       __ASM(
-          "VCVT.f32.u32 %[y], %[x], #32"
+          "VCVT.f32.u32 %[y], %[x], #0"
           : [y] "=t" (y) /* output */
           : [x] "0" (x) /* input(s) */
           : /* list of clobbered registers */);

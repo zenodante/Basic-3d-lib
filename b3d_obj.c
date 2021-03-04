@@ -308,6 +308,7 @@ B3LObj_t* B3L_CreatParticleGenObj(render_t* pRender, particleGenerator_t* pGenFu
     if (Add_To_RenderList == true) {
         B3L_AddObjToRenderList(pObj, pRender);
     }
+    return pObj;
 }
 
 
