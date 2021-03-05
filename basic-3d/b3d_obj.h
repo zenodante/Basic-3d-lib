@@ -42,6 +42,7 @@ extern B3LObj_t* B3L_CreatParticleGenObj(render_t* pRender, particleGenerator_t 
 #define B3L_CreatColorMeshObj_Simple(pRnd,m,t)      B3L_CreatColorMeshObj((pRnd),(B3L_Mesh_t*)(m),(B3L_tex_t*)(t),true,false,0,false,0,true,true,B3L_MEM_LOW_PRIORITY )
 extern void B3L_SetObjPosition(B3LObj_t* pObj, f32 x, f32 y, f32 z);
 extern void B3L_SetObjScale(B3LObj_t* pObj, f32 xScale, f32 yScale, f32 zScale);
+extern void B3L_SetBitmapObjUV(B3LObj_t* pObj, u32 tu, u32 tv, u32 bu, u32 bv);
     /*
     #ifdef B3L_USING_PARTICLE
     extern B3LParticleGenObj_t* B3L_GetFreeParticleGeneratorObj(render_t* pRender);

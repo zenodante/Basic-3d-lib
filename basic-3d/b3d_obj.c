@@ -262,6 +262,11 @@ B3LObj_t* B3L_CreatColorMeshObj(render_t* pRender, B3L_Mesh_t* pMesh, B3L_tex_t*
     return pObj;
 }
 
+void B3L_SetBitmapObjUV(B3LObj_t* pObj, u32 tu, u32 tv, u32 bu, u32 bv) {
+    u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
+    pObj->pResource1 = (void*)resource1;
+}
+
 B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 tv, u8 bu, u8 bv,
     u8 light_value, bool Add_To_RenderList, bool Buff_In_Ram, u16 Buff_priority) {
 
@@ -282,8 +287,9 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     else {//link to the obj in flash
         pObj->pResource0 = (void*)pTexture;
     }
-    u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
-    pObj->pResource1 = (void*)resource1;
+    B3L_SetBitmapObjUV(pObj, tu, tv, bu, bv);
+    //u32 resource1 = tu | (tv << 8) | (bu << 16) | (bv << 24);
+    //pObj->pResource1 = (void*)resource1;
     SET_OBJ_FIX_LIGHT_VALUE(pObj, light_value);
 
     if (Add_To_RenderList == true) {
@@ -291,6 +297,9 @@ B3LObj_t* B3L_CreatBitmapObj(render_t* pRender, B3L_tex_t* pTexture, u8 tu, u8 t
     }
     return pObj;
 }
+
+
+
 
 B3LObj_t* B3L_CreatParticleGenObj(render_t* pRender, particleGenerator_t* pGenFunc, bool Add_To_RenderList, bool active) {
     B3LObj_t* pObj = B3L_GetFreeObj(pRender);

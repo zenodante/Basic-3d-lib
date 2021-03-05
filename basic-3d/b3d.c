@@ -362,12 +362,14 @@ _RAM_FUNC void B3L_InitCamera(render_t* pRender) {
     pCam->state = 0; //default is PERSPECTIVE_PROJECT
 }
 
-_RAM_FUNC void B3L_SetOrthographicProject(render_t* pRender) {
+_RAM_FUNC void B3L_SetOrthographicProject(render_t* pRender, f32 newZoom) {
+    pRender->camera.focalLength = newZoom;
     B3L_SET(pRender->camera.state, B3L_PROJECT_MODE);
     B3L_UpdateClipMatrix(pRender);
 }
 
-_RAM_FUNC void B3L_SetPerspectiveProject(render_t* pRender) {
+_RAM_FUNC void B3L_SetPerspectiveProject(render_t* pRender,f32 newZoom) {
+    pRender->camera.focalLength = newZoom;
     B3L_CLR(pRender->camera.state, B3L_PROJECT_MODE);
     B3L_UpdateClipMatrix(pRender);
 }

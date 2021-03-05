@@ -77,8 +77,10 @@ Camera functions
 -----------------------------------------------------------------------------*/
 // you could use obj rotate macros for camera also
 extern void B3L_InitCamera(render_t* pRender);
-extern void B3L_SetOrthographicProject(render_t* pRender);
-extern void B3L_SetPerspectiveProject(render_t* pRender);//default mode
+extern void B3L_SetOrthographicProject(render_t* pRender, f32 newZoom);
+extern void B3L_SetPerspectiveProject(render_t* pRender, f32 newZoom);//default mode
+#define B3L_Set_Default_Orthographic_Project(p)  B3L_SetOrthographicProject(p,1.0f/HALF_RESOLUTION_X)
+#define B3L_Ser_Default_Perspective_Project(p)   B3L_SetPerspectiveProject(p,1.0f)
 //call after you reset the aspect ratio, focus length, near/far plane, project mode 
 extern void B3L_UpdateClipMatrix(render_t* pRender);
 extern void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov);

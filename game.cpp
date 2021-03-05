@@ -41,6 +41,9 @@ void init() {
 
 
     B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
+    
+    B3L_Set_Default_Orthographic_Project(&rnd);
+
     pRain = RainGeneratorInit(&rnd, true);
     B3L_SetObjPosition(pRain, 0.0f, 100.0f, 0.0f);
     B3L_SetObjScale(pRain, 100.0f, 10.0f, 100.0f);
@@ -62,7 +65,7 @@ void init() {
     //pBox2 = B3L_CreatColorMeshObj_Simple(&rnd, b3d_box, box_color);
 
     //B3L_SetObjPosition(pShip, 0.0f, 0.0f, 0.0f);
-    //B3L_SetObjScale(pShip, 20.0f, 20.0f, 20.0f);
+    //B3L_SetObjScale(pShip, 10.0f, 10.0f, 10.0f);
 
     //pBox->pMother = pShip;
 
@@ -73,7 +76,7 @@ void init() {
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f,50.0f, -150.0f);
+    B3L_CameraMoveTo(&rnd, 0.0f,50.0f, -100.0f);
     //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
 
     B3L_CameraLookAt(&(rnd.camera), &at);
@@ -94,8 +97,8 @@ void init() {
 char stringBuff[10];
 void render(uint32_t time) {
     uint32_t ms_begin = now();
-    //B3L_CameraLookAt(&(rnd.camera), &at);
-    B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
+    B3L_CameraLookAt(&(rnd.camera), &at);
+    //B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
     B3L_GarbageCollection(&rnd,time);
