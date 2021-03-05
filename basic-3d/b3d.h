@@ -15,6 +15,7 @@ extern "C" {
 #include "heap_4.h"
 #include "b3d_obj.h"
 #include "b3d_particle.h"
+#include "b3d_particle_rain.h"
 /*-----------------------------------------------------------------------------
 Resource management functions
 -----------------------------------------------------------------------------*/

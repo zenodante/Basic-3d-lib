@@ -6,12 +6,14 @@ project(game)
 
 
 # Add your sources here (adding headers is optional, but helps some CMake generators)
-set(PROJECT_SOURCE game.cpp game.hpp b3d.c b3d.h b3d_common.h b3d_config.h b3d_types.h
-b3d_draw.c b3d_draw.h b3d_port.h b3d_port.c  b3d_math.c b3d_math.h
-b3d_renderObj.c b3d_renderObj.h b3d_testObj.c b3d_testObj.h
-ship2.c ship2.h heap_4.c heap_4.h b3d_obj.c b3d_obj.h manlowpoly.c manlowpoly.h
-b3d_particle.h b3d_particle.c b3d_particle_rain.h b3d_particle_rain.c)
+set( PROJECT_SOURCE 
+game.cpp game.hpp 
+ship2.c ship2.h 
+manlowpoly.c manlowpoly.h
+sprite.c sprite.h)
 
+add_subdirectory(basic-3d)
+include_directories(basic-3d/)
 
 # ... and any other files you want in the release here
 set(PROJECT_DISTRIBS LICENSE README.md)
@@ -26,6 +28,9 @@ endif()
 find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk)
 
 blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
+target_link_libraries(${PROJECT_NAME} b3dlib)
+
+
 blit_assets_yaml (${PROJECT_NAME} assets.yml)
 blit_metadata (${PROJECT_NAME} metadata.yml)
 add_custom_target (flash DEPENDS ${PROJECT_NAME}.flash)
@@ -37,5 +42,5 @@ install (FILES ${PROJECT_DISTRIBS} DESTINATION .)
 set (CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 set (CPACK_GENERATOR "ZIP" "TGZ")
 include (CPack)
-#set(MCU_LINKER_SCRIPT STM32H750VBTxNew.ld CACHE BOOL "replace link file")
+
 

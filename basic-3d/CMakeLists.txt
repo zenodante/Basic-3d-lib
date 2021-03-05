@@ -1,0 +1,37 @@
+
+set( SOURCES
+${CMAKE_CURRENT_LIST_DIR}/b3d.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_common.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_config.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_types.h
+${CMAKE_CURRENT_LIST_DIR}/b3d_draw.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d_draw.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_port.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_port.c  
+${CMAKE_CURRENT_LIST_DIR}/b3d_math.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d_math.h
+${CMAKE_CURRENT_LIST_DIR}/b3d_renderObj.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d_renderObj.h
+${CMAKE_CURRENT_LIST_DIR}/b3d_testObj.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d_testObj.h
+${CMAKE_CURRENT_LIST_DIR}/heap_4.c 
+${CMAKE_CURRENT_LIST_DIR}/heap_4.h
+${CMAKE_CURRENT_LIST_DIR}/b3d_particle.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_particle.c
+${CMAKE_CURRENT_LIST_DIR}/b3d_particle_rain.h 
+${CMAKE_CURRENT_LIST_DIR}/b3d_particle_rain.c
+${CMAKE_CURRENT_LIST_DIR}/b3d_obj.c 
+${CMAKE_CURRENT_LIST_DIR}/b3d_obj.h)
+
+add_library(b3dlib STATIC ${SOURCES})
+set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR})
+
+
+#target_include_directories(b3dlib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(b3dlib PRIVATE
+    -wd4244 # conversions
+  )
+endif()

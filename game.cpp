@@ -2,10 +2,11 @@
 #include <math.h>
 
 #include "b3d.h"
-#include "b3d_port.h"
+
 #include "ship2.h"
 #include "manlowpoly.h"
-#include "b3d_particle_rain.h"
+
+#include "sprite.h"
 using namespace blit;
 
 render_t rnd;
@@ -29,7 +30,7 @@ f32 upAngle = 0.0f;
 // setup your game here
 //
 vect3_t at = { 0.0f,0.0f,0.0f };
-
+//f32 result;
 void init() {
 
     set_screen_mode(ScreenMode::hires_palette);
@@ -45,16 +46,16 @@ void init() {
     B3L_SetObjScale(pRain, 100.0f, 10.0f, 100.0f);
     //pShip = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t *)ship_Mesh_Tex,(B3L_tex_t *) ship2_tex,
     //                           true, false, 0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
-    B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pBox, 10.0f,10.0f, 10.0f);
+    //pBox = B3L_CreatTexMeshObj_Simple(&rnd, b3d_box, tex);
+    //B3L_SetObjPosition(pBox, 0.0f, 0.0f, 0.0f);
+   // B3L_SetObjScale(pBox, 10.0f,10.0f, 10.0f);
     //pMan = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t*)manobj_Mesh_Tex, (B3L_tex_t*)body_tex,
     //                               true, false,0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    //pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)tex, 0, 0,8, 8,
-    //    0, true, true, B3L_MEM_LOW_PRIORITY);
+    pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)sprite_tex, 80, 48,95, 71,
+        0, true, true, B3L_MEM_LOW_PRIORITY);
 
-    //B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
-    //B3L_SetObjScale(pBitmap, 100.0f, 100.0f, 100.0f);
+    B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
+    B3L_SetObjScale(pBitmap, 16.0f, 24.0f, 1.0f);
 
     //B3L_SetObjPosition(pMan, 0.0f, 0.0f, 0.0f);
     //B3L_SetObjScale(pMan, 10.0f, 10.0f, 10.0f);
@@ -72,12 +73,13 @@ void init() {
     B3L_SetLightType(&rnd,dotLight);
     B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f,100.0f, -150.0f);
+    B3L_CameraMoveTo(&rnd, 0.0f,50.0f, -150.0f);
     //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
 
     B3L_CameraLookAt(&(rnd.camera), &at);
     //rnd.camera.pMother = pMan;
     //B3L_TexBuffInRam(&rnd,(B3L_tex_t*) tex, B3L_MEM_LOW_PRIORITY);
+    //result = VcvtFixPointToF32_FixQ31(0x00999999);
 
 }
 
@@ -92,14 +94,14 @@ void init() {
 char stringBuff[10];
 void render(uint32_t time) {
     uint32_t ms_begin = now();
-    B3L_CameraLookAt(&(rnd.camera), &at);
+    //B3L_CameraLookAt(&(rnd.camera), &at);
     B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
     B3L_GarbageCollection(&rnd,time);
     uint32_t ms_end = now();
     screen.pen = Pen(0, 0, 0,1);
-    sprintf(stringBuff, "%d", (ms_end - ms_begin));
+    sprintf(stringBuff, "%d", B3L_RoundingToS(rnd.camera.transform.translation.z));
     screen.text(stringBuff, minimal_font, Point(5, 4));
     
 }
