@@ -7,12 +7,37 @@ project(game)
 
 # Add your sources here (adding headers is optional, but helps some CMake generators)
 set( PROJECT_SOURCE 
+basic-3d/b3d.c 
+basic-3d/b3d.h 
+basic-3d/b3d_common.h 
+basic-3d/b3d_config.h 
+basic-3d/b3d_types.h
+basic-3d/b3d_draw.c 
+basic-3d/b3d_draw.h 
+basic-3d/b3d_port.h 
+basic-3d/b3d_port.c  
+basic-3d/b3d_math.c 
+basic-3d/b3d_math.h
+basic-3d/b3d_renderObj.c 
+basic-3d/b3d_renderObj.h
+basic-3d/b3d_testObj.c 
+basic-3d/b3d_testObj.h
+basic-3d/heap_4.c 
+basic-3d/heap_4.h
+basic-3d/b3d_particle.h 
+basic-3d/b3d_particle.c
+basic-3d/b3d_particle_rain.h 
+basic-3d/b3d_particle_rain.c
+basic-3d/b3d_obj.c 
+basic-3d/b3d_obj.h
 game.cpp game.hpp 
 ship2.c ship2.h 
 manlowpoly.c manlowpoly.h
 sprite.c sprite.h)
 
-add_subdirectory(basic-3d)
+
+set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/basic-3d)
+#add_subdirectory(basic-3d)
 include_directories(basic-3d/)
 
 # ... and any other files you want in the release here
@@ -28,7 +53,7 @@ endif()
 find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk)
 
 blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
-target_link_libraries(${PROJECT_NAME} b3dlib)
+#target_link_libraries(${PROJECT_NAME} b3dlib)
 
 
 blit_assets_yaml (${PROJECT_NAME} assets.yml)

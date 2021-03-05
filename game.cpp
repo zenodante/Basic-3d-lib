@@ -42,8 +42,8 @@ void init() {
 
     B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
     
-    B3L_Set_Default_Orthographic_Project(&rnd);
-
+    //B3L_Set_Default_Orthographic_Project(&rnd);
+    //B3L_SetOrthographicProject(&rnd, (1.0f / HALF_RESOLUTION_X));
     pRain = RainGeneratorInit(&rnd, true);
     B3L_SetObjPosition(pRain, 0.0f, 100.0f, 0.0f);
     B3L_SetObjScale(pRain, 100.0f, 10.0f, 100.0f);
@@ -57,8 +57,8 @@ void init() {
     pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)sprite_tex, 80, 48,95, 71,
         0, true, true, B3L_MEM_LOW_PRIORITY);
 
-    B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
-    B3L_SetObjScale(pBitmap, 16.0f, 24.0f, 1.0f);
+   B3L_SetObjPosition(pBitmap, 0.0f, 0.0f, 0.0f);
+   B3L_SetObjScale(pBitmap, 16.0f, 24.0f, 1.0f);
 
     //B3L_SetObjPosition(pMan, 0.0f, 0.0f, 0.0f);
     //B3L_SetObjScale(pMan, 10.0f, 10.0f, 10.0f);
@@ -74,12 +74,12 @@ void init() {
    // B3L_SetObjScale(pBox2, 1.0f, 1.0f, 1.0f);
 
     B3L_SetLightType(&rnd,dotLight);
-    B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
+   B3L_SetLightVect(&rnd, 200.0f, 0.0f, 0.0f);
 
-    B3L_CameraMoveTo(&rnd, 0.0f,50.0f, -100.0f);
+    B3L_CameraMoveTo(&rnd, 0.0f,0.0f, -150.0f);
     //ROTATE_IN_BODY_X(&(rnd.camera), 0.125f);
 
-    B3L_CameraLookAt(&(rnd.camera), &at);
+    //B3L_CameraLookAt(&(rnd.camera), &at);
     //rnd.camera.pMother = pMan;
     //B3L_TexBuffInRam(&rnd,(B3L_tex_t*) tex, B3L_MEM_LOW_PRIORITY);
     //result = VcvtFixPointToF32_FixQ31(0x00999999);
@@ -97,14 +97,14 @@ void init() {
 char stringBuff[10];
 void render(uint32_t time) {
     uint32_t ms_begin = now();
-    B3L_CameraLookAt(&(rnd.camera), &at);
+    //B3L_CameraLookAt(&(rnd.camera), &at);
     //B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
-    B3L_GarbageCollection(&rnd,time);
+    //B3L_GarbageCollection(&rnd,time);
     uint32_t ms_end = now();
     screen.pen = Pen(0, 0, 0,1);
-    sprintf(stringBuff, "%d", B3L_RoundingToS(rnd.camera.transform.translation.z));
+    sprintf(stringBuff, "%d", ms_end-ms_begin);
     screen.text(stringBuff, minimal_font, Point(5, 4));
     
 }
@@ -127,11 +127,11 @@ void update(uint32_t time) {
   }
   if (pressed(DPAD_LEFT)) {
 
-      ROTATE_IN_BODY_Y(pBox, -xAngle);
+     // ROTATE_IN_BODY_Y(pBox, -xAngle);
   }
   if (pressed(DPAD_RIGHT)){
 
-      ROTATE_IN_BODY_Y(pBox, xAngle);
+      //ROTATE_IN_BODY_Y(pBox, xAngle);
   }
   if (pressed(A)) {
 

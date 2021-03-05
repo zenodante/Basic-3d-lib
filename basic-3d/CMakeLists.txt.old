@@ -24,7 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/b3d_particle_rain.c
 ${CMAKE_CURRENT_LIST_DIR}/b3d_obj.c 
 ${CMAKE_CURRENT_LIST_DIR}/b3d_obj.h)
 
-add_library(b3dlib STATIC ${SOURCES})
+add_library(b3dlib OBJECT ${SOURCES})
 set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 

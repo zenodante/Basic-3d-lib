@@ -235,18 +235,18 @@ A-- 1, point light
 camera_t state
    31     2423     1615      87
    ------------------------------------
-31|********|********|*ON*****|******BA|0
+31|********|********|********|******BA|0
   ------------------------------------
 
-A-- camera track obj mode
-B-- Project mode
-N-- need update euler angle
-O-- need update matrix
+A  PERSPECTIVE_PROJECT
+B  OTHROGRAPHIC_PROJECT
+
 */
-#define  B3L_CAMERA_TRACK_OBJ_MODE           (0)
-#define  B3L_PROJECT_MODE                    (1)
-#define  OTHROGRAPHIC_PROJECT                (1u<<B3L_PROJECT_MODE)
-#define  PERSPECTIVE_PROJECT                 (0u<<B3L_PROJECT_MODE)
+#define  PROJECT_MASK                           0xFFFFFFFC
+#define  PERSPECTIVE_PROJECT                     (0)
+#define  OTHROGRAPHIC_PROJECT                    (1)
+//#define  OTHROGRAPHIC_PROJECT                (1u<<B3L_PROJECT_MODE)
+//#define  PERSPECTIVE_PROJECT                 (0u<<B3L_PROJECT_MODE)
 
           
   typedef struct {

@@ -917,15 +917,16 @@ static void RenderBitmap(B3LObj_t* pObj, render_t* pRender, mat4_t* pMat) {
     f32 screenX = (HALF_RESOLUTION_X + rx * factor * HALF_RESOLUTION_X);
     f32 screenY = (HALF_RESOLUTION_Y - ry * factor * HALF_RESOLUTION_Y);
     f32 sizeX, sizeY, sizeFactor;
-    if (B3L_TEST(pRender->camera.state, PERSPECTIVE_PROJECT)) {
-        rz = rz * factor;
-        //printf("x: %.3f,y: %.3f\n", screenX, screenY);
-        sizeFactor = 0.5f*factor * HALF_RESOLUTION_X;
+    //sizeFactor = 0.5f * factor * HALF_RESOLUTION_X;
+    rz = rz * factor;
+    if (B3L_TEST(pRender->camera.state, OTHROGRAPHIC_PROJECT)) {
+        sizeFactor = 0.5f*HALF_RESOLUTION_X * (pRender->camera.focalLength);
+        //printf("x: %.3f,y: %.3f\n", screenX, screenY);      
     }
     else {
-        sizeFactor = 0.5f*HALF_RESOLUTION_X * (pRender->camera.focalLength);
-        
+        sizeFactor = 0.5f*factor * HALF_RESOLUTION_X;    
     }
+    
     sizeX = (pObj->transform.scale.x) * sizeFactor;
     sizeY = (pObj->transform.scale.y) * sizeFactor;
     f32 tu = (f32)(((u32)(pObj->pResource1)) & 0x000000FF);
