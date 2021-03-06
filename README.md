@@ -2,15 +2,16 @@
 #### This is a 3d engine for stm32h750 based 32blit game system. It would be quite easy to port to any arm cortex m4/m7 mcu with enough ram. 
 Several math functions were copy from nvidia cg fast math lib. invert sqrtf is copy from id soft quake.
 
-Left-hand coordinate was used in this lib
-    ^ y
-    |    ^ z
-    |  /
-    |/
-    +--------> x
+Left-hand coordinate was used in this lib  
+    ^ y  
+    |    ^ z  
+    |  /  
+    |/  
+    +--------> x  
+      
 Screen coordinate is x y[0,0] from top left corner. The real render area is defined by
 the RENDER_RESOLUTION_X/Y, the whole frameBuff is defined by WHOLE_FRAME_BUFF_WIDTH/HEIGHT, 
-the position shift of the render window is controlled by the address given to the init function.
+the position shift of the render window is controlled by the address given to the init function.  
 0,0 ---------> x  
    |  
    |  
