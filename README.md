@@ -8,15 +8,17 @@ Left-hand coordinate was used in this lib
     |  /
     |/
     +--------> x
-Screen coordinate is x y[0,0] from top left corner. The real render area is defined by the RENDER_RESOLUTION_X/Y, the whole frameBuff is defined by WHOLE_FRAME_BUFF_WIDTH/HEIGHT, the position shift of the render window is controlled by the address given to the init function.
-0,0 ---------> x
-   |
-   |
-   |
- y v
-Always using row vector, so v * mat -> new v
+Screen coordinate is x y[0,0] from top left corner. The real render area is defined by
+the RENDER_RESOLUTION_X/Y, the whole frameBuff is defined by WHOLE_FRAME_BUFF_WIDTH/HEIGHT, 
+the position shift of the render window is controlled by the address given to the init function.
+0,0 ---------> x  
+   |  
+   |  
+   |  
+ y v  
+Always using row vector, so v * mat -> new v  
 
-Rotations used quaternion internally in transform struct. You could also set the rotation by euler angles in ZXY order, Positive rotation about an axis follow left-hand method.
+Rotations used quaternion internally in transform struct. You could also set the rotation by euler angles in ZXY order, Positive rotation about an axis follow left-hand method.  
 - [x] Light and color shade
 - [x] Texture mapping triangle drawing
 - [x] 2d Sprite drawing in 3d space
@@ -29,19 +31,19 @@ Rotations used quaternion internally in transform struct. You could also set the
 - [x] Heap resource buffering and garbage collection based on reference count
 
 #### How to use the lib
-You could use the b3d_config.h to change the default values for the engine
-b3d_port.h/c contains the heap and z buffer setting which depends on the hardware
+You could use the b3d_config.h to change the default values for the engine.  
+b3d_port.h/c contains the heap and z buffer setting which depends on the hardware.  
 
-Call B3L_RenderInit_Simple function to init the render system. It would allocate RAM for buffers and default parameters for the engine. 
+Call B3L_RenderInit_Simple function to init the render system. It would allocate RAM for buffers and default parameters for the engine.   
 
-struct render
-         |--Scene
-         |--Camera
-         |--Light
-         |--pointer to the framebuffer
-         |--pointer to the z buffer
-         |--pointer to the vector buffer
-         ... and other render parameters
+struct render  
+         |--Scene  
+         |--Camera  
+         |--Light  
+         |--pointer to the framebuffer  
+         |--pointer to the z buffer  
+         |--pointer to the vector buffer  
+         ... and other render parameters  
 
-Scene contains all the resources and objs. Only objs in the active list would be draw to the screen.
-Camera has two type: PERSPECTIVE_PROJECT and OTHROGRAPHIC_PROJECT, you could set the zoom parameter (focuslength) and aspect ratio for the camera
+Scene contains all the resources and objs. Only objs in the active list would be draw to the screen.  
+Camera has two type: PERSPECTIVE_PROJECT and OTHROGRAPHIC_PROJECT, you could set the zoom parameter (focuslength) and aspect ratio for the camera  
