@@ -361,6 +361,7 @@ _RAM_FUNC void B3L_InitCamera(render_t* pRender) {
     //printf("after init clip matrix:\n");
     //B3L_logMat4(pCam->clipMat);
     pCam->state = 0; //default is PERSPECTIVE_PROJECT
+    B3L_SET(pCam->state, PERSPECTIVE_PROJECT);
 }
 
 _RAM_FUNC void B3L_SetOrthographicProject(render_t* pRender, f32 newZoom) {
