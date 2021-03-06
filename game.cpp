@@ -41,9 +41,11 @@ void init() {
 
 
     B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
-    
-    B3L_Set_Default_Orthographic_Project(&rnd);
-    //B3L_SetOrthographicProject(&rnd, (1.0f / HALF_RESOLUTION_X));
+    //B3L_SetPerspectiveProject(&rnd, DEFAULT_FOCUS_LENGTH);
+    //B3L_Set_Default_Orthographic_Project(&rnd);
+    B3L_SetOrthographicProject(&rnd, (1.0f / HALF_RESOLUTION_X));
+
+ 
     pRain = RainGeneratorInit(&rnd, true);
     B3L_SetObjPosition(pRain, 0.0f, 100.0f, 0.0f);
     B3L_SetObjScale(pRain, 100.0f, 10.0f, 100.0f);
@@ -93,10 +95,18 @@ void init() {
 // This function is called to perform rendering of the game. time is the 
 // amount if milliseconds elapsed since the start of your game
 //
-
+bool project;
 char stringBuff[10];
 void render(uint32_t time) {
     uint32_t ms_begin = now();
+    /*
+    if (project == false) {
+        B3L_Ser_Default_Perspective_Project(&rnd);
+    }
+    else {
+        B3L_Set_Default_Orthographic_Project(&rnd);
+    }
+    */
     //B3L_CameraLookAt(&(rnd.camera), &at);
     //B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
@@ -117,6 +127,7 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 f32 xAngle = 0.01f;
+
 void update(uint32_t time) {
   
   if (pressed(DPAD_UP)) {
@@ -134,7 +145,10 @@ void update(uint32_t time) {
       //ROTATE_IN_BODY_Y(pBox, xAngle);
   }
   if (pressed(A)) {
-
+      project = true;
+  }
+  else {
+      project = false;
   }
   if (pressed(B)) {
 

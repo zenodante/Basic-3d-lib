@@ -46,7 +46,7 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
   B3L_ResetScene(&(pRender->scene),objNum, particleNum);
   B3L_InitCamera(pRender);
   B3L_ResetLight(&(pRender->light));
-  B3L_Ser_Default_Perspective_Project(pRender);
+  //B3L_SetPerspectiveProject(pRender, DEFAULT_FOCUS_LENGTH);
 }
 
 
@@ -348,7 +348,7 @@ void B3L_RotateObjInWZ(quat4_t* pQuat, f32 angle) {
 Camera functions
 -----------------------------------------------------------------------------*/
 
-_RAM_FUNC void B3L_InitCamera(render_t* pRender) {
+void B3L_InitCamera(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);
     pCam->aspectRate = DEFAULT_ASPECT_RATIO;
     pCam->focalLength = DEFAULT_FOCUS_LENGTH;
@@ -356,34 +356,34 @@ _RAM_FUNC void B3L_InitCamera(render_t* pRender) {
     B3L_VECT3_SET(pCam->transform.translation, 0.0f, 0.0f, 0.0f);
     B3L_VECT4_SET(pCam->transform.quaternion, 0.0f, 0.0f, 0.0f, 1.0f);
     pCam->pMother = (B3LObj_t*)NULL;
-
+    pCam->state = 0; //default is PERSPECTIVE_PROJECT
+    B3L_SET(pCam->state, PERSPECTIVE_PROJECT);
     MakeClipMatrix(pCam->state, pRender->nearPlane, pRender->farPlane, pCam->focalLength, pCam->aspectRate, &(pCam->clipMat));
     //printf("after init clip matrix:\n");
     //B3L_logMat4(pCam->clipMat);
-    pCam->state = 0; //default is PERSPECTIVE_PROJECT
-    B3L_SET(pCam->state, PERSPECTIVE_PROJECT);
+
 }
 
-_RAM_FUNC void B3L_SetOrthographicProject(render_t* pRender, f32 newZoom) {
+void B3L_SetOrthographicProject(render_t* pRender, f32 newZoom) {
     pRender->camera.focalLength = newZoom;
     pRender->camera.state &= PROJECT_MASK;
     B3L_SET(pRender->camera.state, OTHROGRAPHIC_PROJECT);
     B3L_UpdateClipMatrix(pRender);
 }
 
-_RAM_FUNC void B3L_SetPerspectiveProject(render_t* pRender,f32 newZoom) {
-    pRender->camera.focalLength = newZoom;
-    pRender->camera.state &= PROJECT_MASK;
+void B3L_SetPerspectiveProject(render_t* pRender,f32 newZoom) {
+   // pRender->camera.focalLength = newZoom;
+    pRender->camera.state =0;
     B3L_SET(pRender->camera.state, PERSPECTIVE_PROJECT);
     B3L_UpdateClipMatrix(pRender);
 }
 
-_RAM_FUNC void B3L_UpdateClipMatrix(render_t* pRender) {
+void B3L_UpdateClipMatrix(render_t* pRender) {
     camera_t* pCam = &(pRender->camera);
     MakeClipMatrix(pCam->state, pRender->nearPlane, pRender->farPlane, pCam->focalLength, pCam->aspectRate, &(pCam->clipMat));
 }
 
-_RAM_FUNC void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov) {
+void B3L_CamSetFocusLengthByFOV(render_t* pRender, f32 fov) {
     f32 halfFOV = 0.5f * fov;
     f32 sinh = B3L_sin(halfFOV);
     f32 cosh = B3L_cos(halfFOV);
