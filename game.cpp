@@ -111,7 +111,7 @@ void render(uint32_t time) {
     //B3L_RotateObjInOZ(&(rnd.camera.transform.quaternion), upAngle);
     B3L_RenderScence(&rnd,time);
     
-    //B3L_GarbageCollection(&rnd,time);
+    B3L_GarbageCollection(&rnd,time);
     uint32_t ms_end = now();
     screen.pen = Pen(0, 0, 0,1);
     sprintf(stringBuff, "%d", ms_end-ms_begin);
