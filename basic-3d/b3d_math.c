@@ -965,4 +965,62 @@ void B3L_QuaternionInterp(quat4_t* pFrom, quat4_t* pTo, quat4_t* pResult, f32 t)
     pResult->z = z0 * k0 + z1 * k1;
 }
 
-
+/*-----------------------------------------------------------------------------
+Clamp functions
+-----------------------------------------------------------------------------*/
+bool B3L_ClampLineInScreenSpace(f32 x0, f32 y0, f32 x1, f32 y1, f32 xlim, f32 ylim, f32* rtX0, f32* rtY0, f32* rtX1, f32* rtY1) {
+    f32 k,b;
+    if ((x1 - x0) > 0.1f) {
+        k = (y1 - y0) / (x1 - x0);
+        b = y0 - x0 * k;
+        if (x0 < 0.0f) {
+            x0 = 0.0f; y0 = b;
+        }
+        else if (x0 > xlim) {
+            x0 = xlim; y0 = k * xlim + b;
+        }
+        if (y0 < 0.0f) {
+            y0 = 0.0f; x0 = -b / k;
+        }
+        else if (y0 > ylim) {
+            y0 = ylim; x0 = (ylim - b) / k;
+        }
+        if (x1 < 0.0f) {
+            x1 = 0.0f; y1 = b;
+        }
+        else if (x1 > xlim) {
+            x1 = xlim; y1 = k * xlim + b;
+        }
+        if (y1 < 0.0f) {
+            y1 = 0.0f; x1 = -b / k;
+        }
+        else if (y0 > ylim) {
+            y1 = ylim; x1 = (ylim - b) / k;
+        }
+        if ((fabsf(x0 - x1)<1.0f) && (fabsf(y0-y1)<1.0f)) {
+            return false;
+        }
+    }
+    else {//vertical line
+        if (x0 < 0.0f) {
+            x0 = 0.0f;
+        }
+        else if (x0 > xlim) {
+            x0 = xlim;
+        }
+        if (x1 < 0.0f) {
+            x1 = 0.0f;
+        }
+        else if (x1 > xlim) {
+            x1 = xlim;
+        }
+        if (fabsf(x0 - x1)<1.0f) {
+            return false;
+        }   
+    }
+    *rtX0 = x0;
+    *rtY0 = y0;
+    *rtX1 = x1;
+    *rtY1 = y1;
+    return true;  
+}

@@ -92,8 +92,11 @@ extern void B3L_QuatCreateYRotate(quat4_t *pQ,f32 angle);
 extern void B3L_QuatCreateZRotate(quat4_t *pQ,f32 angle);
 extern void B3L_QuaternionInterp(quat4_t *pFrom,quat4_t *pTo,quat4_t *pResult, f32 t);
 
+/*-----------------------------------------------------------------------------
+Clamp functions
+-----------------------------------------------------------------------------*/
 
-
+extern bool B3L_ClampLineInScreenSpace(f32 x0,f32 y0,f32 x1,f32 y1,f32 xlim,f32 ylim,f32* rtX0,f32* rtY0,f32* rtX1,f32* rtY1);
 
 #ifdef __cplusplus
 }
