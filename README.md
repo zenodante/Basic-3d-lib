@@ -32,6 +32,10 @@ Rotations used quaternion internally in transform struct. You could also set the
 - [x] Heap resource buffering and garbage collection based on reference count
 
 #### How to use the lib
+You could get the 32blit project from :https://github.com/32blit/32blit-sdk.git  
+If you use the default setting in the config file for max heap size in stm32h750, you would need to copy the "STM32H750VBTx.ld" to replace the one in 32blit-sdk/32blit-stm32/ folder.   
+The new ld file move the default heap steak bss data section to DTCM area and left the main ram area for the customerized heap.  
+
 You could use the b3d_config.h to change the default values for the engine.  
 b3d_port.h/c contains the heap and z buffer setting which depends on the hardware.  
 
