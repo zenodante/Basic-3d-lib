@@ -33,6 +33,7 @@ Rotations used quaternion internally in transform struct. You could also set the
 
 #### How to use the lib
 You could get the 32blit project from :https://github.com/32blit/32blit-sdk.git  
+This project is based on the default template for 32blit project : https://github.com/32blit/32blit-boilerplate.git  
 If you use the default setting in the config file for max heap size in stm32h750, you would need to copy the "STM32H750VBTx.ld" to replace the one in 32blit-sdk/32blit-stm32/ folder.   
 The new ld file move the default heap steak bss data section to DTCM area and left the main ram area for the customerized heap.  
 
