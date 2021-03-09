@@ -165,7 +165,7 @@ void DrawTriangleTexture(f32 x0, f32 y0, f32 u0, f32 v0, f32 z0,
     }
     // if the triangle size in y is smaller than 1 pixel, then skip it
     f32 dy01 = (y1 - y0); f32 dy02 = (y2 - y0); f32 dy12 = (y2 - y1);
-    s32 cy0 = B3L_CeilToS(y0); s32 cy1 = B3L_CeilToS(y1); s32 cy2 = B3L_CeilToS(y2); //int y
+    s32 cy0 = B3L_CeilToS(y0); s32 cy1 = B3L_CeilToS(y1); s32 cy2 = B3L_FloorToS(y2); //int y
     //s32 stepUp = cy1 - cy0;
     //s32 stepDown = cy2 - cy1;
     f32  aZ; f32  bZ; f32  aX; f32  bX;
@@ -260,7 +260,7 @@ LOWER_PART_TEX:
     }
     y = cy1;
 
-    yEnd = B3L_MIN((cy2-1), RENDER_RESOLUTION_Y - 1);
+    yEnd = B3L_MIN((cy2), RENDER_RESOLUTION_Y - 1);
     //printf("y:%d,yend:%d\n",y,yEnd);
     if (aX > bX) {
         for (; y <= yEnd; y++) {
@@ -317,6 +317,7 @@ __STATIC_FORCEINLINE  void Cline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, fBuff_t* f
   }
 
 }
+
 __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32 aV, f32 bU, f32 bV, s8 lightFactor, fBuff_t* fbuff, zBuff_t* zbuff, B3L_tex_t* tx) {
   u32 size = ((u16*)tx)[2];
   f32 dx = b - a;
@@ -339,11 +340,11 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
     aU += du * sa;
     aV += dv * sa;
   } 
-  s32 cb = B3L_CeilToS(b);
+  s32 cb = B3L_FloorToS(b);
   if ((ca >= RENDER_RESOLUTION_X) || (cb <= 0)) {
     return;
   }
-  s32 right = B3L_MIN(RENDER_RESOLUTION_X , cb);
+  s32 right = B3L_MIN(RENDER_RESOLUTION_X-1 , cb);
   u8 color;
   zBuff_t* pCurrentZ = zbuff + ca + RENDER_RESOLUTION_X * y;
   fBuff_t* pCurrentPixel = fbuff + ca + RENDER_X_SHIFT * y;
@@ -351,7 +352,7 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
   u8 colorRow;
   s8 colorColumn;
   u32 iZ;
-  for (; ca < right; ca++) {
+  for (; ca <= right; ca++) {
       iZ = GetZtestValue(aZ);
     if (iZ <= (u32)(*pCurrentZ)) {
       //get color
