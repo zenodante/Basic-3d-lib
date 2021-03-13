@@ -4,7 +4,7 @@
 #include "b3d.h"
 
 #include "ship2.h"
-#include "manlowpoly.h"
+
 
 #include "sprite.h"
 using namespace blit;
@@ -57,11 +57,11 @@ void init() {
    B3L_SetObjScale(pBox, 50.0f,50.0f, 50.0f);
     //pMan = B3L_CreatTexMeshObj(&rnd, (B3L_Mesh_t*)manobj_Mesh_Tex, (B3L_tex_t*)body_tex,
     //                               true, false,0, false, 0,true,true, B3L_MEM_LOW_PRIORITY);
-    //pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)sprite_tex, 80, 48,95, 71,
-    //    0, true, true, B3L_MEM_LOW_PRIORITY);
+    pBitmap = B3L_CreatBitmapObj(&rnd, (B3L_tex_t*)sprite_tex, 80, 48,95, 71,
+        0, true, true, B3L_MEM_LOW_PRIORITY);
 
-   //B3L_SetObjPosition(pBitmap, 0.0f, 12.0f, 0.0f);
-   //B3L_SetObjScale(pBitmap, 16.0f, 24.0f, 1.0f);
+   B3L_SetObjPosition(pBitmap, 0.0f, 75.0f, 0.0f);
+   B3L_SetObjScale(pBitmap, 16.0f, 24.0f, 1.0f);
 
     //B3L_SetObjPosition(pMan, 0.0f, 0.0f, 0.0f);
     //B3L_SetObjScale(pMan, 10.0f, 10.0f, 10.0f);

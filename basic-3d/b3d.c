@@ -23,13 +23,18 @@ static void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
 
 
 void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectBuffSize,u32 particleNum,
-                    f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane,f32 nearPlane) {
+                    f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane,f32 nearPlane,
+                    fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile,B3L_tex_t* pSkyBoxMap) {
 #if B3L_ARM  == 1
   B3d_FPU_Init();
 #endif
   pRender->pBuffResouce = NULL;
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
+  pRender->scene.defaultColor = defaultColor;
+  pRender->pSkyboxFunc = SkyBoxFunc;
+  pRender->scene.pSkyBoxMap = pSkyBoxMap;
+  pRender->scene.pSkyBoxTile = pSkyBoxTile;
   pRender->scene.pObjBuff = (B3LObj_t *)pvPortMalloc(sizeof(B3LObj_t) * objNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
   if (particleNum != 0) {
       pRender->scene.pParticleBuff = (B3L_Particle_t*)pvPortMalloc(sizeof(B3L_Particle_t) * particleNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
@@ -51,6 +56,10 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
 
 
 void B3L_RenderDeInit(render_t* pRender) {
+    pRender->scene.defaultColor = 0;
+    pRender->pSkyboxFunc = NULL;
+    pRender->scene.pSkyBoxMap = NULL;
+    pRender->scene.pSkyBoxTile = NULL;
     pRender->pFrameBuff = NULL;
     pRender->pZBuff = NULL;
     vPortFree(pRender->scene.pObjBuff);//release memory
@@ -74,8 +83,10 @@ void B3L_RenderDeInit(render_t* pRender) {
 
 void B3L_RenderScence(render_t* pRender,u32 time) {
     ClearZbuff(pRender->pZBuff, Z_BUFF_LENGTH);
-    ClearFbuff(pRender->pFrameBuff, F_BUFF_LENGTH,8);
     UpdateCam(pRender);
+    //call the skybox render function
+    //ClearFbuff(pRender->pFrameBuff, F_BUFF_LENGTH,8);
+    pRender->pSkyboxFunc(pRender);
     RenderObjs(pRender,time);
 }
 
@@ -244,41 +255,6 @@ void B3L_NewRenderStart(render_t* pRender, fBuff_t color) {
 }
 
 
-void B3L_Update(render_t* pRender, u32 time) {
-    static u32 oldTime = 0;
-    if (oldTime == 0) {//first time run
-        oldTime = time;
-        return;
-    }
-    u32 deltaTime = time - oldTime;
-    
-#ifdef B3L_USING_PARTICLE
-    UpdateParticleObjs(pRender, time);
-#endif
-    oldTime = time;//update oldTime only it is run the update codes
-
-    //TODO: Add particle update and other hook here
-}
-
-/*-----------------------------------------------------------------------------
-Render obj functions
------------------------------------------------------------------------------*/
-
-
-/*
-B3LParticleGenObj_t* B3L_GetFreeParticleGeneratorObj(render_t* pRender) {
-    B3LObj_t* pObj = B3L_GetFreeObj(pRender);
-    if (pObj != (B3LObj_t*)NULL) {
-        B3L_SET(pObj->state, PARTICLE_GEN_OBJ);
-        B3L_SET(pObj->state, OBJ_VISUALIZABLE);
-        B3L_SET(pObj->state, OBJ_PARTICLE_ACTIVE);
-        ((B3LParticleGenObj_t*)pObj)->particleNum = 0;
-        ((B3LParticleGenObj_t*)pObj)->pParticleActive = (B3L_Particle_t*)NULL;
-        ((B3LParticleGenObj_t*)pObj)->lastTime = 0;
-    }
-    return (B3LParticleGenObj_t*)pObj;
-}
-*/
 
 
 

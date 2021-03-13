@@ -16,6 +16,7 @@ extern "C" {
 #include "b3d_obj.h"
 #include "b3d_particle.h"
 #include "b3d_particle_rain.h"
+#include "b3d_skyBox.h"
 /*-----------------------------------------------------------------------------
 Resource management functions
 -----------------------------------------------------------------------------*/
@@ -38,11 +39,12 @@ Render functions
 -----------------------------------------------------------------------------*/
 //Init render, it would also relocate the vect buff and obj buff, make sure first deinit before reinit
 extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize, u32 particleNum,
-                            f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane, f32 nearPlane);
+                            f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane, f32 nearPlane, 
+                           fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile, B3L_tex_t* pSkyBoxMap);
 //a = pRender, b = pFrameBuff
 #define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,B3L_DEFAULT_PARTICLE_BUFF_DEPTH,\
                                                 LEVEL_0_DEFAULT_DISTANCE,LEVEL_1_DEFAULT_DISTANCE,\
-                                                LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE)
+                                                LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE,1,SkyBox_FillColor,NULL,NULL)
 //Deinit render, release the vect buff and obj buff resource
 extern  void B3L_RenderDeInit(render_t* pRender);
 //Render all object
@@ -51,8 +53,6 @@ extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work
 extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum, u32 freeParticleNum);
 //clear buffs
 extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); 
-//update particles etc, not used 
-extern  void B3L_Update(render_t* pRender, u32 time); 
 
 
 /*-----------------------------------------------------------------------------

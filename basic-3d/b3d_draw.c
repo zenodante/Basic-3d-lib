@@ -13,7 +13,7 @@ __STATIC_FORCEINLINE void DrawPixel(fBuff_t color, s32 x, s32 y, f32 z, fBuff_t*
 __STATIC_FORCEINLINE u32 GetZtestValue(f32 z);
 
 
-#define UV_DATA_SHIFT       6
+
 
 
 
@@ -356,7 +356,7 @@ __STATIC_FORCEINLINE void Tline(f32 a, u32 y, f32 b, f32 aZ, f32 bZ, f32 aU, f32
       iZ = GetZtestValue(aZ);
     if (iZ <= (u32)(*pCurrentZ)) {
       //get color
-        uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + UV_DATA_SHIFT;
+        uvShift = B3L_RoundingToS(aU) + size * B3L_RoundingToS(aV) + TEXTURE_HEAD_SHIFT;
         color = tx[uvShift];
       if (color != 0) {
 #ifdef USING_COLOR_LEVEL
@@ -628,7 +628,7 @@ void DrawSpaceBitmap(f32 x0, f32 y0, f32 x1, f32 y1, f32 z,
 
             if (iZ <= *pCurrentZ) {
                 //uvShift = B3L_RoundingToS(currentU) + svMultSize + UV_DATA_SHIFT;
-                uvShift = B3L_RoundingToS(currentU + halfPixelCorrectX) + svMultSize + UV_DATA_SHIFT;
+                uvShift = B3L_RoundingToS(currentU + halfPixelCorrectX) + svMultSize + TEXTURE_HEAD_SHIFT;
                 color = texture[uvShift];
                 if (color != 0) {
 #ifdef USING_COLOR_LEVEL

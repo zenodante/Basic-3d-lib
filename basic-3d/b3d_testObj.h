@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 #include "b3d_types.h"
-extern const B3L_tex_t tex[1030];
+extern const B3L_tex_t tex[1032];
 extern const u32 pal[256] ;
 extern const B3L_Mesh_t b3d_box[];
 extern const B3L_tex_t box_color[];

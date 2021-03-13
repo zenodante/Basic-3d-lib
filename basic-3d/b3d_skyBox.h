@@ -1,12 +1,12 @@
-#ifndef __SPRITE_H__
-#define __SPRITE_H__
+#ifndef __B3D_SKYBOX_H__
+#define __B3D_SKYBOX_H__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 #include "b3d_types.h"
-	extern const u8 sprite_tex[16392];
+	extern void SkyBox_FillColor(render_t *pRnd);
+
 
 
 #ifdef __cplusplus

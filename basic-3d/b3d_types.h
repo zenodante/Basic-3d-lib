@@ -18,10 +18,10 @@ extern "C" {
   typedef uint32_t q32;
 
   typedef uint8_t fBuff_t;
-  typedef u16   zBuff_t;
+  typedef u16     zBuff_t;
   typedef uint8_t B3L_tex_t;
 
-#define TEXTURE_HEAD_SHIFT        6
+#define TEXTURE_HEAD_SHIFT        8
 #define MESH_HEAD_SHIFT           12
 
   typedef struct {
@@ -134,13 +134,14 @@ xx bits have been used for tri test
   B3LObj_t state
      31     2423     1615      87
      ------------------------------------
-  31|$$$$$$$$|******RQ|*ONMLKJI|***EDCBA|0
+  31|$$$$$$$$|******RQ|*ONMLKJI|**FEDCBA|0
      ------------------------------------
     A-- mesh obj with texture
     B-- polygon obj
     C-- mesh obj without texture
     D-- particle generator obj
     E-- Bitmap obj
+    F-- voxel obj
     I-- obj visualization
     J-- Particle generator active state
     K-- Back face culling state
@@ -158,6 +159,7 @@ xx bits have been used for tri test
 #define NOTEX_MESH_OBJ                      (2)
 #define PARTICLE_GEN_OBJ                    (3)
 #define BITMAP_OBJ                          (4)
+#define VOXEL_OBJ                           (5)
   //obj visualizable control
 #define OBJ_VISUALIZABLE                    (8)
 #define OBJ_PARTICLE_GEN_ACTIVE             (9)
@@ -195,16 +197,6 @@ xx bits have been used for tri test
 
 
 
-  typedef struct {
-    //B3LObj_t            objBuff[OBJ_BUFF_SIZE];
-    B3LObj_t*           pObjBuff;
-    u32                 freeObjNum;
-    B3LObj_t*           pFreeObjs;
-    B3LObj_t*           pActiveObjs;
-    B3L_Particle_t*     pParticleBuff;
-    u32                 freeParticleNum;
-    B3L_Particle_t*     pfreeParticles;
-  }scene_t;
 
   //state
   typedef enum {
@@ -276,21 +268,40 @@ B  OTHROGRAPHIC_PROJECT
       s16    refCount;
   } BlockLink_t;
 
+
   typedef struct {
+      //B3LObj_t            objBuff[OBJ_BUFF_SIZE];
+      B3LObj_t*         pObjBuff;
+      u32               freeObjNum;
+      B3LObj_t*         pFreeObjs;
+      B3LObj_t*         pActiveObjs;
+      B3L_Particle_t*   pParticleBuff;
+      u32               freeParticleNum;
+      B3L_Particle_t*   pfreeParticles;
+      B3L_tex_t*        pSkyBoxTile;
+      B3L_tex_t*        pSkyBoxMap;
+      fBuff_t           defaultColor;
+  }scene_t;
+  //pFrameBuff,pCam,default color,tile,map
+
+ 
+
+  typedef struct RENDER_STR{
     fBuff_t*            pFrameBuff;
     zBuff_t*            pZBuff;
     vect4_t*            pVectBuff;
     BlockLink_t*        pBuffResouce;
     camera_t            camera;
-    light_t             light;
-    scene_t             scene;
+    light_t             light; 
     f32                 lvl0Distance;
     f32                 lvl1Distance;
     f32                 farPlane;
     f32                 nearPlane;
+    void (*pSkyboxFunc)(struct RENDER_STR*);
+    scene_t             scene;
     s8                  lvl1Light;
   }render_t;
-
+ typedef void (*pSkyboxFunc)(struct RENDER_STR*);
 
   typedef struct {
       void (*pParticleGenFunc)(render_t*, B3LObj_t*, mat4_t*, u32);

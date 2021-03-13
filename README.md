@@ -53,3 +53,8 @@ struct render
 
 Scene contains all the resources and objs. Only objs in the active list would be draw to the screen.  
 Camera has two type: PERSPECTIVE_PROJECT and OTHROGRAPHIC_PROJECT, you could set the zoom parameter (focuslength) and aspect ratio for the camera  
+
+#### Render distance and render level  
+The engine current has 2 render level. In render distance range 0, light would be calculated by obj normal vectors. In render distance range 1 only overall color level could be changed.
+Every obj could define for fix render level (ignor the distance calculation result) and the fix color level. The engine could also disable the light caculation and color level setting in config file to save cpu time.
+

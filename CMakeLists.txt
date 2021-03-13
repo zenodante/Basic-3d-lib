@@ -30,9 +30,10 @@ basic-3d/b3d_particle_rain.h
 basic-3d/b3d_particle_rain.c
 basic-3d/b3d_obj.c 
 basic-3d/b3d_obj.h
+basic-3d/b3d_skyBox.c
+basic-3d/b3d_skyBox.h
 game.cpp game.hpp 
 ship2.c ship2.h 
-manlowpoly.c manlowpoly.h
 sprite.c sprite.h)
 
 

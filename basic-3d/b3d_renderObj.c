@@ -1066,8 +1066,9 @@ u32 B3L_GetMeshResouceSize(B3L_Mesh_t* pMesh) {
 }
 
 u32 B3L_GetTexResouceSize(B3L_tex_t* pTexture) {
-    u32 size = ((u16 *)pTexture)[2];
-    return (size * size) + TEXTURE_HEAD_SHIFT;
+    u32 size_x = ((u16 *)pTexture)[2];
+    u32 size_y = ((u16*)pTexture)[3];
+    return (size_x * size_y) + TEXTURE_HEAD_SHIFT;
 }
 
 u32 B3L_GetPolyResouceSize(B3L_Polygon_t* pPoly) {
