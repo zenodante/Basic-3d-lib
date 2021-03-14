@@ -280,6 +280,8 @@ B  OTHROGRAPHIC_PROJECT
       B3L_Particle_t*   pfreeParticles;
       B3L_tex_t*        pSkyBoxTile;
       B3L_tex_t*        pSkyBoxMap;
+      bool              ramBuffSkyBoxMap;
+      bool              ramBuffSkyBoxTile;
       fBuff_t           defaultColor;
   }scene_t;
   //pFrameBuff,pCam,default color,tile,map
@@ -297,11 +299,22 @@ B  OTHROGRAPHIC_PROJECT
     f32                 lvl1Distance;
     f32                 farPlane;
     f32                 nearPlane;
-    void (*pSkyboxFunc)(struct RENDER_STR*);
+    void (*pSkyboxFunc)(struct RENDER_STR*,euler3_t*);
     scene_t             scene;
     s8                  lvl1Light;
   }render_t;
- typedef void (*pSkyboxFunc)(struct RENDER_STR*);
+ typedef void (*pSkyboxFunc)(struct RENDER_STR*,euler3_t*);
+
+ typedef enum {
+     B3D_FIX_COLOR = 1,
+     B3D_1D_SHIFT = 2,
+     B3D_2D_SHIFT = 3,
+     B3D_2D_CYLINDER = 4,
+     B3D_2D_BALL = 5,
+
+ }skyBoxType_e;
+
+
 
   typedef struct {
       void (*pParticleGenFunc)(render_t*, B3LObj_t*, mat4_t*, u32);

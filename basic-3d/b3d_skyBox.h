@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 #include "b3d_types.h"
-	extern void SkyBox_FillColor(render_t *pRnd);
 
+	extern void SkyBox_FillColor(render_t *pRnd,euler3_t* pCamEuler);
+	
 
 
 #ifdef __cplusplus

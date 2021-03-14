@@ -1,7 +1,7 @@
 #include "b3d_types.h"
 #include "b3d_common.h"
 #include "b3d_math.h"
-void SkyBox_FillColor(render_t* pRnd) {
+void SkyBox_FillColor(render_t* pRnd, euler3_t* pCamEuler) {
 #if fBuff_t == u8
     s32 length = F_BUFF_LENGTH >> 2;
     int32_t i = length & 0x0000000F;

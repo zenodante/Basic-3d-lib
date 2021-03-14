@@ -40,11 +40,11 @@ Render functions
 //Init render, it would also relocate the vect buff and obj buff, make sure first deinit before reinit
 extern  void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff, u32 objNum, u32 vectBuffSize, u32 particleNum,
                             f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane, f32 nearPlane, 
-                           fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile, B3L_tex_t* pSkyBoxMap);
+                           fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile, B3L_tex_t* pSkyBoxMap,bool ramBuffSkyBoxMap, bool ramBuffSkyBoxTile);
 //a = pRender, b = pFrameBuff
 #define B3L_RenderInit_Simple(a,b)      B3L_RenderInit(a,b,OBJ_BUFF_SIZE,VECT_BUFF_SIZE,B3L_DEFAULT_PARTICLE_BUFF_DEPTH,\
                                                 LEVEL_0_DEFAULT_DISTANCE,LEVEL_1_DEFAULT_DISTANCE,\
-                                                LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE,1,SkyBox_FillColor,NULL,NULL)
+                                                LEVEL_1_DEFAULT_LIGHT,DEFAULT_FAR_PLANE,DEFAULT_NEAR_PLANE,8,SkyBox_FillColor,NULL,NULL,false,false)
 //Deinit render, release the vect buff and obj buff resource
 extern  void B3L_RenderDeInit(render_t* pRender);
 //Render all object
@@ -52,8 +52,9 @@ extern  void B3L_RenderScence(render_t* pRender, u32 time); //draw work
  //reset all the scene resource
 extern  void B3L_ResetScene(scene_t* pScene, u32 freeObjNum, u32 freeParticleNum);
 //clear buffs
-extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); 
-
+//extern  void B3L_NewRenderStart(render_t* pRender, fBuff_t color); 
+extern void B3L_SetSkyBox(render_t* pRender, fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile, 
+                          B3L_tex_t* pSkyBoxMap, bool ramBuffSkyBoxMap, bool ramBuffSkyBoxTile);
 
 /*-----------------------------------------------------------------------------
 Target rotate control functions

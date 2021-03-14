@@ -17,24 +17,23 @@ static void B3d_FPU_Init() {
 #endif
 
 
-static void  UpdateCam(render_t* pRender);
+static void  UpdateCam(render_t* pRender, euler3_t* pCamEuler);
 static void  B3L_AddResouceBuffToPool(render_t* pRender, void* pResource);
 
 
 
 void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectBuffSize,u32 particleNum,
                     f32 lv0Distance, f32 lv1Distance, s8 lv1DefaultLight, f32 farPlane,f32 nearPlane,
-                    fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile,B3L_tex_t* pSkyBoxMap) {
+                    fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile,B3L_tex_t* pSkyBoxMap,bool ramBuffSkyBoxMap,bool ramBuffSkyBoxTile) {
 #if B3L_ARM  == 1
   B3d_FPU_Init();
 #endif
   pRender->pBuffResouce = NULL;
   pRender->pFrameBuff = pFrameBuff;
   pRender->pZBuff = zbuff; 
-  pRender->scene.defaultColor = defaultColor;
-  pRender->pSkyboxFunc = SkyBoxFunc;
-  pRender->scene.pSkyBoxMap = pSkyBoxMap;
-  pRender->scene.pSkyBoxTile = pSkyBoxTile;
+
+  
+
   pRender->scene.pObjBuff = (B3LObj_t *)pvPortMalloc(sizeof(B3LObj_t) * objNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
   if (particleNum != 0) {
       pRender->scene.pParticleBuff = (B3L_Particle_t*)pvPortMalloc(sizeof(B3L_Particle_t) * particleNum, B3L_DATA_OTHER_E, B3L_MEM_HIGH_PRIORITY);
@@ -51,15 +50,14 @@ void B3L_RenderInit(render_t* pRender, fBuff_t* pFrameBuff,u32 objNum, u32 vectB
   B3L_ResetScene(&(pRender->scene),objNum, particleNum);
   B3L_InitCamera(pRender);
   B3L_ResetLight(&(pRender->light));
+  B3L_SetSkyBox(pRender, defaultColor, SkyBoxFunc, pSkyBoxTile, pSkyBoxMap, ramBuffSkyBoxMap, ramBuffSkyBoxTile);
   //B3L_SetPerspectiveProject(pRender, DEFAULT_FOCUS_LENGTH);
 }
 
 
 void B3L_RenderDeInit(render_t* pRender) {
-    pRender->scene.defaultColor = 0;
-    pRender->pSkyboxFunc = NULL;
-    pRender->scene.pSkyBoxMap = NULL;
-    pRender->scene.pSkyBoxTile = NULL;
+
+    
     pRender->pFrameBuff = NULL;
     pRender->pZBuff = NULL;
     vPortFree(pRender->scene.pObjBuff);//release memory
@@ -70,6 +68,20 @@ void B3L_RenderDeInit(render_t* pRender) {
         vPortFree(pRender->scene.pParticleBuff);
         pRender->scene.pParticleBuff = NULL;
     }
+    if (pRender->scene.ramBuffSkyBoxMap == true) {
+        vPortFree(pRender->scene.pSkyBoxMap);  
+    }
+    if (pRender->scene.ramBuffSkyBoxTile == true) {
+        vPortFree(pRender->scene.pSkyBoxTile);
+    }
+    pRender->scene.ramBuffSkyBoxTile == false;
+    pRender->scene.ramBuffSkyBoxMap == false;
+
+    pRender->scene.pSkyBoxMap = NULL;
+    pRender->scene.pSkyBoxTile = NULL;
+    pRender->scene.defaultColor = 0;
+    pRender->pSkyboxFunc = NULL;
+
     pRender->lvl0Distance = 0.0f;
     pRender->lvl1Distance = 0.0f;
     pRender->lvl1Light = 0;
@@ -82,11 +94,12 @@ void B3L_RenderDeInit(render_t* pRender) {
 }
 
 void B3L_RenderScence(render_t* pRender,u32 time) {
+    euler3_t camEuler;
     ClearZbuff(pRender->pZBuff, Z_BUFF_LENGTH);
-    UpdateCam(pRender);
+    UpdateCam(pRender,&camEuler);
     //call the skybox render function
     //ClearFbuff(pRender->pFrameBuff, F_BUFF_LENGTH,8);
-    pRender->pSkyboxFunc(pRender);
+    pRender->pSkyboxFunc(pRender, &camEuler);
     RenderObjs(pRender,time);
 }
 
@@ -103,6 +116,47 @@ void B3L_ResetScene(scene_t* pScene,u32 freeObjNum,u32 freeParticleNum) {
 
 
 }
+
+void B3L_SetSkyBox(render_t* pRender, fBuff_t defaultColor, pSkyboxFunc SkyBoxFunc, B3L_tex_t* pSkyBoxTile,
+    B3L_tex_t* pSkyBoxMap, bool ramBuffSkyBoxMap, bool ramBuffSkyBoxTile) {
+    
+    pRender->scene.defaultColor = defaultColor;
+    pRender->pSkyboxFunc = SkyBoxFunc;
+
+
+    if (ramBuffSkyBoxMap == true) {
+        if (pSkyBoxMap != NULL) {
+            pRender->scene.pSkyBoxMap = B3L_TexBuffInRam(pRender, pSkyBoxMap, B3L_MEM_HIGH_PRIORITY);
+        }
+
+        if ((pRender->scene.pSkyBoxMap) == pSkyBoxMap) {
+            ramBuffSkyBoxMap = false;
+        }
+    }
+    else {
+        pRender->scene.pSkyBoxMap = pSkyBoxMap;
+    }
+    if (ramBuffSkyBoxTile == true) {
+        if (pSkyBoxTile != NULL) {
+            pRender->scene.pSkyBoxTile = B3L_TexBuffInRam(pRender, pSkyBoxTile, B3L_MEM_HIGH_PRIORITY);
+        }
+
+        if ((pRender->scene.pSkyBoxTile) == pSkyBoxTile) {
+            ramBuffSkyBoxTile = false;
+        }
+    }
+    else {
+        pRender->scene.pSkyBoxTile = pSkyBoxTile;
+
+    }
+
+    pRender->scene.ramBuffSkyBoxMap = ramBuffSkyBoxMap;
+    pRender->scene.ramBuffSkyBoxTile = ramBuffSkyBoxTile;
+}
+
+
+
+
 
 
 static void B3L_AddResouceBuffToPool(render_t* pRender, void* pResource) {
@@ -245,7 +299,7 @@ void B3L_GarbageCollection(render_t* pRender,u32 time) {
     
 }
 
-
+/*
 void B3L_NewRenderStart(render_t* pRender, fBuff_t color) {
 
     ClearFbuff(pRender->pFrameBuff, F_BUFF_LENGTH,color );
@@ -254,7 +308,7 @@ void B3L_NewRenderStart(render_t* pRender, fBuff_t color) {
 
 }
 
-
+*/
 
 
 
@@ -389,7 +443,7 @@ void B3L_CameraLookAt(camera_t* pCam, vect3_t* pAt) {
         pAt, &up, &(pCam->transform.quaternion));
 }
 
-static void  UpdateCam(render_t* pRender) {
+static void  UpdateCam(render_t* pRender, euler3_t* pCamEuler) {
     camera_t* pCam = &(pRender->camera);
     mat3_t rotateMat;
     mat4_t o2wMat;
@@ -400,6 +454,7 @@ static void  UpdateCam(render_t* pRender) {
     camPosition.z = -o2wMat.m23;
 
     B3L_CreateO2WChainMatrixOnlyRotationForCam(pCam, &rotateMat);
+    B3L_MatrixToEuler(&rotateMat, pCamEuler);
     B3L_InvertMat3(&rotateMat, &rotateMat);
     B3L_GenerateW2CMat(&(o2wMat), &rotateMat, &camPosition);
     B3L_Mat4XMat4(&(o2wMat), &(pCam->clipMat), &(pCam->camW2CMat));

@@ -41,6 +41,7 @@ void init() {
 
 
     B3L_RenderInit_Simple(&rnd,(fBuff_t *)(screen.data));
+
     //B3L_SetPerspectiveProject(&rnd, DEFAULT_FOCUS_LENGTH);
     //B3L_Set_Default_Orthographic_Project(&rnd);
     //B3L_SetOrthographicProject(&rnd, (1.0f / HALF_RESOLUTION_X));
